@@ -1,0 +1,55 @@
+version: '3.6'
+x-logging: &my-logging
+  options:
+    max-size: '100m'
+    max-file: '2'
+services:
+  node-chiller-check:
+    # deploy:
+    #     resources:
+    #         limits:
+    #           cpus: '0.50'
+    #           memory: 512M
+    #         reservations:
+    #           cpus: '0.25'
+    #           memory: 128M
+    image: $regurl/react-chiller-check/react-chiller-check:latest
+    hostname: react-chiller-check
+    container_name: react-chiller-check
+    logging: *my-logging
+    # volumes:
+    #   #- react-chiller-check:/wp-content/uploads //wordpress
+    #   - react-chiller-check:/usr/src/app/uploads
+    networks:
+      #- default
+      - react-chiller-check
+    ports:
+      - 7372:3000
+    ## aaplication .env file
+    ##env_file: /opt/ENVIRONMENT/.env
+#######################################
+# Networks: A default used by all container using bridge
+#######################################
+networks:
+  react-chiller-check:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 20.0.7.168/29
+          ip_range: 20.0.7.169/29
+          gateway: 20.0.7.169
+## Pls create project folder in /opt/DockerHomeNAS/MediaFiles/ProjectName  - using mkdir ##
+# volumes:
+#   react-chiller-check:
+#     driver: local
+#     driver_opts:
+#       type: volume
+#       device: /opt/DockerHomeNAS/MediaFiles/react-chiller-check
+#       o: bind
+  #test:
+  #   driver: local
+  #   driver_opts:
+  #     type: volume
+  #     device: /opt/DockerHomeNAS/MediaFiles/node/src
+  #     o: bind

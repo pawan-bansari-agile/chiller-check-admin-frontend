@@ -11,4 +11,5 @@ export interface IDeleteRecordModalProps extends ModalProps {
 export interface IConfirmModalProps {
   buttonProps: ButtonProps;
   modalProps: ModalFuncProps;
+  customTrigger?: any;
 }

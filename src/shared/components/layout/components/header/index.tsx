@@ -7,6 +7,7 @@ import {
   LogoutOutlined,
   UserOutlined
 } from '@ant-design/icons';
+import { useQueryClient } from '@tanstack/react-query';
 import { Avatar, Button, Dropdown, MenuProps } from 'antd';
 
 import { authApi } from '@/services/auth';
@@ -14,6 +15,7 @@ import { authApi } from '@/services/auth';
 import { authStore } from '@/store/auth';
 
 import ConfirmModal from '@/shared/components/common/Modal/components/ConfirmModal';
+import { IMAGE_MODULE_NAME, IMAGE_URL } from '@/shared/constants';
 import { ROUTES } from '@/shared/constants/routes';
 import { showToaster, toAbsoluteUrl } from '@/shared/utils/functions';
 
@@ -22,7 +24,8 @@ import { StyledLayout } from '../../style';
 const Header = () => {
   const navigate = useNavigate();
   const { logout } = authApi;
-  const { actions } = authStore((state) => state);
+  const queryClient = useQueryClient();
+  const { userData, actions } = authStore((state) => state);
 
   const logoutAction = (): Promise<void> => {
     return new Promise((resolve, reject) => {
@@ -30,6 +33,7 @@ const Header = () => {
         .then((res) => {
           showToaster('success', res?.message);
           actions.authFail();
+          queryClient.removeQueries();
           resolve();
         })
         .catch((err) => {
@@ -48,12 +52,13 @@ const Header = () => {
           type="link"
           size="small"
           block={true}
-          onClick={() => navigate(ROUTES.MY_ACCOUNT)}
+          onClick={() => navigate(ROUTES.MY_PROFILE)}
         >
           My Profile
         </Button>
       ),
-      icon: <UserOutlined />
+      icon: <UserOutlined />,
+      onClick: () => navigate(ROUTES.MY_PROFILE)
     },
     {
       key: '2',
@@ -67,7 +72,8 @@ const Header = () => {
           Change Password
         </Button>
       ),
-      icon: <LockOutlined />
+      icon: <LockOutlined />,
+      onClick: () => navigate(ROUTES.CHANGE_PASSWORD)
     },
     {
       key: '3',
@@ -92,22 +98,30 @@ const Header = () => {
             className: 'cta-btn',
             type: 'link',
             block: true,
-            children: 'Sign Out'
+            children: 'Log Out'
           }}
+          customTrigger={
+            <span className="logout-icon-label">
+              <i>
+                <LogoutOutlined />
+              </i>
+              <span className="logout-label">Log Out</span>
+            </span>
+          }
         />
       ),
-      icon: <LogoutOutlined />
+      icon: null
     }
   ];
 
   return (
     <StyledLayout.Header>
       <div className="header-controller-wrap">
-        <div className="header-logo">
-          <img src={toAbsoluteUrl('/src/assets/images/header-logo.svg')} alt="header-logo" />
+        <div className="header-logo" onClick={() => navigate(ROUTES.DASHBOARD)}>
+          <img src={toAbsoluteUrl('/icons/header-logo.svg')} alt="header-logo" />
         </div>
         <div className="header-right-nav">
-          <Link to={ROUTES.COMING_SOON} className="notificationBellWithCount">
+          <Link to={ROUTES.NOTIFICATION} className="notificationBellWithCount">
             <BellOutlined style={{ fontSize: '18px', color: '#040C2B' }} />
             <span className="notificationCount">1</span>
           </Link>
@@ -119,7 +133,11 @@ const Header = () => {
           >
             <Avatar
               size={30}
-              src={'/src/assets/images/header-logo.svg'}
+              src={
+                userData?.profileImage
+                  ? `${IMAGE_URL}chiller-check/${IMAGE_MODULE_NAME.PROFILE_PIC}/${userData?.profileImage || ''}`
+                  : '/icons/placeHolder.jpg'
+              }
               className="profile-avatar"
               shape="circle"
             ></Avatar>

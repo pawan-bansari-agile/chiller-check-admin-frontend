@@ -22,8 +22,13 @@ export const styledTheme = {
     lightSkyBlue: '#D6D7FE',
     placeholderColor: '#CECFD1',
     green: '#00A86B',
-
+    paginationBorder: '#ECECED',
+    paginationIcon: '#7A869A',
+    disabledColor: '#CECFD1',
     danger: '#F04924',
+    lightOrange: '#F8E5E1',
+    yellow: '#FEBE00',
+    lightYellow: '#FDEED1',
     success: '#52C41A',
     info: '#0A82F9',
     warning: '#FFB100',
@@ -40,7 +45,7 @@ export const styledTheme = {
     xs: '575px'
   },
   font: {
-    inter: 'Inter 28pt'
+    inter: 'Inter'
   },
   size: {
     headerHeight: '50px'

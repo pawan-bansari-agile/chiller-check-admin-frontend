@@ -5,6 +5,24 @@ import { beforeEach, describe, it, vi } from 'vitest';
 
 import ThemeProvider from '@/styles/config';
 
+vi.mock('@ckeditor/ckeditor5-watchdog', async () => {
+  const actual = await vi.importActual('@ckeditor/ckeditor5-watchdog');
+  return actual;
+});
+vi.mock('@ckeditor/ckeditor5-react', () => ({
+  CKEditor: () => null
+}));
+
+// Mock the CKEditor build
+vi.mock('@ckeditor/ckeditor5-build-classic', () => ({
+  default: {}
+}));
+
+// 🚨 Critical: mock the watchdog module too
+vi.mock('@ckeditor/ckeditor5-watchdog', () => ({
+  default: {}
+}));
+
 describe('Login Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();

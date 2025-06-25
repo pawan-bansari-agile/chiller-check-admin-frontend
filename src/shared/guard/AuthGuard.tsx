@@ -19,7 +19,6 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
 
   useEffect(() => {
     if (!isLoggedIn) {
-      // TODO : Uncomment the line above and provide the correct import for ROUTES
       navigate(ROUTES.LOGIN, { replace: true });
     }
   }, [isLoggedIn, navigate]);

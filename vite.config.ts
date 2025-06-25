@@ -39,14 +39,20 @@ export default defineConfig(({ command }) => {
           description: 'Chiller Check - web panel',
           icons: [
             {
-              src: 'icon.png',
+              src: 'icons/icon-192x192.png',
               sizes: '192x192',
+              type: 'image/png'
+            },
+            {
+              src: 'icons/icon-512x512.png',
+              sizes: '512x512',
               type: 'image/png'
             }
           ]
         }
       })
     ],
+
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src')
@@ -61,7 +67,11 @@ export default defineConfig(({ command }) => {
       deps: {
         optimizer: {
           web: {
-            include: ['@ckeditor/ckeditor5-build-classic', '@ckeditor/ckeditor5-react']
+            include: [
+              '@ckeditor/ckeditor5-react',
+              '@ckeditor/ckeditor5-build-classic',
+              '@ckeditor/ckeditor5-watchdog'
+            ]
           }
         }
       },

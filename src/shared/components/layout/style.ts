@@ -1,6 +1,8 @@
 import { Layout } from 'antd';
 import { styled } from 'styled-components';
 
+import { hexToRGBA } from '@/shared/utils/functions';
+
 import { commonScroll } from '@/styles/common/Mixin';
 
 export const StyledLayout = styled(Layout)`
@@ -15,6 +17,7 @@ export const StyledLayout = styled(Layout)`
 
       .header-logo {
         display: flex;
+        cursor: pointer;
       }
 
       .header-right-nav {
@@ -64,6 +67,31 @@ export const StyledLayout = styled(Layout)`
       min-height: calc(100vh - 55px);
       background: ${({ theme }) => theme.colors.inkBlue} !important ;
 
+      &.hover-expand-sidebar:not(:hover) .ant-menu-submenu-arrow {
+        display: none;
+      }
+      &.hover-expand-sidebar {
+        width: 60px !important;
+        max-width: 60px !important;
+        min-width: 60px !important;
+        overflow: hidden;
+        transition: all 0.3s;
+        position: absolute;
+        left: 0;
+        z-index: 999;
+
+        &:hover {
+          width: 238px !important;
+          max-width: 238px !important;
+          min-width: 238px !important;
+        }
+
+        .ant-menu-inline-collapsed > .ant-menu-item,
+        .ant-menu-inline-collapsed > .ant-menu-submenu > .ant-menu-submenu-title {
+          padding: 0 24px;
+        }
+      }
+
       .logo-wrap {
         height: 50px;
         padding: 10px 16px 6px;
@@ -81,6 +109,21 @@ export const StyledLayout = styled(Layout)`
         }
       }
 
+      /* Show submenu popup on hover (not click) */
+      .sidebar-menu.hover-submenu .ant-menu-submenu {
+        pointer-events: auto;
+      }
+
+      /* Open submenu on hover */
+      .sidebar-menu.hover-submenu .ant-menu-submenu:hover > .ant-menu-submenu-title {
+        background-color: #001529;
+      }
+
+      .sidebar-menu.hover-submenu .ant-menu-submenu:hover > .ant-menu {
+        display: block !important;
+        position: relative;
+      }
+
       .ant-layout-sider-trigger {
         padding: 16px;
         display: flex;
@@ -93,6 +136,20 @@ export const StyledLayout = styled(Layout)`
       }
 
       .ant-menu {
+        &.ant-menu-light {
+          padding: 29px 0;
+        }
+        &.ant-menu-sub {
+          position: relative;
+          &::before {
+            content: '';
+            width: 1px;
+            height: 100%;
+            background: ${({ theme }) => hexToRGBA(theme.colors.white, 0.4)};
+            position: absolute;
+            left: 30px;
+          }
+        }
         &.sidebar-menu {
           ${commonScroll}
           height: 100%;
@@ -110,9 +167,6 @@ export const StyledLayout = styled(Layout)`
           background: ${({ theme }) => theme.colors.lightBlue};
         }
         .ant-menu-submenu {
-          .user {
-            margin-right: 16px;
-          }
           .ant-menu-submenu-title {
             color: ${({ theme }) => theme.colors.white};
           }
@@ -127,12 +181,22 @@ export const StyledLayout = styled(Layout)`
 
       .content-body {
         height: 100%;
-        padding: 0 0 20px;
+        padding: 0 0 20px 60px;
       }
 
       .content-wrap {
         height: 100%;
-        padding: 0 20px;
+        padding: 0 18px 0 37px;
+      }
+    }
+  }
+
+  @media only screen and (max-width: ${({ theme }) => theme.device.xl}) {
+    &.ant-layout.main-parent-layout {
+      .ant-layout-content {
+        .content-wrap {
+          padding: 0 15px;
+        }
       }
     }
   }

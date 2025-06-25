@@ -16,6 +16,24 @@ vi.mock('@/shared/constants/routes', () => ({
   }
 }));
 
+vi.mock('@ckeditor/ckeditor5-watchdog', async () => {
+  const actual = await vi.importActual('@ckeditor/ckeditor5-watchdog');
+  return actual;
+});
+vi.mock('@ckeditor/ckeditor5-react', () => ({
+  CKEditor: () => null
+}));
+
+// Mock the CKEditor build
+vi.mock('@ckeditor/ckeditor5-build-classic', () => ({
+  default: {}
+}));
+
+// 🚨 Critical: mock the watchdog module too
+vi.mock('@ckeditor/ckeditor5-watchdog', () => ({
+  default: {}
+}));
+
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {

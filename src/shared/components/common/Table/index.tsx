@@ -1,11 +1,14 @@
 import React from 'react';
 
-import { TablePaginationConfig, TableProps } from 'antd';
+import { Empty, Grid, TablePaginationConfig, TableProps } from 'antd';
 
 import { StyledTable } from './style';
 
+const { useBreakpoint } = Grid;
+
 interface CustomProps {
   summaryRow?: React.ReactNode;
+  emptyText?: React.ReactNode;
 }
 
 export const TableSummaryCell: React.FC<{
@@ -29,15 +32,29 @@ const defaultPaginationSettings: Partial<TablePaginationConfig> = {
 };
 
 export const CommonTable: React.FC<TableProps<any> & CustomProps> = (props) => {
-  const { pagination, summaryRow } = props;
+  const { pagination, summaryRow, scroll, emptyText } = props;
+  const screens = useBreakpoint();
+
+  const responsiveScroll = !screens.md
+    ? { x: 'max-content' } // Enables horizontal scroll on small screens
+    : scroll;
 
   return (
     <StyledTable
       size="small"
       {...props}
-      pagination={{ ...defaultPaginationSettings, ...pagination }}
-      // TODO : depend on backend response
-      rowKey={(record: any) => (record?.id ? record?.id : '')}
+      pagination={pagination ? { ...defaultPaginationSettings, ...pagination } : false}
+      rowKey={(record: any) => (record?._id ? record?._id : '')}
+      scroll={responsiveScroll}
+      locale={{
+        emptyText: emptyText || (
+          <Empty
+            className="pt-40 pb-40"
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description={`No data added yet.`}
+          />
+        )
+      }}
       summary={
         summaryRow
           ? () => (

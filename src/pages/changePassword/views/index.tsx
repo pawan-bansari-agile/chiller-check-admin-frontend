@@ -29,7 +29,7 @@ const ChangePassword: React.FC = () => {
   return (
     <Wrapper>
       <Meta title="Change Password" />
-      <HeaderToolbar title="Change Password" />
+      <HeaderToolbar title="Change Password" backBtn={true} backTo={ROUTES.DASHBOARD} />
       <ShadowPaper>
         <Form
           form={form}
@@ -38,10 +38,11 @@ const ChangePassword: React.FC = () => {
           className="changePasswordForm"
         >
           <Row>
-            <Col span={8}>
+            <Col xs={24} sm={24} md={12} lg={8}>
               <RenderPasswordInput
                 colProps={{ xs: 24 }}
                 label="Current Password"
+                tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
                 required
                 inputProps={{ placeholder: 'Enter Current Password', maxLength: 64 }}
                 formItemProps={{
@@ -59,10 +60,11 @@ const ChangePassword: React.FC = () => {
             </Col>
           </Row>
           <Row>
-            <Col span={8}>
+            <Col xs={24} sm={24} md={12} lg={8}>
               <RenderPasswordInput
                 colProps={{ xs: 24 }}
                 label="New Password"
+                tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
                 required
                 inputProps={{ placeholder: 'Enter New Password', maxLength: 64 }}
                 formItemProps={{
@@ -85,16 +87,18 @@ const ChangePassword: React.FC = () => {
             </Col>
           </Row>
           <Row>
-            <Col span={8}>
+            <Col xs={24} sm={24} md={12} lg={8}>
               <RenderPasswordInput
                 colProps={{ xs: 24 }}
                 label="Confirm Password"
+                tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
                 required
                 inputProps={{ placeholder: 'Enter Confirm Password', maxLength: 64 }}
                 formItemProps={{
                   name: 'confirmPassword',
                   label: 'Confirm Password',
                   required: true,
+                  dependencies: ['newPassword'],
                   rules: [
                     {
                       required: true,

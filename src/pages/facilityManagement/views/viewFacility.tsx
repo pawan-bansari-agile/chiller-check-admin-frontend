@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { useNavigate } from 'react-router-dom';
+
 import {
   AuditOutlined,
   ClockCircleOutlined,
@@ -8,15 +10,17 @@ import {
 } from '@ant-design/icons';
 import { Button, Tag } from 'antd';
 
+import Details from '@/shared/components/common/Details';
 import HeaderToolbar from '@/shared/components/common/HeaderToolbar';
 import Meta from '@/shared/components/common/Meta';
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
 import { CommonTable } from '@/shared/components/common/Table';
-import { EditIcon, FacilityIcon } from '@/shared/svg';
+import { ChillerIcon, EditIcon, FacilityIcon, ScaleIcon } from '@/shared/svg';
 
 import { Wrapper } from '../style';
 
 const ViewFacility: React.FC = () => {
+  const navigate = useNavigate();
   interface ChillerRow {
     facilityName: string;
     chiller: {
@@ -101,21 +105,21 @@ const ViewFacility: React.FC = () => {
       title: 'Chiller Name',
       key: 'chillerName',
       render: (_: any, record: ChillerRow) => (
-        <div>
-          <a href={record.chiller.link} style={{ color: '#3b82f6', fontWeight: 500 }}>
-            {record.chiller.name}
-          </a>
-          <div>{record.chiller.code}</div>
+        <div className="chillerNameWrap">
+          <a className="chillerName">{record.chiller.name}</a>
+          <span>{record.chiller.code}</span>
         </div>
-      )
+      ),
+      sorter: (a: any, b: any) => a.chillerName - b.chillerName
     },
     {
       title: 'Efficiency Loss %',
       key: 'efficiencyLoss',
+      sorter: (a: any, b: any) => a.efficiencyLoss - b.efficiencyLoss,
       render: (_: any, record: ChillerRow) => {
         let className = '';
-        if (record.efficiencyLoss >= 50) className = 'bg-red';
-        else if (record.efficiencyLoss >= 44) className = 'bg-yellow';
+        if (record.efficiencyLoss >= 50) className = 'bgRed';
+        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
 
         return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
       }
@@ -123,31 +127,37 @@ const ViewFacility: React.FC = () => {
     {
       title: '12 Mon. Loss $',
       key: 'annualLoss',
-      dataIndex: 'annualLoss'
+      dataIndex: 'annualLoss',
+      sorter: (a: any, b: any) => a.annualLoss - b.annualLoss
     },
     {
       title: 'Annual Subscription',
       key: 'subscription',
-      dataIndex: 'subscription'
+      dataIndex: 'subscription',
+      sorter: (a: any, b: any) => a.subscription - b.subscription
     },
     {
       title: 'Status',
+      dataIndex: 'status',
       key: 'status',
-      render: () => <Tag color="green">Active</Tag>
+      render: (status: any) => (
+        <Tag className="statusTag" color={statusColorMap[status] || 'default'}>
+          {status}
+        </Tag>
+      ),
+      sorter: (a: any, b: any) => a.status - b.status
     },
     {
       title: 'Last Entry',
       key: 'lastEntry',
+      sorter: (a: any, b: any) => a.lastEntry - b.lastEntry,
       render: (_: any, record: ChillerRow) => {
-        const highlightClass =
-          record.lastEntry.highlight === 'red'
-            ? 'highlight-red'
-            : record.lastEntry.highlight === 'yellow'
-              ? 'highlight-yellow'
-              : '';
+        let className = '';
+        if (record.efficiencyLoss >= 50) className = 'bgRed';
+        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
         return (
-          <div className={`last-entry-cell ${highlightClass}`}>
-            <div>{record.lastEntry.name}</div>
+          <div className={`last-entry-cell ${className}`}>
+            <div className="entryName">{record.lastEntry.name}</div>
             <div>{record.lastEntry.datetime}</div>
           </div>
         );
@@ -156,9 +166,20 @@ const ViewFacility: React.FC = () => {
     {
       title: '',
       key: 'action',
-      render: () => <Button type="text" icon={<EyeOutlined />} />
+      render: () => (
+        <div className="actionIonWrap">
+          <div className="actionIcon" onClick={() => navigate('/chiller-management/view')}>
+            <EyeOutlined />
+          </div>
+        </div>
+      )
     }
   ];
+
+  const statusColorMap: Record<string, string> = {
+    Active: '#00A86B',
+    Inactive: '#CF5439'
+  };
 
   return (
     <Wrapper>
@@ -167,62 +188,61 @@ const ViewFacility: React.FC = () => {
         title="View Facility Management"
         backBtn={true}
         button={
-          <div className="button-wrap">
-            <Button shape="round">Inactivate</Button>
-            <Button type="primary" shape="round" icon={<EditIcon />}>
+          <div className="viewButtonWrap">
+            <Button className="title-cancel-btn">Inactivate</Button>
+            <Button className="title-btn" type="primary" icon={<EditIcon />}>
               Edit
             </Button>
           </div>
         }
       />
-      <ShadowPaper>
-        <h2>Company details</h2>
-        <ul className="company-info-container">
-          <li>
-            <div className="info-item-wrap">
-              <div className="icon">
-                <FacilityIcon />
-              </div>
-              <div className="label">Facility Name</div>
-            </div>
-            <div className="value">CryoSystems ArcticCore V10</div>
-          </li>
-          <li>
-            <div className="info-item-wrap">
-              <AuditOutlined className="icon" />
-              <div className="label">Company name</div>
-            </div>
-            <div className="value">The agile academy</div>
-          </li>
-          <li>
-            <div className="info-item-wrap">
-              <ClockCircleOutlined className="icon" />
-              <div className="label">Timezone</div>
-            </div>
-            <div className="value">EST</div>
-          </li>
-          <li className="address">
-            <div className="info-item-wrap">
-              <EnvironmentOutlined className="icon" />
-              <div className="label">Address</div>
-            </div>
-            <div className="value">123 Main Street, Apartment 4B, New York, NY10001 USA</div>
-          </li>
-        </ul>
-      </ShadowPaper>
-      <ShadowPaper>
-        <div className="viewHeader">
-          <h2>Chillers</h2>
-        </div>
-        <CommonTable
-          columns={columns}
-          dataSource={data}
-          size="middle"
-          pagination={false}
-          bordered
-          className="facility-table"
-        />
-      </ShadowPaper>
+      <div className="shadowPaperWrap">
+        <ShadowPaper>
+          <div className="viewFacilityHeader">
+            <h2>Company details</h2>
+          </div>
+          <ul className="company-info-container">
+            <Details
+              detailsIcon={<FacilityIcon />}
+              detailsTitle="Facility Name"
+              detailsDescription="CryoSystems ArcticCore V10"
+            />
+            <Details
+              detailsIcon={<AuditOutlined />}
+              detailsTitle="Company name"
+              detailsDescription="The agile academy"
+            />
+            <Details
+              detailsIcon={<ClockCircleOutlined />}
+              detailsTitle="Timezone"
+              detailsDescription="EST"
+            />
+            <Details
+              detailsIcon={<ScaleIcon />}
+              detailsTitle="Altitude"
+              detailsDescription="25 Feet"
+            />
+            <Details detailsIcon={<ChillerIcon />} detailsTitle="Chillers" detailsDescription="5" />
+            <Details
+              detailsIcon={<EnvironmentOutlined />}
+              detailsTitle="Address"
+              detailsDescription="123 Main Street, Apartment 4B, New York, NY10001 USA"
+              className="address"
+            />
+          </ul>
+        </ShadowPaper>
+        <ShadowPaper>
+          <div className="viewChillerFacilityHeader">
+            <h2>Chillers</h2>
+          </div>
+          <CommonTable
+            columns={columns}
+            dataSource={data}
+            pagination={false}
+            className="facility-table"
+          />
+        </ShadowPaper>
+      </div>
     </Wrapper>
   );
 };

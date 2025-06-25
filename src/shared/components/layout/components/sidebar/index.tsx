@@ -34,18 +34,11 @@ function createMenuItem(
   children?: ItemProps[],
   type?: 'item' | 'submenu'
 ) {
-  return {
-    link,
-    key,
-    icon,
-    children,
-    label,
-    type
-  };
+  return { link, key, icon, children, label, type };
 }
 
 const items = [
-  createMenuItem(ROUTES.COMING_SOON, 'Dashboard', '1', <BarChartOutlined />),
+  createMenuItem(ROUTES.DASHBOARD, 'Dashboard', '1', <BarChartOutlined />),
 
   createMenuItem(
     '',
@@ -53,9 +46,9 @@ const items = [
     '2',
     <AimOutlined />,
     [
-      createMenuItem(ROUTES.COMING_SOON, 'Company', '2-1', undefined, undefined, 'item'),
-      createMenuItem(ROUTES.COMING_SOON, 'Facility', '2-2', undefined, undefined, 'item'),
-      createMenuItem(ROUTES.COMING_SOON, 'Chillers', '2-3', undefined, undefined, 'item')
+      createMenuItem(ROUTES.COMPANY_MANAGEMENT, 'Company', '2-1'),
+      createMenuItem(ROUTES.FACILITY_MANAGEMENT, 'Facility', '2-2'),
+      createMenuItem(ROUTES.CHILLER_MANAGEMENT, 'Chillers', '2-3')
     ],
     'submenu'
   ),
@@ -66,15 +59,8 @@ const items = [
     '3',
     <ProfileOutlined />,
     [
-      createMenuItem(ROUTES.COMING_SOON, 'Log Entries', '3-1', undefined, undefined, 'item'),
-      createMenuItem(
-        ROUTES.COMING_SOON,
-        'Maintainance Entries',
-        '3-2',
-        undefined,
-        undefined,
-        'item'
-      )
+      createMenuItem(ROUTES.LOG_ENTRY, 'Log Entries', '3-1'),
+      createMenuItem(ROUTES.MAINTENANCE, 'Maintainance Entries', '3-2')
     ],
     'submenu'
   ),
@@ -85,9 +71,9 @@ const items = [
     '4',
     <DashboardOutlined />,
     [
-      createMenuItem(ROUTES.COMING_SOON, 'Saved Reports', '4-1', undefined, undefined, 'item'),
-      createMenuItem(ROUTES.COMING_SOON, 'Chillers', '4-2', undefined, undefined, 'item'),
-      createMenuItem(ROUTES.COMING_SOON, 'Recent Readings', '4-3', undefined, undefined, 'item')
+      createMenuItem(ROUTES.REPORT, 'Saved Reports', '4-1'),
+      createMenuItem(ROUTES.CHILLER_MANAGEMENT, 'Chillers', '4-2'),
+      createMenuItem(ROUTES.LOG_ENTRY, 'Recent Readings', '4-3')
     ],
     'submenu'
   ),
@@ -96,26 +82,14 @@ const items = [
     '',
     'Admin',
     '5',
-    <User />,
+    <span className="anticon">
+      <User />
+    </span>,
     [
-      createMenuItem(ROUTES.COMING_SOON, 'Company Management', '5-1', undefined, undefined, 'item'),
-      createMenuItem(
-        ROUTES.COMING_SOON,
-        'Facility Management',
-        '5-2',
-        undefined,
-        undefined,
-        'item'
-      ),
-      createMenuItem(
-        ROUTES.COMING_SOON,
-        'Chillers Management',
-        '5-3',
-        undefined,
-        undefined,
-        'item'
-      ),
-      createMenuItem(ROUTES.COMING_SOON, 'User Management', '5-4', undefined, undefined, 'item')
+      createMenuItem(ROUTES.COMPANY_MANAGEMENT, 'Company Management', '5-1'),
+      createMenuItem(ROUTES.FACILITY_MANAGEMENT, 'Facility Management', '5-2'),
+      createMenuItem(ROUTES.CHILLER_MANAGEMENT, 'Chillers Management', '5-3'),
+      createMenuItem(ROUTES.USER_MANAGEMENT, 'User Management', '5-4')
     ],
     'submenu'
   ),
@@ -126,71 +100,83 @@ const items = [
     '6',
     <SettingOutlined />,
     [
-      createMenuItem(ROUTES.COMING_SOON, 'Terms & Conditions', '6-1', undefined, undefined, 'item'),
-      createMenuItem(ROUTES.COMING_SOON, 'Privacy Policy', '6-2', undefined, undefined, 'item'),
-      createMenuItem(
-        ROUTES.COMING_SOON,
-        'Problems & Solutions',
-        '6-3',
-        undefined,
-        undefined,
-        'item'
-      )
+      createMenuItem(ROUTES.TERMS_CONDITION, 'Terms & Conditions', '6-1'),
+      createMenuItem(ROUTES.PRIVACY_POLICY, 'Privacy Policy', '6-2'),
+      createMenuItem(ROUTES.PROBLEM_SOLUTION, 'Problems & Solutions', '6-3')
     ],
     'submenu'
   )
 ];
 
-function compareLinkAndReturnKey(items: any, currentPath: any): any {
-  let activeLinkKey;
+function findActiveKeys(
+  items: any,
+  currentPath: string
+): { selectedKey: string; openKey?: string } {
   for (const item of items) {
-    if (item?.children && Array.isArray(item?.children) && item.children.length > 0) {
-      activeLinkKey = compareLinkAndReturnKey(item.children, currentPath);
-    } else if (
-      item.link === currentPath ||
-      item.link === currentPath.split('/').splice(0, 3).join('/')
-    ) {
-      activeLinkKey = item.key;
-      break;
-    } else {
-      continue;
+    if (item.children?.length) {
+      const childMatch = item.children.find(
+        (child: any) => currentPath === child.link || currentPath.startsWith(child.link)
+      );
+      if (childMatch) return { selectedKey: childMatch.key, openKey: item.key };
+    } else if (item.link === currentPath) {
+      return { selectedKey: item.key };
     }
   }
-  return activeLinkKey;
+  return { selectedKey: '1' };
 }
+
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isCollapsed, setIsCollapsed] = useState(true);
 
-  const activeTab = useMemo(() => {
-    const activeLinkKey = compareLinkAndReturnKey(items, location?.pathname);
-    if (activeLinkKey) {
-      return [activeLinkKey];
-    } else {
-      return [
-        items?.find((item) => item?.link?.split('/')[1] === location?.pathname?.split('/')[1])
-          ?.key ?? '1'
-      ];
-    }
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
+
+  const { selectedKey, openKey } = useMemo(() => {
+    return findActiveKeys(items, location.pathname);
   }, [location.pathname]);
 
+  const handleSidebarMouseEnter = () => {
+    setIsCollapsed(false);
+    if (openKey) setOpenKeys([openKey]);
+  };
+
+  const handleSidebarMouseLeave = () => {
+    setIsCollapsed(true);
+    setOpenKeys([]);
+  };
+
+  const handleSubMenuHover = (key: string) => {
+    if (!isCollapsed) setOpenKeys([key]);
+  };
+
+  const enhancedItems = items.map((item) =>
+    item.children
+      ? {
+          ...item,
+          onTitleMouseEnter: () => handleSubMenuHover(item.key.toString())
+        }
+      : item
+  );
+
+  const isParentActive = isCollapsed && openKey;
+
   return (
-    <StyledLayout.Sider
-      width={238}
-      breakpoint="xl"
-      collapsedWidth={60}
-      collapsible={true}
-      collapsed={isCollapsed}
-      onCollapse={(c) => setIsCollapsed(c)}
-    >
-      <Menu
-        className="sidebar-menu"
-        defaultSelectedKeys={activeTab}
-        mode="inline"
-        onClick={({ item }: any) => navigate(item.props.link)}
-        items={items as ItemType<MenuItemType>[]}
-      />
+    <StyledLayout.Sider width={238} collapsedWidth={60} className="hover-expand-sidebar">
+      <div onMouseEnter={handleSidebarMouseEnter} onMouseLeave={handleSidebarMouseLeave}>
+        <Menu
+          className={isParentActive ? `collapsed-parent-active-${openKey}` : ''}
+          mode="inline"
+          selectedKeys={[selectedKey]}
+          openKeys={openKeys}
+          onOpenChange={(keys) => setOpenKeys(keys as string[])}
+          onClick={({ item }: any) => {
+            navigate(item.props.link);
+            setOpenKeys([]);
+          }}
+          items={enhancedItems as ItemType<MenuItemType>[]}
+        />
+      </div>
     </StyledLayout.Sider>
   );
 };

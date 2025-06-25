@@ -1,13 +1,13 @@
 import { message } from 'antd';
+import { RuleObject } from 'antd/es/form';
 import { NoticeType } from 'antd/es/message/interface';
-import AES from 'crypto-js/aes';
-import Utf8 from 'crypto-js/enc-utf8';
 import { setAxiosInterceptor } from 'services/interceptor';
 import { v4 as uuidv4 } from 'uuid';
 
 import { authStore } from '@/store/auth';
 
-import { APP_SECRET, LocalStorageKeys } from '../constants';
+import { LocalStorageKeys } from '../constants';
+import { SetParamOptions } from '../types';
 
 //To concat the path for the public folder
 export const toAbsoluteUrl = (pathname: string) => window.location.origin + pathname;
@@ -44,7 +44,7 @@ export const showToaster = (type: NoticeType, content: string = ''): void => {
   const fallback = 'An unexpected error occurred';
 
   if (message[type]) {
-    message[type](content || fallback);
+    message[type](content);
   } else {
     message.error(fallback);
   }
@@ -78,32 +78,6 @@ export function hexToRGBA(hex: string, opacity: number): string {
   return `rgba(${r}, ${g}, ${b}, ${opacity})`;
 }
 
-export const encryptionUtils = {
-  encryptData: (data: any) => {
-    try {
-      const ciphertext = AES.encrypt(
-        JSON.stringify(data),
-        APP_SECRET ?? 'default-secret-key'
-      ).toString();
-      return ciphertext;
-    } catch (error) {
-      console.error('Error encrypting data:', error);
-      return '';
-    }
-  },
-
-  decryptData: (data: any) => {
-    try {
-      const bytes = AES.decrypt(data, APP_SECRET ?? 'default-secret-key');
-      const decryptedData = JSON.parse(bytes.toString(Utf8));
-      return decryptedData;
-    } catch (error) {
-      console.error('Error decrypting data:', error);
-      return null;
-    }
-  }
-};
-
 export const initializeDeviceId = (
   deviceId: string | null,
   setDeviceId: (id: string) => void
@@ -133,4 +107,144 @@ export const isPasswordValid = (password: string): boolean => {
     numeric.test(password) &&
     specialChar.test(password)
   );
+};
+
+export const capitalizeFirstLetter = (str: string = '') => {
+  if (!str?.trim()) return '-';
+  return str
+    ?.split(' ')
+    ?.map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    ?.join(' ');
+};
+
+export function formatPhoneNumber(phone: string): string {
+  if (!phone) return '-';
+  const cleaned = phone.replace(/\D/g, ''); // remove non-digit characters
+
+  if (!cleaned.startsWith('1') && !cleaned.startsWith('91')) {
+    return phone; // return as is if unknown country code
+  }
+
+  const countryCode = cleaned.startsWith('91') ? '+91' : '+1';
+  const number = cleaned.startsWith('91') ? cleaned.slice(2) : cleaned.slice(1);
+
+  if (number.length !== 10) return phone; // invalid phone number
+
+  const part1 = number.slice(0, 3);
+  const part2 = number.slice(3, 6);
+  const part3 = number.slice(6);
+
+  return `${countryCode} ${part1} ${part2} ${part3}`;
+}
+
+export const capitalizeFirstLetterWhileTyping = (value: string) => {
+  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+};
+
+export const getSortOrder = (order: string | null | undefined): string | null => {
+  switch (order) {
+    case 'descend':
+      return 'DESC';
+    case 'ascend':
+      return 'ASC';
+    default:
+      return '';
+  }
+};
+
+export function debounce<T>(this: T, func: (...args: any[]) => void): (...args: any[]) => void {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  return function (this: T, ...args: any[]): void {
+    clearTimeout(timer as NodeJS.Timeout);
+    timer = setTimeout(() => {
+      func.apply(this, args);
+    }, 700);
+  };
+}
+
+export const allowOnlyNumbers = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'];
+  const isNumberKey = /^[0-9]$/.test(e.key);
+  const isAllowedKey = allowedKeys.includes(e.key);
+
+  if (!isNumberKey && !isAllowedKey) {
+    e.preventDefault();
+  }
+};
+
+export const uniqueFieldValidator = (
+  form: any,
+  listFieldName: string,
+  currentFieldName: string,
+  errorMessage = 'Field must be unique.'
+) => {
+  return async (_: RuleObject, value: string) => {
+    const allValues = form.getFieldValue(listFieldName) || [];
+
+    const isDuplicate =
+      allValues.filter(
+        (item: any) =>
+          item?.[currentFieldName]?.toLowerCase?.()?.trim() === value?.toLowerCase()?.trim()
+      ).length > 1;
+
+    if (isDuplicate) {
+      return Promise.reject(new Error(errorMessage));
+    }
+
+    return Promise.resolve();
+  };
+};
+
+export const buildSearchParams = (options: SetParamOptions): URLSearchParams => {
+  const params = new URLSearchParams();
+
+  if (options.page) params.set('page', String(options.page));
+  if (options.limit) params.set('limit', String(options.limit));
+  if (options.companyId) params.set('companyId', options.companyId);
+  if (options.search?.trim()) params.set('search', options.search.trim());
+  if (options.sort_by) params.set('sort_by', options.sort_by);
+  if (options.sort_order) params.set('sort_order', options.sort_order);
+
+  return params;
+};
+
+export const getAntDSortOrder = (
+  currentSortBy: string,
+  currentSortOrder: string | undefined,
+  columnKey: string
+): 'ascend' | 'descend' | undefined => {
+  if (currentSortBy !== columnKey) return undefined;
+  const order = currentSortOrder?.toLowerCase();
+  if (order === 'asc') return 'ascend';
+  if (order === 'desc') return 'descend';
+  return undefined;
+};
+
+export const allowNegativeDecimalOnly = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const allowedControlKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'];
+  const key = e.key;
+  const value = (e.currentTarget as HTMLInputElement).value;
+  const isCtrlCmd = e.ctrlKey || e.metaKey;
+
+  if (allowedControlKeys.includes(key) || isCtrlCmd) {
+    return; // Allow control keys and CMD/CTRL shortcuts
+  }
+
+  if (key === '-') {
+    if (value.length !== 0 || value.includes('-')) {
+      e.preventDefault(); // Only one minus at the beginning
+    }
+    return;
+  }
+
+  if (key === '.') {
+    if (value.includes('.')) {
+      e.preventDefault(); // Only one dot allowed
+    }
+    return;
+  }
+
+  if (!/^[0-9]$/.test(key)) {
+    e.preventDefault(); // Block everything except 0–9
+  }
 };

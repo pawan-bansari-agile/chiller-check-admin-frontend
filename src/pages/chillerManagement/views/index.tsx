@@ -4,20 +4,21 @@ import { Link } from 'react-router-dom';
 
 import {
   DownOutlined,
-  EditOutlined,
   EyeOutlined,
   PlusOutlined,
   SearchOutlined,
   SlidersOutlined,
   SyncOutlined
 } from '@ant-design/icons';
-import { Button, Dropdown, Input, MenuProps, Space, Tag, Tooltip } from 'antd';
+import { Button, Checkbox, Dropdown, Input, MenuProps, Space, Tag } from 'antd';
+import { ColumnsType } from 'antd/es/table';
 
 import HeaderToolbar from '@/shared/components/common/HeaderToolbar';
 import Meta from '@/shared/components/common/Meta';
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
-import { CommonTable, TableSummaryCell } from '@/shared/components/common/Table';
+import { CommonTable } from '@/shared/components/common/Table';
 import { ROUTES } from '@/shared/constants/routes';
+import { EditIcon } from '@/shared/svg';
 
 import { Wrapper } from '../style';
 
@@ -43,171 +44,325 @@ const facilityItems: MenuProps['items'] = [
   }
 ];
 
-const getLossClass = (value: number) => {
-  if (value >= 50) return 'loss-red';
-  if (value >= 40) return 'loss-yellow';
-  return '';
-};
-
-const getStatusTag = (status: string) => {
-  const colorMap: Record<string, string> = {
-    Active: 'green',
-    Pending: 'purple'
-  };
-  return <Tag color={colorMap[status] || 'default'}>{status}</Tag>;
-};
-
-const columns = [
-  {
-    title: '',
-    dataIndex: 'select',
-    render: () => <input type="checkbox" />,
-    width: 40
-  },
-  {
-    title: 'Company name',
-    dataIndex: 'company'
-  },
-  {
-    title: 'Facility Name',
-    dataIndex: 'facility'
-  },
-  {
-    title: 'Chiller Name',
-    dataIndex: 'chillerName',
-    render: (_: any, record: any) => (
-      <div>
-        <a href="#">{record.chillerNameTitle}</a>
-        <div>{record.chillerName}</div>
-      </div>
-    )
-  },
-  {
-    title: 'Tons',
-    dataIndex: 'tons'
-  },
-  {
-    title: 'Energy Cost',
-    dataIndex: 'energyCost'
-  },
-  {
-    title: 'Efficiency Loss %',
-    dataIndex: 'effLoss',
-    render: (value: number) => <div className={getLossClass(value)}>{value}</div>
-  },
-  {
-    title: '12 Mon. Loss $',
-    dataIndex: 'loss12mo'
-  },
-  {
-    title: 'Cond. App. Loss %',
-    dataIndex: 'condLoss',
-    render: (value: number) => <div className={getLossClass(value)}>{value}</div>
-  },
-  {
-    title: 'Evap. App. Loss %',
-    dataIndex: 'evapLoss',
-    render: (value: number) => <div className={getLossClass(value)}>{value}</div>
-  },
-  {
-    title: 'Non-Cond. Loss %',
-    dataIndex: 'nonCondLoss',
-    render: (value: number) => <div className={getLossClass(value)}>{value}</div>
-  },
-  {
-    title: 'Other Losses %',
-    dataIndex: 'otherLoss',
-    render: (value: number) => <div className={getLossClass(value)}>{value}</div>
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    render: (value: string) => getStatusTag(value)
-  },
-  {
-    title: 'Last Entry',
-    dataIndex: 'lastEntry',
-    render: (value: string, record: any) => (
-      <div className={getLossClass(record.effLoss)}>
-        <div>{record.lastUser}</div>
-        <div>{value}</div>
-      </div>
-    )
-  },
-  {
-    title: '',
-    dataIndex: 'actions',
-    render: () => (
-      <Space>
-        <Tooltip title="Edit">
-          <EditOutlined style={{ color: '#00c389' }} />
-        </Tooltip>
-        <Tooltip title="View">
-          <EyeOutlined style={{ color: '#00c389' }} />
-        </Tooltip>
-      </Space>
-    )
-  }
-];
-
-const chillerData = [
-  {
-    key: '1',
-    company: 'Petal Grove Academy',
-    facility: 'ChillTech ArcticCore V156',
-    chillerNameTitle: 'CryoStream',
-    chillerName: 'CHL-983472-AQ',
-    tons: 2000,
-    energyCost: 1.23,
-    effLoss: 42,
-    loss12mo: '$1200',
-    condLoss: 12,
-    evapLoss: 12,
-    nonCondLoss: 12,
-    otherLoss: 12,
-    status: 'Active',
-    lastUser: 'Monica Gellar',
-    lastEntry: '12/11/24 15:00'
-  },
-  {
-    key: '2',
-    company: 'The agile infotech',
-    facility: 'ChillTech ArcticCore V10',
-    chillerNameTitle: 'FrostLine',
-    chillerName: 'FST-764239-BX',
-    tons: 500,
-    energyCost: 1.5,
-    effLoss: 50,
-    loss12mo: '$1600',
-    condLoss: 29,
-    evapLoss: 29,
-    nonCondLoss: 29,
-    otherLoss: 29,
-    status: 'Active',
-    lastUser: 'Joey Tribiyani',
-    lastEntry: '13/11/24 14:00'
-  },
-  {
-    key: '3',
-    company: 'Angel investor',
-    facility: 'ChillTech ArcticCore V19',
-    chillerNameTitle: 'ArcticNova',
-    chillerName: 'GLC-572148-MT',
-    tons: 1500,
-    energyCost: 1,
-    effLoss: 41.5,
-    loss12mo: '$1800',
-    condLoss: 31,
-    evapLoss: 31,
-    nonCondLoss: 31,
-    otherLoss: 31,
-    status: 'Active',
-    lastUser: 'Chandler Bing',
-    lastEntry: '11/11/24 16:00'
-  }
-];
-
 const ChillerManagement: React.FC = () => {
+  interface ChillerRow {
+    selectAll: string;
+    companyName: string;
+    facilityName: string;
+    chiller: {
+      name: string;
+      code: string;
+      link: string;
+    };
+    tons: number;
+    energyCost: number;
+    efficiencyLoss: number;
+    monLoss: number;
+    condLoss: number;
+    evapLoss: number;
+    nonCondLoss: number;
+    otherLoss: number;
+    status: string;
+    lastEntry: {
+      datetime: string;
+      highlight?: 'red' | 'yellow';
+    };
+  }
+
+  const chillerData: ChillerRow[] = [
+    {
+      selectAll: '',
+      companyName: 'Petal Grove Academy',
+      facilityName: 'CryoSystems ArcticCore V10',
+      chiller: { name: 'CryoStream', code: 'CHL-983472-AQ', link: '#' },
+      tons: 1000,
+      energyCost: 1.23,
+      efficiencyLoss: 42,
+      monLoss: 12,
+      condLoss: 29,
+      evapLoss: 29,
+      nonCondLoss: 29,
+      otherLoss: 29,
+      status: 'Active',
+      lastEntry: { datetime: '12/11/24 15:00' }
+    },
+    {
+      selectAll: '',
+      companyName: 'Petal Grove Academy',
+
+      facilityName: 'CryoSystems ArcticCore V10',
+      chiller: { name: 'FrostLine', code: 'FST-764239-BX', link: '#' },
+      tons: 1000,
+      energyCost: 1.23,
+      efficiencyLoss: 50,
+      monLoss: 12,
+      condLoss: 29,
+      evapLoss: 29,
+      nonCondLoss: 29,
+      otherLoss: 29,
+
+      status: 'Active',
+      lastEntry: {
+        datetime: '13/11/24 14:00',
+        highlight: 'red'
+      }
+    },
+    {
+      selectAll: '',
+      companyName: 'Petal Grove Academy',
+
+      facilityName: 'CryoSystems ArcticCore V10',
+      chiller: { name: 'ArcticNova', code: 'GLC-572148-MT', link: '#' },
+      tons: 1000,
+      energyCost: 1.23,
+      efficiencyLoss: 41.5,
+      monLoss: 12,
+      condLoss: 29,
+      evapLoss: 29,
+      nonCondLoss: 29,
+      otherLoss: 29,
+
+      status: 'Pending',
+      lastEntry: { datetime: '11/11/24 16:00' }
+    },
+    {
+      selectAll: '',
+      companyName: 'Petal Grove Academy',
+
+      facilityName: 'CryoSystems ArcticCore V10',
+      chiller: { name: 'IceCascade', code: 'POL-394857-VZ', link: '#' },
+      tons: 1000,
+      energyCost: 1.23,
+      efficiencyLoss: 44,
+      monLoss: 12,
+      condLoss: 29,
+      evapLoss: 29,
+      nonCondLoss: 29,
+      otherLoss: 29,
+
+      status: 'Active',
+      lastEntry: {
+        datetime: '10/11/24 15:30',
+        highlight: 'yellow'
+      }
+    },
+    {
+      selectAll: '',
+      companyName: 'Petal Grove Academy',
+
+      facilityName: 'CryoSystems ArcticCore V10',
+      chiller: { name: 'PolarZen', code: 'CRY-685429-KQ', link: '#' },
+      tons: 1000,
+      energyCost: 1.23,
+      efficiencyLoss: 43,
+      monLoss: 12,
+      condLoss: 29,
+      evapLoss: 29,
+      nonCondLoss: 29,
+
+      otherLoss: 29,
+
+      status: 'Active',
+      lastEntry: { datetime: '12/11/24 17:30' }
+    }
+  ];
+
+  const columns: ColumnsType<any> = [
+    {
+      title: () => <Checkbox />,
+      dataIndex: 'selectAll',
+      key: 'selectAll',
+      render: () => <Checkbox checked />
+    },
+    {
+      title: 'Company name',
+      key: 'companyName',
+      dataIndex: 'companyName',
+      width: 180
+    },
+    {
+      title: 'Facility name',
+      key: 'facilityName',
+      dataIndex: 'facilityName',
+      width: 220
+    },
+    {
+      title: 'Chiller Name',
+      key: 'chillerName',
+      render: (_: any, record: ChillerRow) => (
+        <div className="chillerNameWrap">
+          <a className="chillerName">{record.chiller.name}</a>
+          <span>{record.chiller.code}</span>
+        </div>
+      ),
+      sorter: (a: any, b: any) => a.chillerName - b.chillerName
+    },
+    {
+      title: 'Tons',
+      key: 'tons',
+      dataIndex: 'tons',
+      sorter: (a: any, b: any) => a.tons - b.tons
+    },
+    {
+      title: 'Energy Cost',
+      key: 'energyCost',
+      dataIndex: 'energyCost',
+      sorter: (a: any, b: any) => a.energyCost - b.energyCost
+    },
+    {
+      title: 'Efficiency Loss %',
+      key: 'efficiencyLoss',
+      width: 150,
+      sorter: (a: any, b: any) => a.efficiencyLoss - b.efficiencyLoss,
+      render: (_: any, record: ChillerRow) => {
+        let className = '';
+        if (record.efficiencyLoss >= 50) className = 'bgRed';
+        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
+
+        return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
+      }
+    },
+    {
+      title: '12 Mon. Loss $',
+      key: 'monLoss',
+      dataIndex: 'monLoss',
+      sorter: (a: any, b: any) => a.monLoss - b.monLoss,
+      render: (monLoss: number) => <>$ {monLoss}</>
+    },
+    {
+      title: 'Cond. App. Loss %',
+      key: 'condLoss',
+      dataIndex: 'condLoss',
+      width: 155,
+      sorter: (a: any, b: any) => a.condLoss - b.condLoss,
+      render: (_: any, record: ChillerRow) => {
+        let className = '';
+        if (record.efficiencyLoss >= 50) className = 'bgRed';
+        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
+
+        return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
+      }
+    },
+    {
+      title: 'Evap. App. Loss %',
+      key: 'evapLoss',
+      dataIndex: 'evapLoss',
+      width: 155,
+      sorter: (a: any, b: any) => a.evapLoss - b.evapLoss,
+      render: (_: any, record: ChillerRow) => {
+        let className = '';
+        if (record.efficiencyLoss >= 50) className = 'bgRed';
+        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
+
+        return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
+      }
+    },
+    {
+      title: 'Non-Cond. App. Loss %',
+      key: 'nonCondLoss',
+      dataIndex: 'nonCondLoss',
+      width: 180,
+      sorter: (a: any, b: any) => a.nonCondLoss - b.nonCondLoss,
+      render: (_: any, record: ChillerRow) => {
+        let className = '';
+        if (record.efficiencyLoss >= 50) className = 'bgRed';
+        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
+
+        return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
+      }
+    },
+    {
+      title: 'Other Losses %',
+      key: 'otherLoss',
+      dataIndex: 'otherLoss',
+      sorter: (a: any, b: any) => a.otherLoss - b.otherLoss,
+      render: (_: any, record: ChillerRow) => {
+        let className = '';
+        if (record.efficiencyLoss >= 50) className = 'bgRed';
+        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
+
+        return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
+      }
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: any) => (
+        <Tag className="statusTag" color={statusColorMap[status] || 'default'}>
+          {status}
+        </Tag>
+      ),
+      sorter: (a: any, b: any) => a.status - b.status
+    },
+    {
+      title: 'Last Entry',
+      key: 'lastEntry',
+      sorter: (a: any, b: any) => a.lastEntry - b.lastEntry,
+      render: (_: any, record: ChillerRow) => {
+        let className = '';
+        if (record.efficiencyLoss >= 50) className = 'bgRed';
+        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
+        return (
+          <div className={`last-entry-cell ${className}`}>
+            <div>{record.lastEntry.datetime}</div>
+          </div>
+        );
+      }
+    },
+    {
+      title: '',
+      key: 'action',
+      fixed: 'right',
+      render: () => (
+        <div className="actionIonWrap">
+          <Link className="actionIcon" to={ROUTES.Edit_CHILLER_MANAGEMENT}>
+            <EditIcon />
+          </Link>
+          <Link className="actionIcon" to={ROUTES.View_CHILLER_MANAGEMENT}>
+            <EyeOutlined />
+          </Link>
+        </div>
+      )
+    }
+  ];
+
+  const statusColorMap: Record<string, string> = {
+    Active: '#00A86B',
+    Inactive: '#CF5439',
+    Pending: '#000ABC'
+  };
+
+  const menu = (
+    <div className="chillerColumns">
+      <ul className="chillerColumnsList">
+        <li>
+          <Checkbox>
+            <span className="checkboxLabelTitle">Entry</span>
+          </Checkbox>
+        </li>
+        <li>
+          <Checkbox>Chiller Name</Checkbox>
+        </li>
+        <li>
+          <Checkbox>Make & Model</Checkbox>
+        </li>
+        <li>
+          <Checkbox>Load %</Checkbox>
+        </li>
+        <li>
+          <Checkbox>Loss %</Checkbox>
+        </li>
+        <li>
+          <Checkbox>Outside Air Temp</Checkbox>
+        </li>
+        <li>
+          <Checkbox>Con. Inlet Temp</Checkbox>
+        </li>
+      </ul>
+    </div>
+  );
+
   return (
     <Wrapper>
       <Meta title="Chiller Management" />
@@ -215,9 +370,11 @@ const ChillerManagement: React.FC = () => {
         title="Chiller management"
         button={
           <div className="chillerButtonWrap">
-            <Button type="primary" className="title-btn" size="small" icon={<SlidersOutlined />}>
-              Columns
-            </Button>
+            <Dropdown overlay={menu} trigger={['click']}>
+              <Button type="primary" className="title-btn" size="small" icon={<SlidersOutlined />}>
+                Columns
+              </Button>
+            </Dropdown>
             <Button type="primary" className="title-btn" size="small" icon={<SyncOutlined />}>
               Bulk Update
             </Button>
@@ -253,18 +410,14 @@ const ChillerManagement: React.FC = () => {
           <Input
             className="searchChiller"
             placeholder="Search for Chillers"
-            prefix={<SearchOutlined color="red" />}
+            prefix={<SearchOutlined />}
           />
         </div>
         <CommonTable
           columns={columns}
           dataSource={chillerData}
           pagination={{ current: 6 }}
-          summaryRow={
-            <>
-              <TableSummaryCell index={0} colSpan={9} />
-            </>
-          }
+          scroll={{ x: 2300 }}
         />
       </ShadowPaper>
     </Wrapper>

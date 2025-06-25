@@ -14,6 +14,7 @@ interface IBaseInputProps<InputPropsType> {
   colClassName?: string;
   label?: string;
   required?: boolean;
+  tooltip?: string;
 }
 
 // Interfaces using the base interface

@@ -11,10 +11,11 @@ interface IHeaderToolbarProps {
   title?: string;
   button?: React.ReactNode;
   backBtn?: boolean;
+  backTo?: string;
 }
 
 const HeaderToolbar: React.FC<IHeaderToolbarProps> = (props) => {
-  const { title, button, backBtn } = props;
+  const { title, button, backBtn, backTo } = props;
   const navigate = useNavigate();
 
   return (
@@ -26,7 +27,12 @@ const HeaderToolbar: React.FC<IHeaderToolbarProps> = (props) => {
               {title && (
                 <Col className={`title-wrap ${backBtn ? 'title-with-cta' : ''}`}>
                   {backBtn && (
-                    <Button type="text" icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)} />
+                    <Button
+                      className="headerBackBtn"
+                      type="text"
+                      icon={<ArrowLeftOutlined />}
+                      onClick={() => (backTo ? navigate(backTo) : navigate(-1))}
+                    />
                   )}
                   <Typography.Title level={4} className="page-title" title={title}>
                     {title}

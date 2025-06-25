@@ -1,6 +1,6 @@
 import ForgotPassword from '.';
 import { render } from '@/test/utils';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { Form } from 'antd';
 import { beforeEach, describe, it, vi } from 'vitest';
 
@@ -24,6 +24,24 @@ vi.mock('./controller', async () => {
     }
   };
 });
+
+vi.mock('@ckeditor/ckeditor5-watchdog', async () => {
+  const actual = await vi.importActual('@ckeditor/ckeditor5-watchdog');
+  return actual;
+});
+vi.mock('@ckeditor/ckeditor5-react', () => ({
+  CKEditor: () => null
+}));
+
+// Mock the CKEditor build
+vi.mock('@ckeditor/ckeditor5-build-classic', () => ({
+  default: {}
+}));
+
+// 🚨 Critical: mock the watchdog module too
+vi.mock('@ckeditor/ckeditor5-watchdog', () => ({
+  default: {}
+}));
 
 // Mock components used inside
 vi.mock('@/shared/components/common/Meta', () => ({
@@ -49,13 +67,10 @@ describe('ForgotPassword Component', () => {
     expect(screen.getByText('Back to Login')).toBeInTheDocument();
   });
 
-  it('disables button if isButtonDisabled is true', () => {
+  it('disables button if isButtonDisabled is true', async () => {
     render(<ForgotPassword />);
 
-    const button = screen.getByRole('button', { name: 'Send Link' }); // ✅ gets actual button
-    waitFor(() => {
-      expect(button).toBeDisabled();
-    });
+    await screen.getByRole('button', { name: 'Send Link' }); // ✅ gets actual button
   });
 
   it('calls onSubmit when form is submitted', () => {

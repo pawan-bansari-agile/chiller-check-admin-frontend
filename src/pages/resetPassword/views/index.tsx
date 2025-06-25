@@ -41,9 +41,9 @@ const ResetPassword: React.FC = () => {
           <Row gutter={[15, 20]}>
             <Col span={24}>
               <RenderPasswordInput
-                label="Enter New Password"
+                label="Enter Password"
                 required
-                inputProps={{ placeholder: 'Enter new password', maxLength: 64 }}
+                inputProps={{ placeholder: 'Enter your password', maxLength: 64 }}
                 formItemProps={{
                   name: 'newPassword',
                   label: 'Enter New Password'
@@ -61,7 +61,7 @@ const ResetPassword: React.FC = () => {
                 colProps={{ xs: 24 }}
                 label="Re-Enter New Password"
                 required
-                inputProps={{ placeholder: 'Enter new password', maxLength: 64 }}
+                inputProps={{ placeholder: 'Enter your password', maxLength: 64 }}
                 formItemProps={{
                   name: 'confirmPassword',
                   label: 'Re-Enter New Password'

@@ -9,13 +9,13 @@ const GeneralForm: React.FC = () => {
     console.log('submit');
   };
   return (
-    <Form className="generalForm" onFinish={onSubmit}>
-      <Row gutter={[20, 35]}>
-        <Col span={8}>
+    <Form className="chillerAddEfitForm" onFinish={onSubmit}>
+      <Row gutter={[20, 25]}>
+        <Col xs={24} sm={24} md={12} lg={8}>
           <RenderSelect
+            label="Company name"
             colClassName="custom-select-col"
             formItemProps={{
-              label: 'Company name',
               name: 'Company name',
               rules: [{ required: true, message: 'Please select a company' }]
             }}
@@ -29,11 +29,11 @@ const GeneralForm: React.FC = () => {
           />
         </Col>
 
-        <Col span={8}>
+        <Col xs={24} sm={24} md={12} lg={8}>
           <RenderSelect
+            label="Facility"
             colClassName="custom-select-col"
             formItemProps={{
-              label: 'Facility',
               name: 'Facility name',
               rules: [{ required: true, message: 'Please select a facility' }]
             }}
@@ -47,11 +47,11 @@ const GeneralForm: React.FC = () => {
           />
         </Col>
 
-        <Col span={8}>
+        <Col xs={24} sm={24} md={12} lg={8}>
           <RenderSelect
+            label="Type"
             colClassName="custom-select-col"
             formItemProps={{
-              label: 'Type',
               name: 'type',
               rules: [{ required: true, message: 'Please select a type' }]
             }}
@@ -64,14 +64,12 @@ const GeneralForm: React.FC = () => {
             }}
           />
         </Col>
-      </Row>
 
-      <Row gutter={[20, 35]}>
-        <Col span={8}>
+        <Col xs={24} sm={24} md={12} lg={8}>
           <RenderSelect
+            label="Unit"
             colClassName="custom-select-col"
             formItemProps={{
-              label: 'Unit',
               name: 'unit',
               rules: [{ required: true, message: 'Please select a unit' }]
             }}
@@ -85,10 +83,11 @@ const GeneralForm: React.FC = () => {
           />
         </Col>
 
-        <Col span={8}>
+        <Col xs={24} sm={24} md={12} lg={8}>
           <RenderTextInput
             label="Chiller Name/No"
             required
+            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
             formItemProps={{
               name: 'chiller name-no',
               rules: [
@@ -104,10 +103,12 @@ const GeneralForm: React.FC = () => {
           />
         </Col>
 
-        <Col span={8}>
+        <Col xs={24} sm={24} md={12} lg={8}>
           <RenderTextInput
             label="Weekly Hours Of Operation"
+            colClassName="addonAfterClass"
             required
+            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
             formItemProps={{
               name: 'weekly hours',
               rules: [
@@ -123,13 +124,12 @@ const GeneralForm: React.FC = () => {
             }}
           />
         </Col>
-      </Row>
 
-      <Row gutter={[20, 35]}>
-        <Col span={8}>
+        <Col xs={24} sm={24} md={12} lg={8}>
           <RenderTextInput
             label="Weeks Per Year"
             required
+            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
             formItemProps={{
               name: 'weeks per year',
               rules: [
@@ -145,10 +145,12 @@ const GeneralForm: React.FC = () => {
           />
         </Col>
 
-        <Col span={8}>
+        <Col xs={24} sm={24} md={12} lg={8}>
           <RenderTextInput
             label="Avg. Load Profile"
+            colClassName="addonAfterClass"
             required
+            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
             formItemProps={{
               name: 'avg load profile',
               rules: [
@@ -161,6 +163,24 @@ const GeneralForm: React.FC = () => {
             inputProps={{
               placeholder: 'Avg. Load Profile',
               addonAfterText: '%'
+            }}
+          />
+        </Col>
+
+        <Col xs={24} sm={24} md={12} lg={8}>
+          <RenderSelect
+            label="Design Inlet Water Temp"
+            colClassName="custom-select-col"
+            formItemProps={{
+              name: 'Design Inlet Water Temp',
+              rules: [{ required: true, message: 'Please select design inlet water temp.' }]
+            }}
+            inputProps={{
+              placeholder: 'Design Inlet Water Temp.',
+              options: [
+                { label: 'Petal Grove Academy', value: 'petal_grove_academy' },
+                { label: 'Angel investor', value: 'angel_investor' }
+              ]
             }}
           />
         </Col>

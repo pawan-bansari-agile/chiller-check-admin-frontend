@@ -37,13 +37,19 @@ beforeAll(async () => {
     const actual = await vi.importActual('@ckeditor/ckeditor5-watchdog');
     return actual;
   });
-  vi.mock('@ckeditor/ckeditor5-react', async () => {
-    return {
-      CKEditor: (props: any) => {
-        return <textarea onChange={(e) => props.onChange(e.target.value)} />;
-      }
-    };
-  });
+  vi.mock('@ckeditor/ckeditor5-react', () => ({
+    CKEditor: () => null
+  }));
+
+  // Mock the CKEditor build
+  vi.mock('@ckeditor/ckeditor5-build-classic', () => ({
+    default: {}
+  }));
+
+  // 🚨 Critical: mock the watchdog module too
+  vi.mock('@ckeditor/ckeditor5-watchdog', () => ({
+    default: {}
+  }));
 });
 
 const queryClient = new QueryClient({

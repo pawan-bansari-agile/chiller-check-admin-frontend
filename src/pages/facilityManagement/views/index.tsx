@@ -2,14 +2,16 @@ import React from 'react';
 
 import { Link } from 'react-router-dom';
 
-import { DownOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Dropdown, Input, MenuProps, Space } from 'antd';
+import { DownOutlined, EyeOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Dropdown, Input, MenuProps, Space, Tag } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 
 import HeaderToolbar from '@/shared/components/common/HeaderToolbar';
 import Meta from '@/shared/components/common/Meta';
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
-import { CommonTable, TableSummaryCell } from '@/shared/components/common/Table';
+import { CommonTable } from '@/shared/components/common/Table';
 import { ROUTES } from '@/shared/constants/routes';
+import { EditIcon } from '@/shared/svg';
 
 import { Wrapper } from '../style';
 
@@ -18,6 +20,7 @@ const facilityData = [
     companyName: 'Petal Grove Academy',
     facilityName: 'ChillTech ArcticCore V156',
     facilityAddress: '430 East 86th St, New York, NY 10028, United States',
+    altitude: '10 Feet',
     timezone: 'EST',
     chillers: 3,
     operators: 3,
@@ -30,6 +33,8 @@ const facilityData = [
     facilityName: 'ChillTech ArcticCore V10',
     facilityAddress: '430 East 86th St, New York, NY 10028, United States',
     timezone: 'GMT',
+    altitude: '10 Feet',
+
     chillers: 5,
     operators: 5,
     facilityCode: 'HBK1007',
@@ -41,6 +46,8 @@ const facilityData = [
     facilityName: 'ChillTech ArcticCore V19',
     facilityAddress: '430 East 86th St, New York, NY 10028, United States',
     timezone: 'IST',
+    altitude: '10 Feet',
+
     chillers: 5,
     operators: 5,
     facilityCode: 'HBK1008',
@@ -52,6 +59,8 @@ const facilityData = [
     facilityName: 'CryoSystems ArcticCore V10',
     facilityAddress: '430 East 86th St, New York, NY 10028, United States',
     timezone: 'EST',
+    altitude: '10 Feet',
+
     chillers: 10,
     operators: 10,
     facilityCode: 'HBK1009',
@@ -63,6 +72,8 @@ const facilityData = [
     facilityName: 'ChillTech ArcticCore V156',
     facilityAddress: '430 East 86th St, New York, NY 10028, United States',
     timezone: 'GMT',
+    altitude: '10 Feet',
+
     chillers: 15,
     operators: 15,
     facilityCode: 'HBK1010',
@@ -71,57 +82,69 @@ const facilityData = [
   }
 ];
 
-const columns = [
+const statusColorMap: Record<string, string> = {
+  Active: '#00A86B',
+  Inactive: '#CF5439'
+};
+
+const columns: ColumnsType<any> = [
   {
     title: 'Company Name',
     dataIndex: 'companyName',
-    key: 'companyName'
+    key: 'companyName',
+    width: 190
   },
   {
     title: 'Facility Name',
     dataIndex: 'facilityName',
-    key: 'facilityName'
+    key: 'facilityName',
+    width: 190
   },
   {
     title: 'Facility Address',
     dataIndex: 'facilityAddress',
-    key: 'facilityAddress'
+    key: 'facilityAddress',
+    width: 250
   },
   {
     title: 'Timezone',
     dataIndex: 'timezone',
-    key: 'timezone'
+    key: 'timezone',
+    sorter: (a: any, b: any) => a.timezone - b.timezone
+  },
+  {
+    title: 'Altitude',
+    dataIndex: 'altitude',
+    key: 'altitude',
+    sorter: (a: any, b: any) => a.altitude - b.altitude
   },
   {
     title: 'Chillers',
     dataIndex: 'chillers',
-    key: 'chillers'
+    key: 'chillers',
+    sorter: (a: any, b: any) => a.chillers - b.chillers
   },
   {
     title: 'Operators',
     dataIndex: 'operators',
-    key: 'operators'
+    key: 'operators',
+    sorter: (a: any, b: any) => a.operators - b.operators
   },
   {
     title: 'Facility Code',
     dataIndex: 'facilityCode',
-    key: 'facilityCode'
+    key: 'facilityCode',
+    sorter: (a: any, b: any) => a.facilityCode - b.facilityCode,
+    width: 190
   },
   {
     title: 'Status',
     dataIndex: 'status',
     key: 'status',
-    render: (status: any) => (
-      <span
-        style={{
-          backgroundColor: status === 'Active' ? '#00b96b' : '#f06548',
-          color: 'white',
-          padding: '2px 8px',
-          borderRadius: '12px'
-        }}
-      >
+    render: (status: string) => (
+      <Tag className="statusTag" color={statusColorMap[status] || 'default'}>
         {status}
-      </span>
+      </Tag>
     )
   },
   {
@@ -132,11 +155,17 @@ const columns = [
   {
     title: 'Actions',
     key: 'actions',
+    dataIndex: 'actions',
+    fixed: 'right',
     render: () => (
-      <>
-        <button style={{ marginRight: 8 }}>✏️</button>
-        <button>👁️</button>
-      </>
+      <div className="actionIonWrap">
+        <Link className="actionIcon" to={ROUTES.Edit_FACILITY_MANAGEMENT}>
+          <EditIcon />
+        </Link>
+        <Link className="actionIcon" to={ROUTES.View_FACILITY_MANAGEMENT}>
+          <EyeOutlined />
+        </Link>
+      </div>
     )
   }
 ];
@@ -187,11 +216,7 @@ const FacilityManagement: React.FC = () => {
             columns={columns}
             dataSource={facilityData}
             pagination={{ current: 6 }}
-            summaryRow={
-              <>
-                <TableSummaryCell index={0} colSpan={9} />
-              </>
-            }
+            scroll={{ x: 1700 }}
           />
         </ShadowPaper>
       </div>

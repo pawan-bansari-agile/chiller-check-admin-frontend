@@ -11,3 +11,12 @@ export interface IApiError {
   endpoint?: string;
   timestamp?: string;
 }
+
+export interface SetParamOptions {
+  page?: number;
+  limit?: number;
+  companyId?: string;
+  search?: string;
+  sort_by?: string;
+  sort_order?: string;
+}

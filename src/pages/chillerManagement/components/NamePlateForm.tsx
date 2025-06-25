@@ -6,13 +6,13 @@ import { RenderSelect, RenderTextInput } from '@/shared/components/common/FormFi
 
 const NamePlateForm: React.FC = () => {
   return (
-    <Form className="namePlateData">
-      <Row gutter={[20, 35]}>
-        <Col span={6}>
+    <Form className="chillerAddEfitForm">
+      <Row gutter={[20, 25]}>
+        <Col xs={24} sm={24} md={12} lg={6}>
           <RenderSelect
+            label="Make"
             colClassName="custom-select-col"
             formItemProps={{
-              label: 'Make',
               name: 'make',
               rules: [{ required: true, message: 'Please select a make' }]
             }}
@@ -25,10 +25,11 @@ const NamePlateForm: React.FC = () => {
             }}
           />
         </Col>
-        <Col span={6}>
+        <Col xs={24} sm={24} md={12} lg={6}>
           <RenderTextInput
             label="Model"
             required
+            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
             formItemProps={{
               name: 'model',
               rules: [
@@ -43,10 +44,11 @@ const NamePlateForm: React.FC = () => {
             }}
           />
         </Col>
-        <Col span={6}>
+        <Col xs={24} sm={24} md={12} lg={6}>
           <RenderTextInput
             label="Serial No."
             required
+            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
             formItemProps={{
               name: 'serial no',
               rules: [
@@ -61,11 +63,11 @@ const NamePlateForm: React.FC = () => {
             }}
           />
         </Col>
-        <Col span={6}>
+        <Col xs={24} sm={24} md={12} lg={6}>
           <RenderSelect
+            label="Year Manufactured"
             colClassName="custom-select-col"
             formItemProps={{
-              label: 'Year Manufactured',
               name: 'year manufactured',
               rules: [{ required: true, message: 'Please select manufactured year' }]
             }}
@@ -78,13 +80,11 @@ const NamePlateForm: React.FC = () => {
             }}
           />
         </Col>
-      </Row>
-      <Row gutter={[20, 35]}>
-        <Col span={6}>
+        <Col xs={24} sm={24} md={12} lg={6}>
           <RenderSelect
+            label="Refrigerant Type"
             colClassName="custom-select-col"
             formItemProps={{
-              label: 'Refrigerant Type',
               name: 'refrigerant type',
               rules: [{ required: true, message: 'Please select refrigerent type' }]
             }}
@@ -97,10 +97,11 @@ const NamePlateForm: React.FC = () => {
             }}
           />
         </Col>
-        <Col span={6}>
+        <Col xs={24} sm={24} md={12} lg={6}>
           <RenderTextInput
             label="Tons"
             required
+            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
             formItemProps={{
               name: 'tons',
               rules: [
@@ -115,10 +116,12 @@ const NamePlateForm: React.FC = () => {
             }}
           />
         </Col>
-        <Col span={6}>
+        <Col xs={24} sm={24} md={12} lg={6}>
           <RenderTextInput
             label="Efficiency Rating"
-            required
+            colClassName="addonAfterClass"
+            required={false}
+            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
             formItemProps={{
               name: 'efficiency rating',
               rules: [
@@ -134,10 +137,12 @@ const NamePlateForm: React.FC = () => {
             }}
           />
         </Col>
-        <Col span={6}>
+        <Col xs={24} sm={24} md={12} lg={6}>
           <RenderTextInput
             label="Energy Cost (kw. hr.)"
             required
+            colClassName="addonAfterClass"
+            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
             formItemProps={{
               name: 'Energy Cost',
               rules: [

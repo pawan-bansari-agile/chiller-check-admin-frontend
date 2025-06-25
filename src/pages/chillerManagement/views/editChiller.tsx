@@ -16,7 +16,7 @@ const EditChiller: React.FC = () => {
         title="Edit Chiller"
         backBtn={true}
         button={
-          <Button type="primary" shape="round">
+          <Button type="primary" shape="round" className="title-btn">
             Edit
           </Button>
         }

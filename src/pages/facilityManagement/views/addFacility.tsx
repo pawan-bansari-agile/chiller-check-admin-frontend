@@ -16,7 +16,7 @@ const AddFacility: React.FC = () => {
         title="Add Facility"
         backBtn={true}
         button={
-          <Button type="primary" shape="round">
+          <Button type="primary" shape="round" className="title-btn">
             Add
           </Button>
         }

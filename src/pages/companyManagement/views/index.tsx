@@ -1,109 +1,178 @@
-import React from 'react';
+import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
-import { DeleteOutlined, EditOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Space, Tag, Tooltip } from 'antd';
+import { EyeOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Input, TablePaginationConfig, Tag } from 'antd';
+import { ColumnsType, FilterValue, SorterResult } from 'antd/es/table/interface';
+
+import { ICommonPagination } from '@/services/common/types';
+import { companyHooks } from '@/services/company';
+import { ICompanyListData } from '@/services/company/types';
 
 import HeaderToolbar from '@/shared/components/common/HeaderToolbar';
 import Meta from '@/shared/components/common/Meta';
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
-import { CommonTable, TableSummaryCell } from '@/shared/components/common/Table';
+import { CommonTable } from '@/shared/components/common/Table';
+import EmptyState from '@/shared/components/common/Table/EmptyState';
 import { ROUTES } from '@/shared/constants/routes';
+import { EditIcon } from '@/shared/svg';
+import {
+  buildSearchParams,
+  capitalizeFirstLetter,
+  debounce,
+  getAntDSortOrder,
+  getSortOrder
+} from '@/shared/utils/functions';
 
 import { Wrapper } from '../style';
 
-const companyData = [
-  {
-    id: 'HBK1006',
-    corporateName: 'Petal Grove Academy',
-    address: '430 East 86th St, New York, NY 10028, United States',
-    facility: 3,
-    chillers: 3,
-    website: 'www.Petalgrover.com',
-    status: 'Demo',
-    isAssigned: false
-  }
-];
-
 const statusColorMap: Record<string, string> = {
-  Active: 'green',
-  Inactive: 'volcano',
-  Demo: 'gold',
-  Prospect: 'blue'
+  active: '#00A86B',
+  inactive: '#CF5439',
+  demo: '#D5A513',
+  prospect: '#00077B'
 };
 
-const columns = [
-  {
-    title: 'Corporate name',
-    dataIndex: 'corporateName',
-    key: 'corporateName'
-  },
-  {
-    title: 'Address',
-    dataIndex: 'address',
-    key: 'address'
-  },
-  {
-    title: 'Facility',
-    dataIndex: 'facility',
-    key: 'facility',
-    sorter: (a: any, b: any) => a.facility - b.facility
-  },
-  {
-    title: 'Chillers',
-    dataIndex: 'chillers',
-    key: 'chillers',
-    sorter: (a: any, b: any) => a.chillers - b.chillers
-  },
-  {
-    title: 'Company Website',
-    dataIndex: 'website',
-    key: 'website',
-    render: (text: any) => (
-      <a href={`https://${text}`} target="_blank" rel="noreferrer">
-        {text}
-      </a>
-    )
-  },
-  {
-    title: 'ID',
-    dataIndex: 'id',
-    key: 'id',
-    sorter: (a: any, b: any) => a.id.localeCompare(b.id)
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    key: 'status',
-    render: (status: any) => <Tag color={statusColorMap[status] || 'default'}>{status}</Tag>
-  },
-  {
-    title: 'Is Assigned',
-    dataIndex: 'isAssigned',
-    key: 'isAssigned',
-    render: (assigned: any) => (assigned ? 'Yes' : 'No')
-  },
-  {
-    title: '',
-    key: 'action',
-    render: () => (
-      <Space>
-        <Tooltip title="Edit">
-          <Button icon={<EditOutlined />} size="small" />
-        </Tooltip>
-        <Tooltip title="Delete">
-          <Button icon={<DeleteOutlined />} size="small" danger />
-        </Tooltip>
-        <Tooltip title="View">
-          <Button icon={<EyeOutlined />} size="small" />
-        </Tooltip>
-      </Space>
-    )
-  }
-];
-
 const CompanyManagement: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [searchVal, setSearchVal] = useState<string>('');
+  const [args, setArgs] = useState<ICommonPagination>({
+    page: Number(searchParams.get('page')) || 1,
+    limit: Number(searchParams.get('limit')) || 10,
+    search: searchParams.get('search') || '',
+    sort_by: searchParams.get('sort_by') || '',
+    sort_order: searchParams.get('sort_order') || ''
+  });
+  const { data, isLoading } = companyHooks.CompanyList(args);
+  const isEmpty = !data?.companyList?.length;
+
+  useEffect(() => {
+    if (args?.search) setSearchVal(args?.search);
+  }, [args?.search]);
+
+  const updateParamsAndArgs = useCallback(
+    (newArgs: Partial<ICommonPagination>) => {
+      const updatedArgs = { ...args, ...newArgs };
+      setArgs(updatedArgs);
+      setSearchParams(buildSearchParams(updatedArgs));
+    },
+    [args, setSearchParams]
+  );
+
+  const handleTableChange = (
+    pagination: TablePaginationConfig,
+    _filters: Record<string, FilterValue | null>,
+    sorter: SorterResult<ICompanyListData> | SorterResult<ICompanyListData>[]
+  ) => {
+    if (!Array.isArray(sorter)) {
+      updateParamsAndArgs({
+        page: pagination?.current ?? 1,
+        limit: pagination?.pageSize ?? 10,
+        sort_by: sorter?.order ? String(sorter?.field) : '',
+        sort_order: getSortOrder(sorter?.order) || ''
+      });
+    }
+  };
+
+  const debouncedSearch = useRef(
+    debounce((value: string) => {
+      const trimmed = value?.trim();
+      updateParamsAndArgs({
+        search: trimmed,
+        page: 1
+      });
+    })
+  ).current;
+
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchVal(value);
+    debouncedSearch(value);
+  };
+
+  const columns: ColumnsType<ICompanyListData> = [
+    {
+      title: 'Corporate Name',
+      dataIndex: 'name',
+      key: 'name',
+      render: (value) => capitalizeFirstLetter(value)
+    },
+    {
+      title: 'Address',
+      dataIndex: 'address',
+      key: 'address',
+      width: 220
+    },
+    {
+      title: 'Facility',
+      dataIndex: 'totalFacilities',
+      key: 'totalFacilities',
+      sorter: true,
+      sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'totalFacilities')
+    },
+    {
+      title: 'Chillers',
+      dataIndex: 'totalChiller',
+      key: 'totalChiller',
+      sorter: true,
+      sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'totalChiller')
+    },
+    {
+      title: 'Company Website',
+      dataIndex: 'website',
+      key: 'website',
+      render: (text) => (
+        <a className="companyWebsiteLink" href={`https://${text}`} target="_blank" rel="noreferrer">
+          {text || '-'}
+        </a>
+      )
+    },
+    {
+      title: 'ID',
+      dataIndex: 'companyCode',
+      key: 'companyCode',
+      sorter: true,
+      sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'companyCode')
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status) => (
+        <Tag className="statusTag" color={statusColorMap[status] || 'default'}>
+          {capitalizeFirstLetter(status)}
+        </Tag>
+      ),
+      sorter: true,
+      sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'status')
+    },
+    {
+      title: 'Is Assigned',
+      dataIndex: 'isAssign',
+      key: 'isAssign',
+      render: (assigned) => (assigned ? 'Yes' : 'No'),
+      sorter: true,
+      sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'isAssign')
+    },
+    {
+      title: '',
+      key: '_id',
+      dataIndex: '_id',
+      render: (id) => (
+        <div className="actionIonWrap">
+          <Link className="actionIcon" to={ROUTES.Edit_COMPANY_MANAGEMENT(id)}>
+            <EditIcon />
+          </Link>
+          <Link className="actionIcon" to={ROUTES.VIEW_COMPANY_MANAGEMENT(id)}>
+            <EyeOutlined />
+          </Link>
+        </div>
+      )
+    }
+  ];
+
   return (
     <Wrapper>
       <Meta title="Company Management" />
@@ -111,30 +180,43 @@ const CompanyManagement: React.FC = () => {
         title="Company management"
         button={
           <Link to={ROUTES.Add_COMPANY_MANAGEMENT}>
-            <Button type="primary" shape="round" icon={<PlusOutlined />}>
+            <Button type="primary" className="title-btn" shape="round" icon={<PlusOutlined />}>
               Add Company
             </Button>
           </Link>
         }
       />
-      <div>
-        <ShadowPaper>
-          <CommonTable
-            columns={columns}
-            dataSource={companyData}
-            pagination={{ current: 6 }}
-            summaryRow={
-              <>
-                <TableSummaryCell
-                  index={0}
-                  colSpan={9}
-                  component={<strong>Total 85 items</strong>}
-                />
-              </>
-            }
+      <ShadowPaper>
+        <div className="companyContentHeader">
+          <Input
+            value={searchVal}
+            className="searchCompany"
+            placeholder="Search for Company"
+            prefix={<SearchOutlined />}
+            onChange={handleSearchChange}
           />
-        </ShadowPaper>
-      </div>
+        </div>
+
+        <CommonTable
+          scroll={{ x: 'max-content' }}
+          columns={columns}
+          dataSource={data?.companyList}
+          pagination={{
+            current: args?.page ?? 1,
+            pageSize: args?.limit ?? 10,
+            total: data?.totalRecords ?? 0
+          }}
+          onChange={handleTableChange}
+          loading={isLoading}
+          emptyText={
+            <EmptyState
+              isEmpty={isEmpty}
+              search={args?.search}
+              searchDescription="No Company Found"
+            />
+          }
+        />
+      </ShadowPaper>
     </Wrapper>
   );
 };

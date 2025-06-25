@@ -1,0 +1,34 @@
+import React from 'react';
+
+import { Button } from 'antd';
+
+import HeaderToolbar from '@/shared/components/common/HeaderToolbar';
+import Meta from '@/shared/components/common/Meta';
+
+import AddEditLog from '../components/AddEditLog';
+import { Wrapper } from '../style';
+
+const AddLog: React.FC = () => {
+  return (
+    <Wrapper>
+      <Meta title="Log Entries" />
+      <HeaderToolbar
+        title="Add Log"
+        backBtn={true}
+        button={
+          <div className="logButtonWrap">
+            <Button type="primary" className="title-btn">
+              Cancel
+            </Button>
+            <Button type="primary" className="title-btn">
+              Create
+            </Button>
+          </div>
+        }
+      />
+      <AddEditLog />
+    </Wrapper>
+  );
+};
+
+export default AddLog;

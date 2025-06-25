@@ -13,10 +13,10 @@ const AddChiller: React.FC = () => {
     <Wrapper>
       <Meta title="Chiller Management" />
       <HeaderToolbar
-        title="Add Chiller"
+        title="Chiller Add"
         backBtn={true}
         button={
-          <Button type="primary" shape="round">
+          <Button type="primary" shape="round" className="title-btn">
             Add
           </Button>
         }

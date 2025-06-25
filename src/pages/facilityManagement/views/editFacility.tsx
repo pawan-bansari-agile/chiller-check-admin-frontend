@@ -16,7 +16,7 @@ const EditFacility: React.FC = () => {
         title="Edit Facility"
         backBtn={true}
         button={
-          <Button type="primary" shape="round">
+          <Button type="primary" className="title-btn" shape="round">
             Edit
           </Button>
         }

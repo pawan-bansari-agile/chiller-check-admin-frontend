@@ -1,36 +1,93 @@
 import React from 'react';
 
-import { Checkbox, Col, DatePicker, Form, Input, InputNumber, Radio, Select } from 'antd';
+import { InfoCircleOutlined } from '@ant-design/icons';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import { Checkbox, Col, DatePicker, Form, Input, InputNumber, Radio, Select, Tooltip } from 'antd';
+import GoogleAutocomplete, { ReactGoogleAutocompleteInputProps } from 'react-google-autocomplete';
 import { PatternFormat } from 'react-number-format';
 import OtpInput from 'react-otp-input';
+
+import { GOOGLE_KEY } from '@/shared/constants';
 
 import * as PropType from './types';
 
 export const RenderTextInput: React.FC<PropType.IRenderTextInputProps> = (props) => {
-  const { colProps, formItemProps, inputProps, label, required, colClassName = '' } = props;
+  const {
+    colProps,
+    formItemProps,
+    inputProps,
+    label,
+    required,
+    colClassName = '',
+    tooltip
+  } = props;
 
   const addonAfter = inputProps?.addonAfterText ? <span>{inputProps.addonAfterText}</span> : null;
+  const addonBefore = inputProps?.addonBefore ? <span>{inputProps.addonBefore}</span> : null;
+
+  const labelNode = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <span>{label}</span>
+      {tooltip && (
+        <Tooltip title={tooltip} color="#000ABC">
+          <InfoCircleOutlined style={{ color: '#000ABC' }} />
+        </Tooltip>
+      )}
+    </div>
+  );
 
   return (
     <Col {...colProps} className={colClassName}>
       <Form.Item
         {...formItemProps}
-        label={label ?? label}
+        label={label ? labelNode : undefined}
         required={required ?? required}
         labelCol={{ span: 24 }}
         wrapperCol={{ span: 24 }}
       >
-        <Input {...inputProps} addonAfter={addonAfter} size={inputProps?.size ?? 'middle'} />
+        <Input
+          {...inputProps}
+          addonBefore={addonBefore}
+          addonAfter={addonAfter}
+          size={inputProps?.size ?? 'middle'}
+        />
       </Form.Item>
     </Col>
   );
 };
 
 export const RenderTextAreaInput: React.FC<PropType.IRenderTextAreaInputProps> = (props) => {
-  const { colProps, formItemProps, inputProps, colClassName = '' } = props;
+  const {
+    colProps,
+    formItemProps,
+    inputProps,
+    colClassName = '',
+    label,
+    required,
+    tooltip
+  } = props;
+
+  const labelNode = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <span>{label}</span>
+      {tooltip && (
+        <Tooltip title={tooltip} color="#000ABC">
+          <InfoCircleOutlined style={{ color: '#000ABC' }} />
+        </Tooltip>
+      )}
+    </div>
+  );
+
   return (
     <Col {...colProps} className={colClassName}>
-      <Form.Item {...formItemProps} labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
+      <Form.Item
+        {...formItemProps}
+        label={labelNode}
+        required={required ?? required}
+        labelCol={{ span: 24 }}
+        wrapperCol={{ span: 24 }}
+      >
         <Input.TextArea {...inputProps} size={inputProps?.size ?? 'middle'} />
       </Form.Item>
     </Col>
@@ -49,10 +106,36 @@ export const RenderNumberInput: React.FC<PropType.IRenderNumberInputProps> = (pr
 };
 
 export const RenderPasswordInput: React.FC<PropType.IRenderPasswordInputProps> = (props) => {
-  const { colProps, formItemProps, inputProps, colClassName = '' } = props;
+  const {
+    colProps,
+    formItemProps,
+    inputProps,
+    colClassName = '',
+    label,
+    tooltip,
+    required
+  } = props;
+
+  const labelNode = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <span>{label}</span>
+      {tooltip && (
+        <Tooltip title={tooltip} color="#000ABC">
+          <InfoCircleOutlined style={{ color: '#000ABC' }} />
+        </Tooltip>
+      )}
+    </div>
+  );
+
   return (
     <Col {...colProps} className={colClassName}>
-      <Form.Item {...formItemProps} labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
+      <Form.Item
+        required={required}
+        {...formItemProps}
+        labelCol={{ span: 24 }}
+        wrapperCol={{ span: 24 }}
+        label={labelNode}
+      >
         <Input.Password {...inputProps} size={inputProps?.size ?? 'middle'} />
       </Form.Item>
     </Col>
@@ -60,10 +143,36 @@ export const RenderPasswordInput: React.FC<PropType.IRenderPasswordInputProps> =
 };
 
 export const RenderSelect: React.FC<PropType.IRenderSelectProps> = (props) => {
-  const { colProps, formItemProps, inputProps, colClassName = '' } = props;
+  const {
+    colProps,
+    formItemProps,
+    inputProps,
+    colClassName = '',
+    label,
+    tooltip,
+    required
+  } = props;
+
+  const labelNode = label ? (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <span>{label}</span>
+      {tooltip && (
+        <Tooltip title={tooltip} color="#000ABC">
+          <InfoCircleOutlined style={{ color: '#000ABC' }} />
+        </Tooltip>
+      )}
+    </div>
+  ) : undefined;
+
   return (
     <Col {...colProps} className={colClassName}>
-      <Form.Item {...formItemProps} labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
+      <Form.Item
+        required={required}
+        {...formItemProps}
+        labelCol={{ span: 24 }}
+        wrapperCol={{ span: 24 }}
+        label={labelNode}
+      >
         <Select
           {...inputProps}
           allowClear={inputProps?.allowClear ?? true}
@@ -95,10 +204,31 @@ export const RenderSearchInput: React.FC<PropType.IRenderSearchInputProps> = (pr
 };
 
 export const RenderDatePickerInput: React.FC<PropType.IRenderDatePickerInputProps> = (props) => {
-  const { colProps, formItemProps, inputProps, colClassName = '' } = props;
+  const { colProps, formItemProps, inputProps, colClassName = '', tooltip, label } = props;
+
+  const renderLabelWithTooltip = () => {
+    if (!label) return null;
+
+    return tooltip ? (
+      <span>
+        {label}
+        <Tooltip title={tooltip}>
+          <InfoCircleOutlined style={{ marginLeft: 4 }} />
+        </Tooltip>
+      </span>
+    ) : (
+      label
+    );
+  };
+
   return (
     <Col {...colProps} className={colClassName}>
-      <Form.Item {...formItemProps} labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
+      <Form.Item
+        {...formItemProps}
+        labelCol={{ span: 24 }}
+        wrapperCol={{ span: 24 }}
+        label={renderLabelWithTooltip()}
+      >
         <DatePicker
           {...inputProps}
           format="MM-DD-YYYY"
@@ -153,10 +283,36 @@ export const RenderRadioInput: React.FC<PropType.IRenderRadioInputProps> = (prop
 };
 
 export const RenderRadioGroupInput: React.FC<PropType.IRenderRadioGroupInputProps> = (props) => {
-  const { colProps, formItemProps, inputProps, colClassName = '' } = props;
+  const {
+    colProps,
+    formItemProps,
+    inputProps,
+    colClassName = '',
+    label,
+    tooltip,
+    required
+  } = props;
+
+  const labelNode = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <span>{label}</span>
+      {tooltip && (
+        <Tooltip title={tooltip} color="#000ABC">
+          <InfoCircleOutlined style={{ color: '#000ABC' }} />
+        </Tooltip>
+      )}
+    </div>
+  );
+
   return (
     <Col {...colProps} className={colClassName}>
-      <Form.Item {...formItemProps} labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
+      <Form.Item
+        required={required}
+        label={labelNode}
+        {...formItemProps}
+        labelCol={{ span: 24 }}
+        wrapperCol={{ span: 24 }}
+      >
         <Radio.Group
           {...inputProps}
           size={inputProps?.size ?? 'middle'}
@@ -208,41 +364,55 @@ export const RenderOtpInput: React.FC<PropType.IRenderOtpInputProps> = (props) =
   );
 };
 
-// export const CKEditorFormItem = (props: any) => {
-//   return (
-//     <Form.Item
-//       labelCol={props?.labelCol}
-//       wrapperCol={props?.wrapperCol}
-//       name={props?.name}
-//       rules={props?.rules}
-//       required={props?.required}
-//     >
-//       <CKEditor editor={ClassicEditor} data={props?.data} onChange={props?.onChange} />
-//     </Form.Item>
-//   );
-// };
+export const CKEditorFormItem = (props: any) => {
+  const { label, tooltip, name, rules, required, labelCol, wrapperCol, data, onChange } = props;
 
-// export const RenderGoogleAutocompleteInput: React.FC<PropType.IRenderGoogleAutocompleteProps> = (
-//   props
-// ) => {
-//   const { colProps, formItemProps, inputProps, googleAutocompleteProps, colClassName = '' } = props;
+  const labelNode = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <span>{label}</span>
+      {tooltip && (
+        <Tooltip title={tooltip} color="#000ABC">
+          <InfoCircleOutlined style={{ color: '#000ABC' }} />
+        </Tooltip>
+      )}
+    </div>
+  );
 
-//   return (
-//     <Col {...colProps} className={colClassName}>
-//       <Form.Item
-//         {...formItemProps}
-//         className={`${formItemProps?.className ?? ''} autoCompleteFormItem`}
-//         labelCol={{ span: 24 }}
-//         wrapperCol={{ span: 24 }}
-//       >
-//         <GoogleAutocomplete
-//           apiKey={GOOGLE_API_KEY}
-//           className={`${inputProps?.className} autoCompleteInput`}
-//           onPlaceSelected={googleAutocompleteProps.onPlaceSelected}
-//           options={googleAutocompleteProps.options}
-//           {...(inputProps as ReactGoogleAutocompleteInputProps)}
-//         />
-//       </Form.Item>
-//     </Col>
-//   );
-// };
+  return (
+    <Form.Item
+      label={labelNode}
+      name={name}
+      rules={rules}
+      required={required}
+      labelCol={labelCol}
+      wrapperCol={wrapperCol}
+    >
+      <CKEditor editor={ClassicEditor as any} data={data} onChange={onChange} />
+    </Form.Item>
+  );
+};
+
+export const RenderGoogleAutocompleteInput: React.FC<PropType.IRenderGoogleAutocompleteProps> = (
+  props
+) => {
+  const { colProps, formItemProps, inputProps, googleAutocompleteProps, colClassName = '' } = props;
+
+  return (
+    <Col {...colProps} className={colClassName}>
+      <Form.Item
+        {...formItemProps}
+        className={`${formItemProps?.className ?? ''} autoCompleteFormItem`}
+        labelCol={{ span: 24 }}
+        wrapperCol={{ span: 24 }}
+      >
+        <GoogleAutocomplete
+          apiKey={GOOGLE_KEY}
+          className={`${inputProps?.className} autoCompleteInput`}
+          onPlaceSelected={googleAutocompleteProps.onPlaceSelected}
+          options={googleAutocompleteProps.options}
+          {...(inputProps as ReactGoogleAutocompleteInputProps)}
+        />
+      </Form.Item>
+    </Col>
+  );
+};

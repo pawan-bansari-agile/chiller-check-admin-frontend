@@ -71,4 +71,103 @@ export const CommonStyle = createGlobalStyle`
 		padding: 20px 0;
 	}
 }
+
+.tableField{
+    border: 1px solid ${({ theme }) => theme.colors.lightSkyBlue};
+    border-radius: 5px;
+    padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 22px;
+        color: ${({ theme }) => theme.colors.inkBlue};
+
+    &::placeholder{
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 22px;
+        color: ${({ theme }) => theme.colors.placeholderColor};
+    }
+
+    &:focus-within{
+        border-color: ${({ theme }) => theme.colors.primary};
+    }
+}
+
+.tabSelectField{
+    width: 100%;
+    .ant-select-selector{
+        border-radius: 5px !important;
+        .ant-select-selection-item{
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 22px;
+        color: ${({ theme }) => theme.colors.inkBlue};
+        text-align: left;
+        }
+    }
+
+    &.tabSelectField{
+        width: 120px !important;
+
+        &.unitsFields{
+        width: 135px !important;
+        }
+    }
+}
+
+.title-cancel-btn{
+    border: 1px solid ${({ theme }) => theme.colors.lightSkyBlue};
+    background: transparent;
+    padding: 5px 25px !important;
+    height: auto !important;
+    span{
+        line-height: 22px !important;
+    }
+    &:hover{
+        background: ${({ theme }) => theme.colors.primary} !important;
+        color: ${({ theme }) => theme.colors.white} !important;
+    }
+}
+
+.bgRed{
+    border: 1px solid ${({ theme }) => theme.colors.danger};
+    border-radius: 10px;
+    background: ${({ theme }) => theme.colors.lightOrange};
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.bgYellow{
+    border: 1px solid ${({ theme }) => theme.colors.yellow};
+    border-radius: 10px;
+    background: ${({ theme }) => theme.colors.lightYellow};
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+  .switchLabelWrap{
+    display: flex;
+    flex-direction: column;
+    .switchLabel{
+          color: #040C2B;
+    font-size: 14px;
+    line-height: 22px;
+    font-weight: 400;
+    margin-bottom: 4px;
+    }
+    .esteriskSign{
+        color: #F04924;
+        margin-right: 4px;
+        font-size: 16px;
+    }
+    button{
+        width: 60px;
+    }
+  }
 `;

@@ -38,6 +38,7 @@ export const Wrapper = styled.div`
         font-weight: 400;
         color: ${({ theme }) => theme.colors.inkBlue};
         line-height: 150%;
+        letter-spacing: normal;
       }
     }
 
@@ -62,6 +63,7 @@ export const Wrapper = styled.div`
       -ms-transition: all 0.3s ease-in-out;
       -moz-transition: all 0.3s ease-in-out;
       transition: all 0.3s ease-in-out;
+      color: ${({ theme }) => theme.colors.gray};
 
       &:hover {
         color: ${({ theme }) => theme.colors.primary};
@@ -139,6 +141,12 @@ export const Wrapper = styled.div`
         position: static;
         padding: 20px;
       }
+    }
+  }
+
+  @media only screen and (max-width: ${({ theme }) => theme.device.xs}) {
+    .auth-wrap {
+      width: 100%;
     }
   }
 `;

@@ -9,39 +9,46 @@ const CondensorForm: React.FC = () => {
     console.log('submit');
   };
   return (
-    <Form className="condensorForm" onFinish={onSubmit}>
-      <Row gutter={[20, 35]}>
-        <Col span={8}>
-          <RenderTextInput
-            label="Design Chill Water Pressure Drop"
-            formItemProps={{
-              name: 'chill water pressure drop'
-            }}
-            inputProps={{
-              placeholder: 'Enter Here'
-            }}
-          />
-          <RenderSelect
-            colClassName="custom-select-col"
-            inputProps={{
-              placeholder: 'Choose',
-              options: [
-                { label: '10 Pa', value: '10 Pa' },
-                { label: '20 Pa', value: '20 Pa' }
-              ]
-            }}
-          />
+    <Form className="chillerAddEfitForm" onFinish={onSubmit}>
+      <Row gutter={[20, 25]}>
+        <Col xs={24} sm={24} md={12} lg={12} xl={8}>
+          <Row gutter={[5, 5]} className="doubleInputRow">
+            <Col span={16}>
+              <RenderTextInput
+                label="Design Condenser Water Pressure Drop"
+                formItemProps={{
+                  name: 'condenser water pressure drop'
+                }}
+                inputProps={{
+                  placeholder: 'Enter Here'
+                }}
+              />
+            </Col>
+            <Col span={8}>
+              <RenderSelect
+                colClassName="custom-select-col"
+                inputProps={{
+                  placeholder: 'Choose',
+                  options: [
+                    { label: '10 Pa', value: '10 Pa' },
+                    { label: '20 Pa', value: '20 Pa' }
+                  ]
+                }}
+              />
+            </Col>
+          </Row>
         </Col>
-        <Col span={8}>
+        <Col xs={24} sm={24} md={12} lg={12} xl={8}>
           <RenderSelect
+            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            label="Actual Condenser Water Pressure Drop Unit"
             colClassName="custom-select-col"
             formItemProps={{
-              label: 'Actual Condenser Water Pressure Drop Unit',
-              name: 'drop unit',
+              name: 'condenser water pressure drop',
               rules: [
                 {
                   required: true,
-                  message: 'Please select actual condensor water pressure drop unit'
+                  message: 'Please select an actual condenser water pressure drop unit'
                 }
               ]
             }}
@@ -54,16 +61,17 @@ const CondensorForm: React.FC = () => {
             }}
           />
         </Col>
-        <Col span={8}>
+        <Col xs={24} sm={24} md={12} lg={12} xl={8}>
           <RenderSelect
+            label="Condenser Pressure Unit"
+            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
             colClassName="custom-select-col"
             formItemProps={{
-              label: 'Condenser Pressure Unit',
               name: 'pressure unit',
               rules: [
                 {
                   required: true,
-                  message: 'Please select condensor pressure unit'
+                  message: 'Please select the condenser pressure unit'
                 }
               ]
             }}
@@ -73,6 +81,54 @@ const CondensorForm: React.FC = () => {
                 { label: 'Pascal', value: 'pascal' },
                 { label: 'Kilopascal', value: 'kilopascal' }
               ]
+            }}
+          />
+        </Col>
+
+        <Col xs={24} sm={24} md={12} lg={12} xl={8}>
+          <RenderTextInput
+            label="Design Condenser Approach Temp"
+            colClassName="addonAfterClass"
+            required={false}
+            formItemProps={{
+              name: 'Design Condenser Approach Temp',
+              rules: [
+                {
+                  required: true,
+                  message: 'Please enter design condensor approach temperature'
+                }
+              ]
+            }}
+            inputProps={{
+              placeholder: 'Design Condenser Approach Temp',
+              addonAfterText: '℉'
+            }}
+          />
+        </Col>
+
+        <Col xs={24} sm={24} md={12} lg={12} xl={8}>
+          <RenderTextInput
+            label="Design Condenser ∆ T"
+            required={false}
+            formItemProps={{
+              name: 'Design Condenser ∆ T'
+            }}
+            inputProps={{
+              placeholder: 'Design Condenser ∆ T'
+            }}
+          />
+        </Col>
+
+        <Col xs={24} sm={24} md={12} lg={12} xl={8}>
+          <RenderTextInput
+            label="Design Condenser Flow"
+            required={false}
+            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            formItemProps={{
+              name: 'Design Condenser Flow'
+            }}
+            inputProps={{
+              placeholder: 'Design Condenser Flow'
             }}
           />
         </Col>

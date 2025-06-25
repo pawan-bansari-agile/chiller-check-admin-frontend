@@ -4,11 +4,18 @@ import { removeScroll, textEllipsis } from '@/styles/common/Mixin';
 
 export const Wrapper = styled.div`
   &.header-toolbar-wrap {
-    padding: 38px 18px 20px 37px;
+    padding: 36px 18px 25px 20px;
     margin: 0 -20px 0;
 
     .sub-row {
       .title-wrap {
+        .headerBackBtn {
+          svg {
+            color: ${({ theme }) => theme.colors.inkBlue};
+            width: 18px;
+            height: 18px;
+          }
+        }
         &.title-with-cta {
           display: inline-flex;
           align-items: center;
@@ -45,16 +52,13 @@ export const Wrapper = styled.div`
     &.header-toolbar-wrap {
       .sub-row {
         align-items: flex-start;
-        flex-direction: column;
         row-gap: 10px;
 
-        .title-wrap,
-        .cta-wrap {
-          width: 100%;
-        }
         .title-wrap {
+          width: 100%;
           .page-title {
             ${textEllipsis}
+            font-size: 20px;
           }
         }
         .cta-wrap {

@@ -52,6 +52,26 @@ export const AntdFormInput = createGlobalStyle`
     }
   }
 
+  /* for google picker */
+  .autoCompleteInput{
+        width: 100%;
+    padding: 8px 19px;
+        font-size: 14px;
+  line-height: 150%;
+  color: ${({ theme }) => theme.colors.inkBlue};
+  border: 1px solid ${({ theme }) => theme.colors.lightSkyBlue} !important;
+  border-radius: 10px;
+  background-image: none !important;
+
+  &.gm-err-autocomplete{
+  border: 1px solid ${({ theme }) => theme.colors.danger} !important;
+  }
+
+  &:focus-within{
+  border: 1px solid ${({ theme }) => theme.colors.primary} !important;
+  }
+  }
+
   /* for password input */
   .ant-input-affix-wrapper{
     font-size: 14px;
@@ -69,12 +89,167 @@ export const AntdFormInput = createGlobalStyle`
 
   /* for label */
   .ant-form-item-label >label{
-    color: ${({ theme }) => theme.colors.black};
-    opacity: 0.85;
+    color: ${({ theme }) => theme.colors.inkBlue};
     font-size: 14px;
     line-height: 22px;
     font-weight: 400;
-    font-family: 'Roboto';
+    height: auto;
   }
 }
+
+/* for dropdown input */
+.ant-select-focused.ant-select-outlined:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer) .ant-select-selector{
+  box-shadow: none !important;
+}
+.ant-select{
+  &.ant-select-status-error{
+    .ant-select-selector{
+      border-color: ${({ theme }) => theme.colors.danger} !important;
+    }
+  }
+  .ant-select-selector{
+    border-color: ${({ theme }) => theme.colors.lightSkyBlue} !important;
+    border-radius: 10px !important;
+
+    .ant-select-selection-item{
+      font-size: 14px !important;
+          font-weight: 400 !important;
+          line-height: 150% !important;
+          color: ${({ theme }) => theme.colors.inkBlue} !important;
+    }
+
+    .ant-select-selection-search{
+      input{
+          font-size: 14px !important;
+          font-weight: 400 !important;
+          line-height: 150% !important;
+          color: ${({ theme }) => theme.colors.inkBlue} !important;
+      }
+    }
+    .ant-select-selection-placeholder{
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 150%;
+      color: ${({ theme }) => theme.colors.placeholderColor};
+    }
+  }
+  .ant-select-arrow{
+    svg{
+      fill: ${({ theme }) => theme.colors.inkBlue};
+    }
+  }
+}
+
+/* any radio */
+.ant-radio-wrapper{
+  .ant-radio-inner{
+    background-color: transparent !important;
+    &::after{
+      background: ${({ theme }) => theme.colors.primary};
+    }
+  }
+}
+
+/* disabled */
+.ant-input-disabled{
+  background: ${({ theme }) => theme.colors.bgColor} !important;
+  color: #6B7083 !important;
+}
+
+.ant-select-disabled{
+  .ant-select-selector{
+    background: ${({ theme }) => theme.colors.bgColor} !important;
+    input{
+      color: #6B7083 !important;
+    }
+  }
+  svg{
+    fill: #6B7083 !important;
+  }
+}
+
+/* addon after input */
+  .addonAfterClass {
+    .ant-input-group-addon {
+      border-radius: 0px 10px 10px 0px !important;
+      background: #fafafa !important;
+      border-color: ${({ theme }) => theme.colors.lightSkyBlue} !important;
+      padding: 0 18px !important;
+      span {
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 150%;
+        color: ${({ theme }) => theme.colors.inkBlue};
+      }
+    }
+    input {
+      border-radius: 10px 0px 0px 10px !important;
+    }
+  .ant-input-group-wrapper-status-success {
+    .ant-input-wrapper.ant-input-group {
+      input:focus + .ant-input-group-addon {
+        border-color: ${({ theme }) => theme.colors.lightSkyBlue} !important;
+      }
+    }
+  }
+    .ant-input-group-wrapper-status-error
+      .ant-input-wrapper.ant-input-group
+      > .ant-input-group-addon {
+      border-color: red !important;
+    }
+  }
+
+  .ant-radio-wrapper{
+    span{
+                font-size: 14px;
+          font-weight: 400;
+          line-height: 150%;
+          color: ${({ theme }) => theme.colors.inkBlue};
+    }
+  }
+
+  .autoCompleteFormItem.ant-form-item-has-error{
+    .autoCompleteInput{
+      border-color: ${({ theme }) => theme.colors.danger} !important;
+    }
+  }
+
+  .ant-picker-outlined{
+    border: 1px solid #D6D7FE;
+    border-radius: 10px;
+        &.ant-picker-focused{
+          box-shadow: none;
+        }
+
+        svg{
+          fill: #040C2B;
+        }
+  }
+  .ant-picker .ant-picker-input >input{
+        font-size: 14px;
+    line-height: 150%;
+    color: #040C2B;
+  }
+
+  .timeWrap {
+        .ant-picker{
+      width: 128px !important;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+  
+  @media only screen and (max-width: ${({ theme }) => theme.device.xs}) {
+  /* for otp screen */
+  .commonOtpInputWrapper {
+    & > div {
+        gap: 10px;
+        justify-content: center;
+    }
+    input{
+      width: 40px !important;
+      height: 40px !important;
+      font-size: 14px;
+    }
+  }}
 `;

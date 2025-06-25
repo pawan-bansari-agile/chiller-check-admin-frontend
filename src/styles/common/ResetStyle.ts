@@ -10,7 +10,7 @@ export const ResetStyle = createGlobalStyle`
 
 html {
     scroll-behavior: smooth;
-    font-family: ${({ theme }) => theme.font.inter};
+      font-family: 'Inter';
 }
 
 body {
@@ -20,6 +20,8 @@ body {
     font-style: normal;
     font-weight: normal;
     line-height: 1.5;
+    font-family: 'Inter';
+    letter-spacing: normal;
 }
 
 a {
@@ -119,5 +121,17 @@ input::placeholder{
     -ms-transition: all 0.3s ease-in-out;
     -moz-transition: all 0.3s ease-in-out;
     transition: all 0.3s ease-in-out;
+}
+
+.title-btn{
+    padding: 5px 25px;
+}
+
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0; 
 }
 `;

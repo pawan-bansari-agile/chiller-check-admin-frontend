@@ -5,6 +5,9 @@ import { AntDropdown } from './AntDropdown';
 import { AntModal } from './AntModal';
 import { AntPagination } from './AntPagination';
 import { AntTable } from './AntTable';
+import { AntTabs } from './AntTabs';
+import { AntTag } from './AntTag';
+import { AntTooltip } from './AntTooltip';
 import { AntdFormInput } from './AntdFormInput';
 
 const AntdStyle = () => {
@@ -16,6 +19,9 @@ const AntdStyle = () => {
       <AntTable />
       <AntPagination />
       <AntModal />
+      <AntTooltip />
+      <AntTabs />
+      <AntTag />
     </React.Fragment>
   );
 };

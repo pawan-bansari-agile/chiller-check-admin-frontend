@@ -8,7 +8,7 @@ import { IConfirmModalProps } from '../types';
 
 const ConfirmModal: React.FC<IConfirmModalProps> = (props) => {
   const [modal, contextHolder] = Modal.useModal();
-  const { buttonProps, modalProps } = props;
+  const { buttonProps, modalProps, customTrigger } = props;
 
   const handleClick = async () => {
     await modal.confirm({
@@ -27,9 +27,15 @@ const ConfirmModal: React.FC<IConfirmModalProps> = (props) => {
   return (
     <>
       {contextHolder}
-      <Button onClick={handleClick} {...buttonProps}>
-        {buttonProps.children}
-      </Button>
+      {customTrigger ? (
+        React.cloneElement(customTrigger, {
+          onClick: handleClick
+        })
+      ) : (
+        <Button onClick={handleClick} {...buttonProps}>
+          {buttonProps?.children}
+        </Button>
+      )}
     </>
   );
 };

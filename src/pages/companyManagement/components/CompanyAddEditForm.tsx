@@ -75,7 +75,7 @@ const CompanyAddEditForm: React.FC = () => {
         facilityState: facility?.state,
         facilityZipcode: facility?.zipcode,
         facilityCountry: 'USA',
-        altitude: facility?.altitude,
+        altitude: facility?.altitude?.toString(),
         altitudeUnit: facility?.altitudeUnit,
         timeZone: facility?.timezone
       })) || [];

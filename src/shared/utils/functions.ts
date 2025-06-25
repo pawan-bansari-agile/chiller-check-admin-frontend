@@ -138,7 +138,8 @@ export function formatPhoneNumber(phone: string): string {
 }
 
 export const capitalizeFirstLetterWhileTyping = (value: string) => {
-  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+  if (!value) return '';
+  return value.charAt(0).toUpperCase() + value.slice(1);
 };
 
 export const getSortOrder = (order: string | null | undefined): string | null => {

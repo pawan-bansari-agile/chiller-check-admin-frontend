@@ -96,7 +96,13 @@ export const STATES = [
   { label: 'Washington', value: 'Washington' },
   { label: 'West Virginia', value: 'West Virginia' },
   { label: 'Wisconsin', value: 'Wisconsin' },
-  { label: 'Wyoming', value: 'Wyoming' }
+  { label: 'Wyoming', value: 'Wyoming' },
+  { label: 'District of Columbia', value: 'District of Columbia' },
+  { label: 'American Samoa', value: 'American Samoa' },
+  { label: 'Guam', value: 'Guam' },
+  { label: 'Northern Mariana Islands', value: 'Northern Mariana Islands' },
+  { label: 'Puerto Rico', value: 'Puerto Rico' },
+  { label: 'U.S. Virgin Islands', value: 'U.S. Virgin Islands' }
 ];
 
 export const STATE_OPTIONS = Object.entries(STATES).map(([label]) => ({

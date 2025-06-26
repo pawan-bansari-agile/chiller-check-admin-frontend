@@ -439,7 +439,8 @@ const CompanyAddEditForm: React.FC = () => {
                         message: 'Please enter corporate website.'
                       },
                       {
-                        type: 'url',
+                        pattern:
+                          /^(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})(:\d+)?(\/[^\s]*)?$/,
                         message: 'Please enter valid corporate website.'
                       }
                     ]
@@ -695,6 +696,7 @@ const CompanyAddEditForm: React.FC = () => {
                                 required={false}
                                 formItemProps={{
                                   name: [index, 'altitude'],
+                                  dependencies: [[index, 'altitudeUnit']],
                                   validateFirst: true,
                                   rules: [
                                     {
@@ -703,6 +705,12 @@ const CompanyAddEditForm: React.FC = () => {
                                     },
                                     {
                                       validator(_, value) {
+                                        const unit = form.getFieldValue([
+                                          'facilities',
+                                          index,
+                                          'altitudeUnit'
+                                        ]);
+
                                         if (
                                           value === undefined ||
                                           value === null ||
@@ -732,6 +740,22 @@ const CompanyAddEditForm: React.FC = () => {
                                           );
                                         }
 
+                                        if (unit === 'meter' && (num < -500 || num > 30000)) {
+                                          return Promise.reject(
+                                            new Error(
+                                              'Altitude must be between -500 and 30,000 meters.'
+                                            )
+                                          );
+                                        }
+
+                                        if (unit === 'feet' && (num < -1640 || num > 98425)) {
+                                          return Promise.reject(
+                                            new Error(
+                                              'Altitude must be between -1640 and 98,425 feet.'
+                                            )
+                                          );
+                                        }
+
                                         return Promise.resolve();
                                       }
                                     }
@@ -753,7 +777,11 @@ const CompanyAddEditForm: React.FC = () => {
                                 inputProps={{
                                   disabled: shouldDisable(index),
                                   placeholder: 'Unit',
-                                  options: ALTITUDE_OPTIONS
+                                  options: ALTITUDE_OPTIONS,
+                                  allowClear: false,
+                                  onChange: () => {
+                                    form.validateFields([['facilities', index, 'altitude']]); // 👈 revalidate altitude
+                                  }
                                 }}
                               />
                             </div>

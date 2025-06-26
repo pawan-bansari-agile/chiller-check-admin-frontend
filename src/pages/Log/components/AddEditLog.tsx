@@ -196,7 +196,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Inlet Temperature</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -214,7 +214,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Outlet Temperature</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -232,7 +232,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Refrig Temp.</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -250,7 +250,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Excess Approach</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -268,7 +268,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Pressure</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -286,7 +286,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Non Cond.</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -304,7 +304,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Pressure Drop</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -330,7 +330,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Inlet Temperature</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -348,7 +348,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Outlet Temperature</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -366,7 +366,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Sat.Refrig Temp.</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -384,7 +384,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Excess Approach</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -402,7 +402,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Pressure</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -420,7 +420,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Pressure Drop</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -446,7 +446,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Oil Press Dif</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -464,7 +464,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Sump Temp.</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -482,7 +482,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Oil Level</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -500,7 +500,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Bearing Temp</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -518,7 +518,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Comp 1 Run Hours</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -536,7 +536,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Begin Record Reading</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -554,7 +554,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Comp 2 Run Hours</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -572,7 +572,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Begin Record Reading</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -590,7 +590,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Purge Time</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -616,7 +616,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Amps Phase 1/% Load</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -634,7 +634,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Amps Phase 2</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -652,7 +652,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Amps Phase 3</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -670,7 +670,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Volts Phase 1</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -688,7 +688,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Volts Phase 2</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"
@@ -706,7 +706,7 @@ const AddEditLog: React.FC = () => {
               <Col xs={24} sm={24} md={24} lg={24}>
                 <div className="otherLogForm">
                   <span className="mainlabel">Volts Phase 3</span>
-                  <Col span={11}>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={11}>
                     <RenderTextInput
                       required
                       colClassName="addonAfterClass"

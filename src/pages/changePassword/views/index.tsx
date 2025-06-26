@@ -154,7 +154,7 @@ const ChangePassword: React.FC = () => {
           onCancel={() => setIsModalOpen(false)}
         >
           <p>
-            Your Password has been Changes Successfully in system. you can manage your password from
+            Your password has been changed successfully! You can manage your password from your
             profile.
           </p>
           <div className="modalFooter">

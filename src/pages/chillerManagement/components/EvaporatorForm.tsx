@@ -13,7 +13,7 @@ const EvaporatorForm: React.FC = () => {
       <Row gutter={[20, 25]}>
         <Col xs={24} sm={24} md={12} lg={12} xl={8}>
           <Row gutter={[5, 5]} className="doubleInputRow">
-            <Col span={16}>
+            <Col xs={24} sm={24} md={24} lg={16} xl={16}>
               <RenderTextInput
                 label="Design Chill Water Pressure Drop"
                 formItemProps={{
@@ -24,7 +24,7 @@ const EvaporatorForm: React.FC = () => {
                 }}
               />
             </Col>
-            <Col span={8}>
+            <Col xs={24} sm={24} md={12} lg={12} xl={8}>
               <RenderSelect
                 colClassName="custom-select-col"
                 inputProps={{

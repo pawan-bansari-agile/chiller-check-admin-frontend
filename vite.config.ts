@@ -29,8 +29,8 @@ export default defineConfig(({ command }) => {
         registerType: 'prompt',
         includeAssets: ['icons/favicon.ico'],
         manifest: {
-          theme_color: '#f88935',
-          background_color: '#f69435',
+          theme_color: '#000ABC',
+          background_color: '#000ABC',
           display: 'standalone',
           scope: '/',
           start_url: '/',

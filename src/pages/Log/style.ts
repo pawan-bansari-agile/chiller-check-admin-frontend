@@ -326,6 +326,10 @@ export const Wrapper = styled.div`
       flex-wrap: wrap;
       gap: 15px;
     }
+
+    .otherLogForm {
+      flex-wrap: wrap;
+    }
   }
 
   @media only screen and (max-width: ${({ theme }) => theme.device.md}) {

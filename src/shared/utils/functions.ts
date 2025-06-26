@@ -224,28 +224,47 @@ export const getAntDSortOrder = (
 export const allowNegativeDecimalOnly = (e: React.KeyboardEvent<HTMLInputElement>) => {
   const allowedControlKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'];
   const key = e.key;
-  const value = (e.currentTarget as HTMLInputElement).value;
+  const input = e.currentTarget as HTMLInputElement;
+  const value = input.value;
   const isCtrlCmd = e.ctrlKey || e.metaKey;
 
+  // Allow control keys and CMD/CTRL shortcuts
   if (allowedControlKeys.includes(key) || isCtrlCmd) {
-    return; // Allow control keys and CMD/CTRL shortcuts
+    return;
   }
 
+  // Allow minus only at the beginning and only once
   if (key === '-') {
-    if (value.length !== 0 || value.includes('-')) {
-      e.preventDefault(); // Only one minus at the beginning
+    if (value.includes('-')) {
+      e.preventDefault();
     }
     return;
   }
 
+  // Allow dot only once
   if (key === '.') {
     if (value.includes('.')) {
-      e.preventDefault(); // Only one dot allowed
+      e.preventDefault();
     }
     return;
   }
 
-  if (!/^[0-9]$/.test(key)) {
-    e.preventDefault(); // Block everything except 0–9
+  // Allow digits 0–9
+  if (/^[0-9]$/.test(key)) {
+    const [integerPart, decimalPart] = value.split('.');
+
+    // If already has a dot and cursor is after it
+    const cursorPos = input.selectionStart ?? value.length;
+
+    if (value.includes('.') && cursorPos > value.indexOf('.')) {
+      if (integerPart && decimalPart?.length >= 4) {
+        e.preventDefault(); // Limit decimal places to 4
+      }
+    }
+
+    return;
   }
+
+  // Block all other characters
+  e.preventDefault();
 };

@@ -237,6 +237,7 @@ export const Wrapper = styled.div`
         border-radius: 16px;
         padding: 25px;
         border: 1px solid #c3c3c3;
+        overflow: auto;
 
         .issueHeader {
           display: flex;

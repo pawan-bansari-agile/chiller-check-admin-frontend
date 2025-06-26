@@ -26,18 +26,21 @@ const columns = [
     title: 'Field',
     dataIndex: 'field',
     key: 'field',
+    width: 120,
     sorter: (a: any, b: any) => a.field - b.field
   },
   {
     title: 'Problem',
     dataIndex: 'problem',
     key: 'problem',
+    width: 340,
     sorter: (a: any, b: any) => a.problem - b.problem
   },
   {
     title: 'Solution',
     dataIndex: 'solution',
     key: 'solution',
+    width: 340,
     sorter: (a: any, b: any) => a.solution - b.solution
   },
   {

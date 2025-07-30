@@ -164,7 +164,7 @@ const ViewUser: React.FC = () => {
                     detailsTitle="Facility"
                     detailsDescription={
                       data?.role === USER_ROLES.CORPORATE_MANAGER
-                        ? (data?.facilities?.length ?? '-')
+                        ? data?.facilities?.length || '-'
                         : data?.role === USER_ROLES.FACILITY_MANAGER ||
                             data?.role === USER_ROLES.OPERATOR
                           ? data?.facilities?.length

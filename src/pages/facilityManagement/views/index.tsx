@@ -214,12 +214,12 @@ const FacilityManagement: React.FC = () => {
         </Tag>
       )
     },
-    {
-      title: 'Is Assigned',
-      dataIndex: 'isAssign',
-      key: 'isAssign',
-      render: (assigned) => (assigned ? 'Yes' : 'No')
-    },
+    // {
+    //   title: 'Is Assigned',
+    //   dataIndex: 'isAssign',
+    //   key: 'isAssign',
+    //   render: (assigned) => (assigned ? 'Yes' : 'No')
+    // },
     ...(hasPermission('facility', 'edit') || hasPermission('facility', 'view')
       ? [
           {

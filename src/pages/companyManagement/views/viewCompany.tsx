@@ -14,8 +14,13 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Button, Tag } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 
+import { chillerQueryKeys } from '@/services/chiller';
 import { companyHooks, companyQueryKeys } from '@/services/company';
-import { Facility } from '@/services/company/types';
+import { Chiller, Facility } from '@/services/company/types';
+import { facilityQueryKeys } from '@/services/facility';
+import { userQueryKeys } from '@/services/user';
+
+import { authStore } from '@/store/auth';
 
 import HeaderToolbar from '@/shared/components/common/HeaderToolbar';
 import { Loader } from '@/shared/components/common/Loader';
@@ -23,10 +28,11 @@ import Meta from '@/shared/components/common/Meta';
 import CommonModal from '@/shared/components/common/Modal/components/CommonModal';
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
 import { CommonTable } from '@/shared/components/common/Table';
-import { statusType } from '@/shared/constants';
+import EmptyState from '@/shared/components/common/Table/EmptyState';
+import { USER_ROLES, statusType } from '@/shared/constants';
 import { ROUTES } from '@/shared/constants/routes';
 import { ChillerIcon, EditIcon, FacilityIcon, OperatorIcon } from '@/shared/svg';
-import { capitalizeFirstLetter, showToaster } from '@/shared/utils/functions';
+import { capitalizeFirstLetter, hasPermission, showToaster } from '@/shared/utils/functions';
 
 import { Wrapper } from '../style';
 
@@ -34,35 +40,20 @@ const statusColorMap: Record<string, string> = {
   active: '#00A86B',
   inactive: '#CF5439',
   demo: '#D5A513',
-  prospect: '#00077B'
+  prospect: '#00077B',
+  pending: '#00077B'
 };
 
-const getStatusColor = (status: string) => statusColorMap[status] || 'default';
+const getStatusColor = (status: string) => statusColorMap[status?.toLowerCase()] || 'default';
 
 const renderAddress = ({ address1 = '', address2 = '' }: Facility) => {
   if (address1 && address2) return `${address2}, ${address1}`;
   return address2 || address1 || '-';
 };
 
-interface ChillerRow {
-  facilityName: string;
-  chiller: { name: string; code: string; link: string };
-  efficiencyRating: number;
-  energyCost: number;
-  avgProfile: number;
-  operationHour: number;
-  assigned: number;
-  efficiencyLoss: number;
-  condLoss: number;
-  evapLoss: number;
-  nonCondLoss: number;
-  otherLoss: number;
-  status: string;
-  lastEntry: { name: string; datetime: string; highlight?: 'red' | 'yellow' };
-}
-
 const ViewCompany: React.FC = () => {
   const navigate = useNavigate();
+  const { userData } = authStore((state) => state);
   const queryClient = useQueryClient();
   const { id } = useParams();
   const { data, isLoading } = companyHooks.CompanyView(id ?? '');
@@ -78,8 +69,11 @@ const ViewCompany: React.FC = () => {
     };
     activeInactiveAction(payload, {
       onSuccess: (res) => {
-        showToaster('success', res?.message);
+        showToaster('success', res?.data || 'Company Status Updated.');
+        queryClient.invalidateQueries({ queryKey: facilityQueryKeys.all });
         queryClient.invalidateQueries({ queryKey: companyQueryKeys.all });
+        queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
+        queryClient.invalidateQueries({ queryKey: chillerQueryKeys.all });
         setIsModalOpen(false);
       },
       onError: (err) => {
@@ -100,7 +94,7 @@ const ViewCompany: React.FC = () => {
       title: 'Facility Name',
       dataIndex: 'name',
       key: 'name',
-      width: 120
+      width: 130
     },
     {
       title: 'Address',
@@ -125,7 +119,7 @@ const ViewCompany: React.FC = () => {
       title: 'Zip Code',
       dataIndex: 'zipcode',
       key: 'zipcode',
-      width: 90
+      width: 100
     },
     {
       title: 'Altitude',
@@ -157,86 +151,88 @@ const ViewCompany: React.FC = () => {
     },
     {
       title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) =>
-        status ? (
-          <Tag className="statusTag" color={getStatusColor(status)}>
-            {status}
-          </Tag>
-        ) : (
-          '-'
-        )
-    },
-    {
-      title: '',
-      key: 'action',
-      render: () => (
-        <div className="actionIonWrap">
-          <div className="actionIcon" onClick={() => navigate(ROUTES.View_FACILITY_MANAGEMENT)}>
-            <EyeOutlined />
-          </div>
-        </div>
+      dataIndex: 'isActive',
+      key: 'isActive',
+      render: (status: boolean) => (
+        <Tag className="statusTag" color={getStatusColor(status ? 'active' : 'inactive')}>
+          {status ? 'Active' : 'Inactive'}
+        </Tag>
       )
-    }
+    },
+    ...(hasPermission('facility', 'view')
+      ? [
+          {
+            title: '',
+            key: '_id',
+            dataIndex: '_id',
+            render: (value: string) => (
+              <div className="actionIonWrap">
+                <div
+                  className="actionIcon"
+                  onClick={() => navigate(ROUTES.View_FACILITY_MANAGEMENT(value))}
+                >
+                  <EyeOutlined />
+                </div>
+              </div>
+            )
+          }
+        ]
+      : [])
   ];
 
-  const viewColumns: ColumnsType<any> = [
+  const chillerColumns: ColumnsType<Chiller> = [
     {
       title: 'Facility',
-      key: 'facilityName',
-      dataIndex: 'facilityName',
-      sorter: (a: any, b: any) => a.facilityName - b.facilityName,
-      render: (facilityName: string) => <b>{facilityName}</b>
+      key: 'facility',
+      dataIndex: 'facility',
+      render: (facility: Facility) => <b>{facility?.name || '-'}</b>
     },
     {
       title: 'Chiller Name',
-      key: 'chillerName',
-      render: (_: any, record: ChillerRow) => (
+      key: 'ChillerNo',
+      dataIndex: 'ChillerNo',
+      render: (value: string, record: Chiller) => (
         <div className="chillerNameWrap">
-          <a className="chillerName">{record.chiller.name}</a>
-          <span>{record.chiller.code}</span>
+          <a className="chillerName">{record?.make + ' ' + record?.model}</a>
+          <span>{value}</span>
         </div>
-      ),
-      sorter: (a: any, b: any) => a.chillerName - b.chillerName
+      )
     },
     {
       title: 'Efficiency Rating (kw/ton)',
       key: 'efficiencyRating',
       width: 180,
       dataIndex: 'efficiencyRating',
-      sorter: (a: any, b: any) => a.efficiencyRating - b.efficiencyRating
+      render: (value: number) => value ?? '-'
     },
     {
       title: 'Energy Cost',
       key: 'energyCost',
-      dataIndex: 'energyCost',
-      sorter: (a: any, b: any) => a.energyCost - b.energyCost
+      dataIndex: 'energyCost'
     },
     {
       title: 'Avg. Load Profile(%)',
-      key: 'avgProfile',
-      dataIndex: 'avgProfile',
-      sorter: (a: any, b: any) => a.avgProfile - b.avgProfile
+      key: 'avgLoadProfile',
+      dataIndex: 'avgLoadProfile'
     },
     {
       title: 'Operation Hours (W)',
-      key: 'operationHour',
-      dataIndex: 'operationHour',
-      sorter: (a: any, b: any) => a.operationHour - b.operationHour
+      key: 'weeklyHours',
+      dataIndex: 'weeklyHours'
     },
     {
       title: 'Assigned To',
-      key: 'assigned',
-      dataIndex: 'assigned',
-      sorter: (a: any, b: any) => a.assigned - b.assigned
+      key: 'totalOperators',
+      dataIndex: 'totalOperators'
     },
     {
       title: 'Efficiency Loss %',
       key: 'efficiencyLoss',
       width: 160,
-      sorter: (a: any, b: any) => a.efficiencyLoss - b.efficiencyLoss,
-      render: (_: any, record: ChillerRow) => {
+      render: () => {
+        const record = {
+          efficiencyLoss: 40
+        };
         let className = '';
         if (record.efficiencyLoss >= 50) className = 'bgRed';
         else if (record.efficiencyLoss >= 44) className = 'bgYellow';
@@ -248,9 +244,11 @@ const ViewCompany: React.FC = () => {
       title: 'Cond. App. Loss %',
       key: 'condLoss',
       dataIndex: 'condLoss',
-      width: 160,
-      sorter: (a: any, b: any) => a.condLoss - b.condLoss,
-      render: (_: any, record: ChillerRow) => {
+      width: 170,
+      render: () => {
+        const record = {
+          efficiencyLoss: 40
+        };
         let className = '';
         if (record.efficiencyLoss >= 50) className = 'bgRed';
         else if (record.efficiencyLoss >= 44) className = 'bgYellow';
@@ -261,11 +259,12 @@ const ViewCompany: React.FC = () => {
     {
       title: 'Evap. App. Loss %',
       key: 'evapLoss',
-      width: 160,
-
+      width: 170,
       dataIndex: 'evapLoss',
-      sorter: (a: any, b: any) => a.evapLoss - b.evapLoss,
-      render: (_: any, record: ChillerRow) => {
+      render: () => {
+        const record = {
+          efficiencyLoss: 40
+        };
         let className = '';
         if (record.efficiencyLoss >= 50) className = 'bgRed';
         else if (record.efficiencyLoss >= 44) className = 'bgYellow';
@@ -277,10 +276,11 @@ const ViewCompany: React.FC = () => {
       title: 'Non-Cond. App. Loss %',
       key: 'nonCondLoss',
       width: 180,
-
       dataIndex: 'nonCondLoss',
-      sorter: (a: any, b: any) => a.nonCondLoss - b.nonCondLoss,
-      render: (_: any, record: ChillerRow) => {
+      render: () => {
+        const record = {
+          efficiencyLoss: 40
+        };
         let className = '';
         if (record.efficiencyLoss >= 50) className = 'bgRed';
         else if (record.efficiencyLoss >= 44) className = 'bgYellow';
@@ -292,10 +292,11 @@ const ViewCompany: React.FC = () => {
       title: 'Other Losses %',
       key: 'otherLoss',
       width: 160,
-
       dataIndex: 'otherLoss',
-      sorter: (a: any, b: any) => a.otherLoss - b.otherLoss,
-      render: (_: any, record: ChillerRow) => {
+      render: () => {
+        const record = {
+          efficiencyLoss: 40
+        };
         let className = '';
         if (record.efficiencyLoss >= 50) className = 'bgRed';
         else if (record.efficiencyLoss >= 44) className = 'bgYellow';
@@ -307,19 +308,27 @@ const ViewCompany: React.FC = () => {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      render: (status: any) => (
-        <Tag className="statusTag" color={statusColorMap[status] || 'default'}>
-          {status}
-        </Tag>
-      ),
-      sorter: (a: any, b: any) => a.status - b.status
+      render: (status: string) =>
+        status ? (
+          <Tag className="statusTag" color={statusColorMap[status?.toLowerCase()] || 'default'}>
+            {capitalizeFirstLetter(status)}
+          </Tag>
+        ) : (
+          '-'
+        )
     },
     {
       title: 'Last Entry',
       key: 'lastEntry',
       width: 200,
-      sorter: (a: any, b: any) => a.lastEntry - b.lastEntry,
-      render: (_: any, record: ChillerRow) => {
+      render: () => {
+        const record = {
+          efficiencyLoss: 40,
+          lastEntry: {
+            name: 'Monica Geller',
+            datetime: '12/11/24 15:00'
+          }
+        };
         let className = '';
         if (record.efficiencyLoss >= 50) className = 'bgRed';
         else if (record.efficiencyLoss >= 44) className = 'bgYellow';
@@ -331,37 +340,22 @@ const ViewCompany: React.FC = () => {
         );
       }
     },
-    {
-      title: '',
-      key: 'action',
-      fixed: 'right',
-      render: () => (
-        <div className="actionIonWrap">
-          <Link className="actionIcon" to={ROUTES.View_CHILLER_MANAGEMENT}>
-            <EyeOutlined />
-          </Link>
-        </div>
-      )
-    }
-  ];
-
-  const viewData: ChillerRow[] = [
-    {
-      facilityName: 'BIdg #1',
-      chiller: { name: 'CryoStream', code: 'CHL-983472-AQ', link: '#' },
-      efficiencyRating: 12.36,
-      energyCost: 1.23,
-      avgProfile: 67.65,
-      operationHour: 24,
-      assigned: 3,
-      efficiencyLoss: 50,
-      condLoss: 29,
-      evapLoss: 29,
-      nonCondLoss: 29,
-      otherLoss: 29,
-      status: 'active',
-      lastEntry: { name: 'Monica Geller', datetime: '12/11/24 15:00' }
-    }
+    ...(hasPermission('chiller', 'view') || userData?.role === USER_ROLES.OPERATOR
+      ? [
+          {
+            title: '',
+            key: '_id',
+            dataIndex: '_id',
+            render: (value: string) => (
+              <div className="actionIonWrap">
+                <Link className="actionIcon" to={ROUTES.View_CHILLER_MANAGEMENT(value)}>
+                  <EyeOutlined />
+                </Link>
+              </div>
+            )
+          }
+        ]
+      : [])
   ];
 
   return (
@@ -374,27 +368,30 @@ const ViewCompany: React.FC = () => {
         button={
           <div className="viewButtonWrap">
             {!isLoading &&
+              hasPermission('company', 'toggleStatus') &&
               (data?.status === statusType.ACTIVE || data?.status === statusType.INACTIVE) && (
                 <Button className="title-cancel-btn" onClick={() => setIsModalOpen(true)}>
                   {data?.status === statusType.ACTIVE ? 'Inactivate' : 'Activate'}
                 </Button>
               )}
-            <Button
-              className="title-btn"
-              type="primary"
-              shape="round"
-              onClick={() => navigate(ROUTES.Edit_COMPANY_MANAGEMENT(id!))}
-              icon={<EditIcon />}
-            >
-              Edit
-            </Button>
+            {hasPermission('company', 'edit') && (
+              <Button
+                className="title-btn"
+                type="primary"
+                shape="round"
+                onClick={() => navigate(ROUTES.Edit_COMPANY_MANAGEMENT(id!))}
+                icon={<EditIcon />}
+              >
+                Edit
+              </Button>
+            )}
           </div>
         }
       />
       <div className="shadowWrap">
         <ShadowPaper>
           <div className="viewHeader">
-            <h2>Company Details</h2>
+            <h2 className="themeColor">Company Details</h2>
             <span className={`statusBedge ${renderClassName()}`}>
               {data?.status ? capitalizeFirstLetter(data?.status) : '-'}
             </span>
@@ -457,28 +454,57 @@ const ViewCompany: React.FC = () => {
         </ShadowPaper>
         <ShadowPaper>
           <div className="viewHeader">
-            <h2>Facilities</h2>
+            <h2 className="themeColor">Facilities</h2>
           </div>
           <CommonTable
             columns={facilityColumns}
-            dataSource={data?.facilities}
+            dataSource={data?.facilities || []}
             pagination={false}
             scroll={{ x: 'max-content' }}
             className="facility-table"
+            emptyText={
+              <EmptyState
+                isEmpty={!data?.facilities?.length}
+                defaultDescription="No Facility Found"
+              />
+            }
           />
         </ShadowPaper>
         <ShadowPaper>
           <div className="viewHeader">
-            <h2>Chillers</h2>
+            <h2 className="themeColor">Chillers</h2>
           </div>
           <CommonTable
-            columns={viewColumns}
-            dataSource={viewData}
+            columns={chillerColumns}
+            dataSource={data?.chillers || []}
             pagination={false}
             scroll={{ x: 2600 }}
             className="view-falility-table"
+            emptyText={
+              <EmptyState isEmpty={!data?.chillers?.length} defaultDescription="No Chiller Found" />
+            }
           />
         </ShadowPaper>
+        <div className="viewButtonWrap extraActionButton">
+          {!isLoading &&
+            hasPermission('company', 'toggleStatus') &&
+            (data?.status === statusType.ACTIVE || data?.status === statusType.INACTIVE) && (
+              <Button className="title-cancel-btn" onClick={() => setIsModalOpen(true)}>
+                {data?.status === statusType.ACTIVE ? 'Inactivate' : 'Activate'}
+              </Button>
+            )}
+          {hasPermission('company', 'edit') && (
+            <Button
+              className="title-btn"
+              type="primary"
+              shape="round"
+              onClick={() => navigate(ROUTES.Edit_COMPANY_MANAGEMENT(id!))}
+              icon={<EditIcon />}
+            >
+              Edit
+            </Button>
+          )}
+        </div>
       </div>
       {isModalOpen && (
         <CommonModal

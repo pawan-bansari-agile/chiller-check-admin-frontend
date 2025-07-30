@@ -17,7 +17,7 @@ import Meta from '@/shared/components/common/Meta';
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
 import { ROUTES } from '@/shared/constants/routes';
 import { ChillerIcon, EditIcon } from '@/shared/svg';
-import { toAbsoluteUrl } from '@/shared/utils/functions';
+import { hasPermission, toAbsoluteUrl } from '@/shared/utils/functions';
 
 import { Wrapper } from '../style';
 
@@ -30,12 +30,16 @@ const ViewMaintenance: React.FC = () => {
         backBtn={true}
         button={
           <div className="maintenanceButtonWrap">
-            <Button className="title-cancel-btn delete-btn" icon={<DeleteOutlined />}>
-              Delete
-            </Button>
-            <Button className="title-btn" type="primary" shape="round" icon={<EditIcon />}>
-              <Link to={ROUTES.EDIT_MAINTENANCE}>Edit</Link>
-            </Button>
+            {hasPermission('maintenance', 'toggleStatus') && (
+              <Button className="title-cancel-btn delete-btn" icon={<DeleteOutlined />}>
+                Delete
+              </Button>
+            )}
+            {hasPermission('maintenance', 'edit') && (
+              <Button className="title-btn" type="primary" shape="round" icon={<EditIcon />}>
+                <Link to={ROUTES.EDIT_MAINTENANCE}>Edit</Link>
+              </Button>
+            )}
           </div>
         }
       />
@@ -114,6 +118,19 @@ const ViewMaintenance: React.FC = () => {
           </CardWithTitle>
         </Col>
       </Row>
+
+      <div className="maintenanceButtonWrap extraActionButton">
+        {hasPermission('maintenance', 'toggleStatus') && (
+          <Button className="title-cancel-btn delete-btn" icon={<DeleteOutlined />}>
+            Delete
+          </Button>
+        )}
+        {hasPermission('maintenance', 'edit') && (
+          <Button className="title-btn" type="primary" shape="round" icon={<EditIcon />}>
+            <Link to={ROUTES.EDIT_MAINTENANCE}>Edit</Link>
+          </Button>
+        )}
+      </div>
     </Wrapper>
   );
 };

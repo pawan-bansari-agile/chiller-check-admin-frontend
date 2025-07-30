@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { Form } from 'antd';
 
 import { authHooks } from '@/services/auth';
@@ -15,12 +16,14 @@ import { initializeDeviceId, showToaster } from '@/shared/utils/functions';
 const useSignInController = () => {
   const navigate = useNavigate();
   const { mutate: loginAction, isPending } = authHooks.useSignIn();
+  const queryClient = useQueryClient();
   const { actions } = authStore((state) => state);
 
   const [form] = Form.useForm();
 
   const [deviceId, setDeviceId] = useState<string>('');
   const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     initializeDeviceId(deviceId, setDeviceId);
@@ -38,13 +41,19 @@ const useSignInController = () => {
       onSuccess: (res) => {
         const { data, message } = res || {};
 
+        if (data?.blockLogin) {
+          setIsModalOpen(true);
+          return;
+        }
+
         if (data?.otpSent) {
-          showToaster('success', data.message);
-          navigate(`${ROUTES.VERIFY_OTP}?userId=${data.userId}`);
+          showToaster('success', data?.message);
+          navigate(`${ROUTES.VERIFY_OTP}?userId=${data?.userId}`);
           return;
         }
         actions.authSuccess({ data });
         showToaster('success', message);
+        queryClient.removeQueries();
         navigate(ROUTES.DASHBOARD);
       },
       onError: (err) => {
@@ -66,7 +75,9 @@ const useSignInController = () => {
     isPending,
     isButtonDisabled,
     handleFieldsChange,
-    onSubmit
+    onSubmit,
+    isModalOpen,
+    setIsModalOpen
   };
 };
 

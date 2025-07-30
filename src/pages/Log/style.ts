@@ -90,6 +90,12 @@ export const Wrapper = styled.div`
 
   /* add-edit */
 
+  .extraActionButton {
+    justify-content: flex-end;
+    margin: 25px 0 0 !important;
+    padding-bottom: 25px;
+  }
+
   .addMainForm {
     padding: 22px 22px;
   }
@@ -126,7 +132,7 @@ export const Wrapper = styled.div`
       justify-content: space-between;
       margin-bottom: 20px;
       .mainlabel {
-        font-size: 14px;
+        font-size: 12px;
         font-weight: 600;
         line-height: 28px;
         color: ${({ theme }) => theme.colors.inkBlue};

@@ -10,8 +10,8 @@ export const AntTable = createGlobalStyle`
                 background-color: ${({ theme }) => theme.colors.skyBlue};
                 border-top: 1px solid ${({ theme }) => theme.colors.purple};
                 border-bottom: 1px solid ${({ theme }) => theme.colors.purple};
-                font-size: 12px;
-                font-weight: 500;
+                font-size: 15px;
+                font-weight: 600;
                 line-height: 20px;
                 color: ${({ theme }) => theme.colors.black};
                 padding: 13px !important;
@@ -20,8 +20,8 @@ export const AntTable = createGlobalStyle`
                 }
                 &.ant-table-column-has-sorters{
                     .ant-table-column-title{
-                        font-size: 12px;
-                        font-weight: 500;
+                        font-size: 15px;
+                        font-weight: 600;
                         line-height: 20px;
                         color: ${({ theme }) => theme.colors.black};
                     }
@@ -38,8 +38,11 @@ export const AntTable = createGlobalStyle`
             .ant-table-measure-row{
                 display: none;
             }
+            .ant-table-row.ant-table-row-selected >.ant-table-cell{
+                background: #fff !important;
+            }
             .ant-table-row >.ant-table-cell-row-hover{
-                background: #fff;
+                background: #fff !important;
             }
             tr td{
                 text-align: center;
@@ -48,7 +51,7 @@ export const AntTable = createGlobalStyle`
                 line-height: 22px;
                 color: ${({ theme }) => hexToRGBA(theme.colors.black, 0.85)};
                 padding: 11px 5px !important;
-                vertical-align: top;
+                /* vertical-align: top; */
 
                 &:first-of-type{
                     padding-left: 30px !important;

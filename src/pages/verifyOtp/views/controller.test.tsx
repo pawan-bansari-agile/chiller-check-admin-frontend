@@ -21,6 +21,18 @@ vi.mock('react-router-dom', () => ({
   ]
 }));
 
+vi.mock('@tanstack/react-query', async () => {
+  const actual =
+    await vi.importActual<typeof import('@tanstack/react-query')>('@tanstack/react-query');
+  return {
+    ...actual, // ✅ import actual exports like QueryClient, QueryClientProvider, etc.
+    useQueryClient: () => ({
+      invalidateQueries: vi.fn(),
+      removeQueries: vi.fn()
+    })
+  };
+});
+
 // MOCK: authStore
 const mockAuthSuccess = vi.fn();
 vi.mock('@/store/auth', () => ({

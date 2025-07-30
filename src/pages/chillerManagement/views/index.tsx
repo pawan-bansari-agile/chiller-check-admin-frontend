@@ -1,367 +1,524 @@
-import React from 'react';
+import React, { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 import {
-  DownOutlined,
   EyeOutlined,
   PlusOutlined,
   SearchOutlined,
   SlidersOutlined,
   SyncOutlined
 } from '@ant-design/icons';
-import { Button, Checkbox, Dropdown, Input, MenuProps, Space, Tag } from 'antd';
+import { useQueryClient } from '@tanstack/react-query';
+import { Button, Checkbox, Dropdown, Form, Input, Tag } from 'antd';
 import { ColumnsType } from 'antd/es/table';
+import { FilterValue, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 
+import { chillerHooks, chillerQueryKeys } from '@/services/chiller';
+import { IChillerList } from '@/services/chiller/types';
+import { ICommonPagination } from '@/services/common/types';
+import { companyHooks, companyQueryKeys } from '@/services/company';
+import { facilityHooks, facilityQueryKeys } from '@/services/facility';
+import { userQueryKeys } from '@/services/user';
+
+import { authStore } from '@/store/auth';
+
+import { RenderSelectDropDown, RenderTextInput } from '@/shared/components/common/FormField';
 import HeaderToolbar from '@/shared/components/common/HeaderToolbar';
 import Meta from '@/shared/components/common/Meta';
+import CommonModal from '@/shared/components/common/Modal/components/CommonModal';
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
 import { CommonTable } from '@/shared/components/common/Table';
+import EmptyState from '@/shared/components/common/Table/EmptyState';
+import { MEASUREMENT_UNITS, USER_ROLES } from '@/shared/constants';
 import { ROUTES } from '@/shared/constants/routes';
 import { EditIcon } from '@/shared/svg';
+import {
+  allowEnergyCost,
+  buildSearchParams,
+  capitalizeFirstLetter,
+  debounce,
+  getAntDSortOrder,
+  getSortOrder,
+  hasPermission,
+  showToaster,
+  validateEnergyCost
+} from '@/shared/utils/functions';
 
 import { Wrapper } from '../style';
 
-const companyItems: MenuProps['items'] = [
-  {
-    label: <span>Petal Grove Academy</span>,
-    key: '0'
-  },
-  {
-    label: <span>Angel investor</span>,
-    key: '1'
-  }
-];
-
-const facilityItems: MenuProps['items'] = [
-  {
-    label: <span>ChillTech ArcticCore V156</span>,
-    key: 'ChillTech ArcticCore V156'
-  },
-  {
-    label: <span>ChillTech ArcticCore V10</span>,
-    key: 'ChillTech ArcticCore V10'
-  }
-];
+const statusColorMap: Record<string, string> = {
+  active: '#00A86B',
+  inactive: '#CF5439',
+  pending: '#000ABC'
+};
 
 const ChillerManagement: React.FC = () => {
-  interface ChillerRow {
-    selectAll: string;
-    companyName: string;
-    facilityName: string;
-    chiller: {
-      name: string;
-      code: string;
-      link: string;
-    };
-    tons: number;
-    energyCost: number;
-    efficiencyLoss: number;
-    monLoss: number;
-    condLoss: number;
-    evapLoss: number;
-    nonCondLoss: number;
-    otherLoss: number;
-    status: string;
-    lastEntry: {
-      datetime: string;
-      highlight?: 'red' | 'yellow';
-    };
-  }
+  const [form] = Form.useForm();
+  const queryClient = useQueryClient();
+  const { userData } = authStore((state) => state);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const chillerData: ChillerRow[] = [
-    {
-      selectAll: '',
-      companyName: 'Petal Grove Academy',
-      facilityName: 'CryoSystems ArcticCore V10',
-      chiller: { name: 'CryoStream', code: 'CHL-983472-AQ', link: '#' },
-      tons: 1000,
-      energyCost: 1.23,
-      efficiencyLoss: 42,
-      monLoss: 12,
-      condLoss: 29,
-      evapLoss: 29,
-      nonCondLoss: 29,
-      otherLoss: 29,
-      status: 'Active',
-      lastEntry: { datetime: '12/11/24 15:00' }
-    },
-    {
-      selectAll: '',
-      companyName: 'Petal Grove Academy',
+  const latestSearchParamsRef = useRef(searchParams);
 
-      facilityName: 'CryoSystems ArcticCore V10',
-      chiller: { name: 'FrostLine', code: 'FST-764239-BX', link: '#' },
-      tons: 1000,
-      energyCost: 1.23,
-      efficiencyLoss: 50,
-      monLoss: 12,
-      condLoss: 29,
-      evapLoss: 29,
-      nonCondLoss: 29,
-      otherLoss: 29,
+  const [searchVal, setSearchVal] = useState<string>('');
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
+  const [selectedFacilityId, setSelectedFacilityId] = useState<string | null>(null);
+  const [chillerIds, setChillerIds] = useState<string[] | []>([]);
+  const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({});
 
-      status: 'Active',
-      lastEntry: {
-        datetime: '13/11/24 14:00',
-        highlight: 'red'
-      }
-    },
-    {
-      selectAll: '',
-      companyName: 'Petal Grove Academy',
+  const [args, setArgs] = useState<ICommonPagination>({
+    page: Number(searchParams.get('page')) || 1,
+    limit: Number(searchParams.get('limit')) || 10,
+    search: searchParams.get('search') || '',
+    sort_by: searchParams.get('sort_by') || '',
+    sort_order: searchParams.get('sort_order') || '',
+    companyId: searchParams.get('companyId') || userData?.companyId || '',
+    facilityId: searchParams.get('facilityId') || ''
+  });
+  const [facilityArg, setFacilityArg] = useState<ICommonPagination>({
+    page: 1,
+    limit: 100000,
+    search: '',
+    sort_by: '',
+    sort_order: '',
+    companyId: searchParams.get('companyId') || userData?.companyId || ''
+  });
 
-      facilityName: 'CryoSystems ArcticCore V10',
-      chiller: { name: 'ArcticNova', code: 'GLC-572148-MT', link: '#' },
-      tons: 1000,
-      energyCost: 1.23,
-      efficiencyLoss: 41.5,
-      monLoss: 12,
-      condLoss: 29,
-      evapLoss: 29,
-      nonCondLoss: 29,
-      otherLoss: 29,
+  const { data: facilityListCompany, isLoading: isFacilityListCompanyLoading } =
+    facilityHooks.FacilityList(facilityArg);
+  const { data, isLoading } = chillerHooks.ChillerList(args);
+  const { data: companyList, isLoading: isCompanyLoading } = companyHooks.AllCompanyList();
+  const { data: facilityList, isLoading: isFacilityLoading } = facilityHooks.AllFacilityList();
+  const { mutate: bulkUpdateAction, isPending: isBulkLoading } = chillerHooks.useBulkUpdate();
 
-      status: 'Pending',
-      lastEntry: { datetime: '11/11/24 16:00' }
-    },
-    {
-      selectAll: '',
-      companyName: 'Petal Grove Academy',
+  const isEmpty = !data?.chillerList?.length;
 
-      facilityName: 'CryoSystems ArcticCore V10',
-      chiller: { name: 'IceCascade', code: 'POL-394857-VZ', link: '#' },
-      tons: 1000,
-      energyCost: 1.23,
-      efficiencyLoss: 44,
-      monLoss: 12,
-      condLoss: 29,
-      evapLoss: 29,
-      nonCondLoss: 29,
-      otherLoss: 29,
+  const toggleableColumnKeys = useMemo(
+    () => [
+      'companyName',
+      'facilityName',
+      'chillerName',
+      'serialNumber',
+      'tons',
+      'energyCost',
+      'efficiencyLoss',
+      'condLoss',
+      'evapLoss',
+      'nonCondLoss',
+      'otherLoss',
+      'status',
+      'lastEntry'
+    ],
+    []
+  );
 
-      status: 'Active',
-      lastEntry: {
-        datetime: '10/11/24 15:30',
-        highlight: 'yellow'
-      }
-    },
-    {
-      selectAll: '',
-      companyName: 'Petal Grove Academy',
+  const companyOptions = useMemo(() => {
+    return (
+      companyList?.map((company) => ({
+        label: capitalizeFirstLetter(company?.name),
+        value: company?._id
+      })) || []
+    );
+  }, [companyList]);
 
-      facilityName: 'CryoSystems ArcticCore V10',
-      chiller: { name: 'PolarZen', code: 'CRY-685429-KQ', link: '#' },
-      tons: 1000,
-      energyCost: 1.23,
-      efficiencyLoss: 43,
-      monLoss: 12,
-      condLoss: 29,
-      evapLoss: 29,
-      nonCondLoss: 29,
+  const facilityOptions = useMemo(() => {
+    return (
+      facilityList?.map((facility) => ({
+        label: capitalizeFirstLetter(facility?.name),
+        value: facility?._id
+      })) || []
+    );
+  }, [facilityList]);
 
-      otherLoss: 29,
+  const facilityOptionsCompany = useMemo(() => {
+    return (
+      facilityListCompany?.facilityList?.map((facility) => ({
+        label: capitalizeFirstLetter(facility.name),
+        value: facility._id
+      })) || []
+    );
+  }, [facilityListCompany]);
 
-      status: 'Active',
-      lastEntry: { datetime: '12/11/24 17:30' }
+  useEffect(() => {
+    if (args.search) setSearchVal(args.search);
+  }, [args.search]);
+
+  useEffect(() => {
+    if (userData?.companyId) setSelectedCompanyId(userData?.companyId);
+  }, [userData?.companyId]);
+
+  useEffect(() => {
+    latestSearchParamsRef.current = searchParams;
+  }, [searchParams]);
+
+  useEffect(() => {
+    const companyIdFromUrl = searchParams.get('companyId');
+    if (companyIdFromUrl && companyOptions?.length) {
+      setSelectedCompanyId(companyIdFromUrl);
     }
-  ];
+  }, [searchParams, companyOptions]);
 
-  const columns: ColumnsType<any> = [
-    {
-      title: () => <Checkbox />,
-      dataIndex: 'selectAll',
-      key: 'selectAll',
-      render: () => <Checkbox checked />
-    },
-    {
-      title: 'Company name',
-      key: 'companyName',
-      dataIndex: 'companyName',
-      width: 180
-    },
-    {
-      title: 'Facility name',
-      key: 'facilityName',
-      dataIndex: 'facilityName',
-      width: 220
-    },
-    {
-      title: 'Chiller Name',
-      key: 'chillerName',
-      render: (_: any, record: ChillerRow) => (
-        <div className="chillerNameWrap">
-          <a className="chillerName">{record.chiller.name}</a>
-          <span>{record.chiller.code}</span>
-        </div>
-      ),
-      sorter: (a: any, b: any) => a.chillerName - b.chillerName
-    },
-    {
-      title: 'Tons',
-      key: 'tons',
-      dataIndex: 'tons',
-      sorter: (a: any, b: any) => a.tons - b.tons
-    },
-    {
-      title: 'Energy Cost',
-      key: 'energyCost',
-      dataIndex: 'energyCost',
-      sorter: (a: any, b: any) => a.energyCost - b.energyCost
-    },
-    {
-      title: 'Efficiency Loss %',
-      key: 'efficiencyLoss',
-      width: 150,
-      sorter: (a: any, b: any) => a.efficiencyLoss - b.efficiencyLoss,
-      render: (_: any, record: ChillerRow) => {
-        let className = '';
-        if (record.efficiencyLoss >= 50) className = 'bgRed';
-        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
+  useEffect(() => {
+    const facilityFromUrl = searchParams.get('facilityId');
 
-        return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
-      }
-    },
-    {
-      title: '12 Mon. Loss $',
-      key: 'monLoss',
-      dataIndex: 'monLoss',
-      sorter: (a: any, b: any) => a.monLoss - b.monLoss,
-      render: (monLoss: number) => <>$ {monLoss}</>
-    },
-    {
-      title: 'Cond. App. Loss %',
-      key: 'condLoss',
-      dataIndex: 'condLoss',
-      width: 155,
-      sorter: (a: any, b: any) => a.condLoss - b.condLoss,
-      render: (_: any, record: ChillerRow) => {
-        let className = '';
-        if (record.efficiencyLoss >= 50) className = 'bgRed';
-        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
-
-        return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
-      }
-    },
-    {
-      title: 'Evap. App. Loss %',
-      key: 'evapLoss',
-      dataIndex: 'evapLoss',
-      width: 155,
-      sorter: (a: any, b: any) => a.evapLoss - b.evapLoss,
-      render: (_: any, record: ChillerRow) => {
-        let className = '';
-        if (record.efficiencyLoss >= 50) className = 'bgRed';
-        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
-
-        return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
-      }
-    },
-    {
-      title: 'Non-Cond. App. Loss %',
-      key: 'nonCondLoss',
-      dataIndex: 'nonCondLoss',
-      width: 180,
-      sorter: (a: any, b: any) => a.nonCondLoss - b.nonCondLoss,
-      render: (_: any, record: ChillerRow) => {
-        let className = '';
-        if (record.efficiencyLoss >= 50) className = 'bgRed';
-        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
-
-        return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
-      }
-    },
-    {
-      title: 'Other Losses %',
-      key: 'otherLoss',
-      dataIndex: 'otherLoss',
-      sorter: (a: any, b: any) => a.otherLoss - b.otherLoss,
-      render: (_: any, record: ChillerRow) => {
-        let className = '';
-        if (record.efficiencyLoss >= 50) className = 'bgRed';
-        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
-
-        return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
-      }
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: any) => (
-        <Tag className="statusTag" color={statusColorMap[status] || 'default'}>
-          {status}
-        </Tag>
-      ),
-      sorter: (a: any, b: any) => a.status - b.status
-    },
-    {
-      title: 'Last Entry',
-      key: 'lastEntry',
-      sorter: (a: any, b: any) => a.lastEntry - b.lastEntry,
-      render: (_: any, record: ChillerRow) => {
-        let className = '';
-        if (record.efficiencyLoss >= 50) className = 'bgRed';
-        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
-        return (
-          <div className={`last-entry-cell ${className}`}>
-            <div>{record.lastEntry.datetime}</div>
-          </div>
-        );
-      }
-    },
-    {
-      title: '',
-      key: 'action',
-      fixed: 'right',
-      render: () => (
-        <div className="actionIonWrap">
-          <Link className="actionIcon" to={ROUTES.Edit_CHILLER_MANAGEMENT}>
-            <EditIcon />
-          </Link>
-          <Link className="actionIcon" to={ROUTES.View_CHILLER_MANAGEMENT}>
-            <EyeOutlined />
-          </Link>
-        </div>
-      )
+    if (facilityFromUrl && (facilityOptions?.length || facilityOptionsCompany?.length)) {
+      setSelectedFacilityId(facilityFromUrl);
     }
-  ];
+  }, [searchParams, facilityOptions, facilityOptionsCompany]);
 
-  const statusColorMap: Record<string, string> = {
-    Active: '#00A86B',
-    Inactive: '#CF5439',
-    Pending: '#000ABC'
+  useEffect(() => {
+    const initialState: Record<string, boolean> = {};
+    toggleableColumnKeys?.forEach((key) => {
+      initialState[key] = true;
+    });
+    setVisibleColumns(initialState);
+  }, [toggleableColumnKeys]);
+
+  const handleTableChange = (
+    pagination: TablePaginationConfig,
+    _filters: Record<string, FilterValue | null>,
+    sorter: SorterResult<IChillerList> | SorterResult<IChillerList>[]
+  ) => {
+    if (!Array.isArray(sorter)) {
+      updateParamsAndArgs({
+        page: pagination.current ?? 1,
+        limit: pagination.pageSize ?? 10,
+        sort_by: sorter.order ? String(sorter.field) : '',
+        sort_order: getSortOrder(sorter.order) || ''
+      });
+    }
   };
+
+  const debouncedSearch = useRef(
+    debounce((value: string) => {
+      const trimmed = value.trim();
+      updateParamsAndArgs(
+        {
+          search: trimmed,
+          page: 1
+        },
+        latestSearchParamsRef.current
+      );
+    })
+  ).current;
+
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchVal(value);
+    debouncedSearch(value);
+  };
+
+  const updateParamsAndArgs = useCallback(
+    (newArgs: Partial<ICommonPagination>, baseParams?: URLSearchParams) => {
+      const currentParams = Object.fromEntries((baseParams || searchParams).entries());
+
+      const mergedArgs: Record<string, any> = {
+        page: Number(currentParams.page) || 1,
+        limit: Number(currentParams.limit) || 10,
+        search: currentParams.search || '',
+        sort_by: currentParams.sort_by ?? '', // <-- always ensure present
+        sort_order: currentParams.sort_order ?? '', // <-- always ensure present
+        companyId: currentParams.companyId || userData?.companyId || '',
+        facilityId: currentParams.facilityId || '',
+        ...newArgs // override anything as needed
+      };
+
+      // Apply number conversion only after merge
+      if (mergedArgs.page) mergedArgs.page = Number(mergedArgs.page);
+      if (mergedArgs.limit) mergedArgs.limit = Number(mergedArgs.limit);
+
+      setArgs(mergedArgs as ICommonPagination);
+      setSearchParams(buildSearchParams(mergedArgs));
+    },
+    [searchParams, setSearchParams, userData?.companyId]
+  );
+
+  // Updates state when a company is selected from the dropdown
+  const handleSelectChange = (value: string) => {
+    setFacilityArg({
+      ...facilityArg,
+      companyId: value
+    });
+    setSelectedCompanyId(value);
+    updateParamsAndArgs({ page: 1, companyId: value });
+  };
+
+  // Updates state when a facility is selected from the dropdown
+  const handleSelectFacilityChange = (value: string) => {
+    setSelectedFacilityId(value);
+    updateParamsAndArgs({ page: 1, facilityId: value });
+  };
+
+  const handleSuccess = (message: string) => {
+    showToaster('success', message);
+    form.resetFields();
+    queryClient.invalidateQueries({ queryKey: facilityQueryKeys.all });
+    queryClient.invalidateQueries({ queryKey: companyQueryKeys.all });
+    queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
+    queryClient.invalidateQueries({ queryKey: chillerQueryKeys.all });
+    setIsModalOpen(false);
+    setChillerIds([]);
+  };
+
+  const handleError = (err: any) => {
+    const errorMsg = err?.message || err?.message?.[0] || 'Something went wrong';
+    showToaster('error', errorMsg);
+  };
+
+  const onBulkUpdate = (values: { energyCost: string }) => {
+    const payload = {
+      chillerIds: chillerIds,
+      energyCost: Number(values?.energyCost)
+    };
+    bulkUpdateAction(payload, {
+      onSuccess: (res) => handleSuccess(res?.message || ''),
+      onError: handleError
+    });
+  };
+
+  const columns = useMemo<ColumnsType<any>>(() => {
+    const baseColumns: ColumnsType<any> = [
+      {
+        title: 'Company Name',
+        key: 'companyName',
+        dataIndex: 'companyName',
+        width: 180
+      },
+      {
+        title: 'Facility Name',
+        key: 'facilityName',
+        dataIndex: 'facilityName',
+        width: 220
+      },
+      {
+        title: 'Chiller Name',
+        key: 'chillerName',
+        dataIndex: 'chillerName',
+        sorter: true,
+        width: 175,
+        sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'chillerName'),
+        render: (_: any, record: IChillerList) => (
+          <div className="chillerNameWrap">
+            <a className="chillerName">{record?.chillerName || ''}</a>
+            <span>{record?.ChillerNo || ''}</span>
+          </div>
+        )
+      },
+      {
+        title: 'Serial No.',
+        key: 'serialNumber',
+        dataIndex: 'serialNumber',
+        render: (value: string) => value || '-'
+        // width: 220
+      },
+      {
+        title: 'Tons/KWR',
+        key: 'tons',
+        dataIndex: 'tons',
+        sorter: true,
+        sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'tons'),
+        render: (_: any, record: IChillerList) =>
+          record?.unit === MEASUREMENT_UNITS?.[0]?.value
+            ? (record?.tons ?? '-')
+            : (record?.kwr ?? '-')
+      },
+      {
+        title: 'Energy Cost',
+        key: 'energyCost',
+        dataIndex: 'energyCost',
+        sorter: true,
+        // width: 175,
+        sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'energyCost')
+      },
+      {
+        title: 'Efficiency Loss %',
+        key: 'efficiencyLoss',
+        // width: 160,
+        // sorter: true
+        render: () => {
+          let className = '';
+          const record = { efficiencyLoss: 40 };
+          if (record.efficiencyLoss >= 50) className = 'bgRed';
+          else if (record.efficiencyLoss >= 44) className = 'bgYellow';
+
+          return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
+        }
+      },
+      // {
+      //   title: '12 Mon. Loss $',
+      //   key: 'monLoss',
+      //   dataIndex: 'monLoss',
+      //   // width: 175,
+      //   // sorter: true,
+      //   render: () => <>$ 10</>
+      // },
+      {
+        title: 'Cond. App. Loss %',
+        key: 'condLoss',
+        dataIndex: 'condLoss',
+        // width: 175,
+        // sorter: true
+        render: () => {
+          let className = '';
+          const record = { efficiencyLoss: 40 };
+          if (record.efficiencyLoss >= 50) className = 'bgRed';
+          else if (record.efficiencyLoss >= 44) className = 'bgYellow';
+
+          return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
+        }
+      },
+      {
+        title: 'Evap. App. Loss %',
+        key: 'evapLoss',
+        dataIndex: 'evapLoss',
+        // width: 175,
+        // sorter: true
+        render: () => {
+          const record = { efficiencyLoss: 40 };
+          let className = '';
+          if (record.efficiencyLoss >= 50) className = 'bgRed';
+          else if (record.efficiencyLoss >= 44) className = 'bgYellow';
+
+          return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
+        }
+      },
+      {
+        title: 'Non-Cond. App. Loss %',
+        key: 'nonCondLoss',
+        dataIndex: 'nonCondLoss',
+        // width: 180,
+        // sorter: true
+        render: () => {
+          const record = { efficiencyLoss: 40 };
+          let className = '';
+          if (record.efficiencyLoss >= 50) className = 'bgRed';
+          else if (record.efficiencyLoss >= 44) className = 'bgYellow';
+
+          return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
+        }
+      },
+      {
+        title: 'Other Losses %',
+        key: 'otherLoss',
+        dataIndex: 'otherLoss',
+        // width: 175,
+        // sorter: true
+        render: () => {
+          const record = { efficiencyLoss: 40 };
+          let className = '';
+          if (record.efficiencyLoss >= 50) className = 'bgRed';
+          else if (record.efficiencyLoss >= 44) className = 'bgYellow';
+
+          return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
+        }
+      },
+      {
+        title: 'Status',
+        dataIndex: 'status',
+        key: 'status',
+        render: (status: string) =>
+          status ? (
+            <Tag className="statusTag" color={statusColorMap[status?.toLowerCase()] || 'default'}>
+              {capitalizeFirstLetter(status)}
+            </Tag>
+          ) : (
+            '-'
+          ),
+        sorter: true,
+        sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'status')
+      },
+      {
+        title: 'Last Entry',
+        key: 'lastEntry',
+        // width: 155,
+        // sorter: true
+        render: () => {
+          let className = '';
+          const record = { efficiencyLoss: 40, lastEntry: '12/11/24 17:30' };
+          if (record.efficiencyLoss >= 50) className = 'bgRed';
+          else if (record.efficiencyLoss >= 44) className = 'bgYellow';
+          return (
+            <div className={`last-entry-cell ${className}`}>
+              <div>{record.lastEntry}</div>
+            </div>
+          );
+        }
+      }
+    ];
+
+    const actionColumn: ColumnsType<any>[number] =
+      hasPermission('chiller', 'edit') ||
+      hasPermission('chiller', 'view') ||
+      userData?.role === USER_ROLES.OPERATOR
+        ? {
+            title: '',
+            key: '_id',
+            dataIndex: '_id',
+            fixed: 'right',
+            render: (id: string) => (
+              <div className="actionIonWrap">
+                {hasPermission('chiller', 'edit') && (
+                  <Link className="actionIcon" to={ROUTES.Edit_CHILLER_MANAGEMENT(id)}>
+                    <EditIcon />
+                  </Link>
+                )}
+                {(hasPermission('chiller', 'view') || userData?.role === USER_ROLES.OPERATOR) && (
+                  <Link className="actionIcon" to={ROUTES.View_CHILLER_MANAGEMENT(id)}>
+                    <EyeOutlined />
+                  </Link>
+                )}
+              </div>
+            )
+          }
+        : {};
+
+    return [...baseColumns, actionColumn];
+  }, [args?.sort_by, args?.sort_order, userData?.role]);
+
+  const getColumnTitle = (key: string) => {
+    const title = columns.find((col) => col.key === key)?.title;
+    return typeof title === 'function' ? key : title;
+  };
+
+  const requiredColumnKeys = ['companyName', 'facilityName', 'chillerName'];
 
   const menu = (
     <div className="chillerColumns">
       <ul className="chillerColumnsList">
-        <li>
-          <Checkbox>
-            <span className="checkboxLabelTitle">Entry</span>
-          </Checkbox>
-        </li>
-        <li>
-          <Checkbox>Chiller Name</Checkbox>
-        </li>
-        <li>
-          <Checkbox>Make & Model</Checkbox>
-        </li>
-        <li>
-          <Checkbox>Load %</Checkbox>
-        </li>
-        <li>
-          <Checkbox>Loss %</Checkbox>
-        </li>
-        <li>
-          <Checkbox>Outside Air Temp</Checkbox>
-        </li>
-        <li>
-          <Checkbox>Con. Inlet Temp</Checkbox>
-        </li>
+        {toggleableColumnKeys?.map((key) => (
+          <li key={key}>
+            <Checkbox
+              checked={visibleColumns[key]}
+              disabled={requiredColumnKeys.includes(key)}
+              onChange={() => handleColumnToggle(key)}
+            >
+              <span className="checkboxLabelTitle">{getColumnTitle(key)}</span>
+            </Checkbox>
+          </li>
+        ))}
       </ul>
     </div>
   );
+
+  const handleColumnToggle = (key: string) => {
+    if (requiredColumnKeys.includes(key)) return;
+    setVisibleColumns((prev) => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  const filteredColumns = useMemo(() => {
+    return [
+      ...columns.filter((col) => {
+        if (!col?.key) return true;
+        if (col?.key === '_id') return true; // Always include the action column
+        return visibleColumns[col.key as string];
+      })
+    ];
+  }, [columns, visibleColumns]);
 
   return (
     <Wrapper>
@@ -370,56 +527,181 @@ const ChillerManagement: React.FC = () => {
         title="Chiller management"
         button={
           <div className="chillerButtonWrap">
-            <Dropdown overlay={menu} trigger={['click']}>
-              <Button type="primary" className="title-btn" size="small" icon={<SlidersOutlined />}>
-                Columns
+            {(hasPermission('chiller', 'view') || userData?.role === USER_ROLES.OPERATOR) && (
+              <Dropdown overlay={menu} trigger={['click']}>
+                <Button
+                  type="primary"
+                  className="title-btn"
+                  size="small"
+                  icon={<SlidersOutlined />}
+                >
+                  Columns
+                </Button>
+              </Dropdown>
+            )}
+            {hasPermission('chillerBulkCost', 'edit') && (
+              <Button
+                type="primary"
+                className="title-btn"
+                size="small"
+                icon={<SyncOutlined />}
+                disabled={!chillerIds?.length}
+                onClick={() => setIsModalOpen(true)}
+              >
+                Bulk Update
               </Button>
-            </Dropdown>
-            <Button type="primary" className="title-btn" size="small" icon={<SyncOutlined />}>
-              Bulk Update
-            </Button>
-            <Link to={ROUTES.Add_CHILLER_MANAGEMENT}>
-              <Button type="primary" className="title-btn" size="small" icon={<PlusOutlined />}>
-                Add Chiller
-              </Button>
-            </Link>
+            )}
+            {hasPermission('chiller', 'add') && (
+              <Link to={ROUTES.Add_CHILLER_MANAGEMENT}>
+                <Button type="primary" className="title-btn" size="small" icon={<PlusOutlined />}>
+                  Add Chiller
+                </Button>
+              </Link>
+            )}
           </div>
         }
       />
       <ShadowPaper>
         <div className="chillerContentHeader">
           <div className="dropdownWrap">
-            <Dropdown menu={{ items: companyItems }} trigger={['click']}>
-              <a onClick={(e) => e.preventDefault()}>
-                <Space>
-                  Select Company
-                  <DownOutlined />
-                </Space>
-              </a>
-            </Dropdown>
+            <RenderSelectDropDown
+              colClassName="dropdownWithSearch"
+              inputProps={{
+                value: isCompanyLoading ? null : selectedCompanyId,
+                disabled: isCompanyLoading || !!userData?.companyId,
+                placeholder: 'Select Company',
+                options: companyOptions || [],
+                onChange: handleSelectChange
+              }}
+            />
 
-            <Dropdown menu={{ items: facilityItems }} trigger={['click']}>
-              <a onClick={(e) => e.preventDefault()}>
-                <Space>
-                  Select Facility
-                  <DownOutlined />
-                </Space>
-              </a>
-            </Dropdown>
+            <RenderSelectDropDown
+              colClassName="dropdownWithSearch"
+              inputProps={{
+                value: selectedFacilityId,
+                disabled: isFacilityLoading || isFacilityListCompanyLoading,
+                placeholder: 'Select Facility',
+                options: args?.companyId ? facilityOptionsCompany : facilityOptions || [],
+                onChange: handleSelectFacilityChange
+              }}
+            />
           </div>
           <Input
+            value={searchVal}
             className="searchChiller"
             placeholder="Search for Chillers"
             prefix={<SearchOutlined />}
+            onChange={handleSearchChange}
           />
         </div>
         <CommonTable
-          columns={columns}
-          dataSource={chillerData}
-          pagination={{ current: 6 }}
-          scroll={{ x: 2300 }}
+          scroll={{ x: 'max-content' }}
+          className="chillerDataTable"
+          columns={filteredColumns}
+          dataSource={data?.chillerList || []}
+          pagination={{
+            current: args?.page,
+            pageSize: args?.limit,
+            total: data?.totalRecords || 0
+          }}
+          onChange={handleTableChange}
+          loading={isLoading}
+          rowSelection={
+            hasPermission('chillerBulkCost', 'edit')
+              ? {
+                  selectedRowKeys: chillerIds,
+                  columnWidth: 60,
+                  onChange: (selectedRowKeys: React.Key[]) => {
+                    setChillerIds(selectedRowKeys as string[]);
+                  }
+                }
+              : undefined
+          }
+          emptyText={
+            <EmptyState
+              isEmpty={isEmpty}
+              search={args.search || args.companyId || args.facilityId}
+              searchDescription="No Chiller Found"
+            />
+          }
         />
       </ShadowPaper>
+      {isModalOpen && (
+        <CommonModal
+          open={isModalOpen}
+          closeIcon={true}
+          closable={true}
+          centered={true}
+          width={425}
+          maskClosable={false}
+          className="InactiveModalWrap"
+          title={
+            <div className="modalTitleWrapper">
+              <span className="main-title">Electricity Cost - Bulk Update</span>
+            </div>
+          }
+          onCancel={() => {
+            form.resetFields();
+            setIsModalOpen(false);
+          }}
+        >
+          <p>
+            Change the energy cost of the selected chillers at once by entering the new price
+            amount.
+          </p>
+          <div className="updateCount">
+            <h2>{chillerIds?.length || 0}</h2>
+            <p>Chillers</p>
+          </div>
+          <Form form={form} onFinish={onBulkUpdate} disabled={isBulkLoading}>
+            <div className="electricityField">
+              <RenderTextInput
+                label="New Electricity Cost"
+                tooltip="Please enter new electricity cost for selected chillers."
+                required={true}
+                colClassName="addonAfterClass"
+                formItemProps={{
+                  name: 'energyCost',
+                  rules: [
+                    {
+                      validator: validateEnergyCost(
+                        'new electricity cost for selected chillers',
+                        true
+                      )
+                    }
+                  ]
+                }}
+                inputProps={{
+                  placeholder: 'New Electricity Cost',
+                  addonAfterText: 'USD',
+                  type: 'text',
+                  inputMode: 'decimal',
+                  onKeyDown: allowEnergyCost
+                }}
+              />
+            </div>
+            <div className="modalFooter">
+              <Button
+                onClick={() => {
+                  form.resetFields();
+                  setIsModalOpen(false);
+                }}
+                disabled={isBulkLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                loading={isBulkLoading}
+                disabled={isBulkLoading}
+                htmlType="submit"
+                className="footerBtn"
+              >
+                Update
+              </Button>
+            </div>
+          </Form>
+        </CommonModal>
+      )}
     </Wrapper>
   );
 };

@@ -19,4 +19,6 @@ export interface SetParamOptions {
   search?: string;
   sort_by?: string;
   sort_order?: string;
+  facilityId?: string;
+  role?: string;
 }

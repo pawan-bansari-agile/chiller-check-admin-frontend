@@ -1,12 +1,7 @@
 import { ReactNode } from 'react';
 
-import { Navigate } from 'react-router-dom';
-
 import { Typography } from 'antd';
 
-import { authStore } from '@/store/auth';
-
-import { ROUTES } from '@/shared/constants/routes';
 import { Logo } from '@/shared/svg';
 
 import { Wrapper } from './style';
@@ -22,11 +17,6 @@ export interface IAuthProps {
 
 const AuthLayout = (props: IAuthProps) => {
   const { containerClassName, children, formProps } = props;
-  const { isLoggedIn } = authStore((state) => state);
-
-  if (isLoggedIn) {
-    return <Navigate to={ROUTES.DASHBOARD} replace />;
-  }
 
   return (
     <Wrapper className={`auth-layout ${containerClassName}`}>

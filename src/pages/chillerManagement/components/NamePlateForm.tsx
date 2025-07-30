@@ -1,12 +1,35 @@
 import React from 'react';
 
-import { Col, Form, Row } from 'antd';
+import { Col, Row } from 'antd';
 
 import { RenderSelect, RenderTextInput } from '@/shared/components/common/FormField';
+import {
+  MAKE,
+  MEASUREMENT_UNITS,
+  PATTERNS,
+  refrigerantOptions,
+  yearOptions
+} from '@/shared/constants';
+import {
+  allowAverageLoad,
+  allowEnergyCost,
+  allowTonsKwr,
+  getUnitValidator,
+  getUnitValidatorForEfficiency,
+  validateEnergyCost
+} from '@/shared/utils/functions';
 
-const NamePlateForm: React.FC = () => {
+interface IProps {
+  unit?: string;
+}
+
+const NamePlateForm: React.FC<IProps> = ({ unit }) => {
+  const isMetric = unit === MEASUREMENT_UNITS[1]?.value;
+  const isEnglish = unit === MEASUREMENT_UNITS[0]?.value;
+  const isUnitSelected = isMetric || isEnglish;
+
   return (
-    <Form className="chillerAddEfitForm">
+    <div className="chillerAddEfitForm">
       <Row gutter={[20, 25]}>
         <Col xs={24} sm={24} md={12} lg={6}>
           <RenderSelect
@@ -14,14 +37,11 @@ const NamePlateForm: React.FC = () => {
             colClassName="custom-select-col"
             formItemProps={{
               name: 'make',
-              rules: [{ required: true, message: 'Please select a make' }]
+              rules: [{ required: true, message: 'Please select make.' }]
             }}
             inputProps={{
               placeholder: 'Make',
-              options: [
-                { label: '2020', value: '2020' },
-                { label: '2022', value: '2022' }
-              ]
+              options: MAKE
             }}
           />
         </Col>
@@ -29,13 +49,17 @@ const NamePlateForm: React.FC = () => {
           <RenderTextInput
             label="Model"
             required
-            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            tooltip="Enter the model of the chiller."
             formItemProps={{
               name: 'model',
               rules: [
                 {
                   required: true,
-                  message: 'Please enter a model'
+                  message: 'Please enter model name.'
+                },
+                {
+                  pattern: PATTERNS.BLANK_SPACE,
+                  message: 'Please enter valid model name.'
                 }
               ]
             }}
@@ -48,13 +72,17 @@ const NamePlateForm: React.FC = () => {
           <RenderTextInput
             label="Serial No."
             required
-            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            tooltip="Enter chiller's unique serial number."
             formItemProps={{
-              name: 'serial no',
+              name: 'serialNo',
               rules: [
                 {
                   required: true,
-                  message: 'Please enter a serial no.'
+                  message: 'Please enter serial number.'
+                },
+                {
+                  pattern: /^\S+$/,
+                  message: 'Please enter valid serial number.'
                 }
               ]
             }}
@@ -68,51 +96,56 @@ const NamePlateForm: React.FC = () => {
             label="Year Manufactured"
             colClassName="custom-select-col"
             formItemProps={{
-              name: 'year manufactured',
-              rules: [{ required: true, message: 'Please select manufactured year' }]
+              name: 'yearManufactured',
+              rules: [{ required: true, message: 'Please select manufactured year.' }]
             }}
             inputProps={{
               placeholder: 'Year Manufactured',
-              options: [
-                { label: '2020', value: '2020' },
-                { label: '2022', value: '2022' }
-              ]
+              options: yearOptions
             }}
           />
         </Col>
         <Col xs={24} sm={24} md={12} lg={6}>
           <RenderSelect
             label="Refrigerant Type"
+            tooltip="Select the refrigerant Id of the chiller. It would let us know if its a high or low pressure chiller."
             colClassName="custom-select-col"
             formItemProps={{
-              name: 'refrigerant type',
-              rules: [{ required: true, message: 'Please select refrigerent type' }]
+              name: 'refrigerantType',
+              rules: [{ required: true, message: 'Please select refrigerant type.' }]
             }}
             inputProps={{
               placeholder: 'Refrigerant Type',
-              options: [
-                { label: 'HFCs', value: 'HFCs' },
-                { label: 'HCFCs', value: 'HCFCs' }
-              ]
+              options: refrigerantOptions
             }}
           />
         </Col>
         <Col xs={24} sm={24} md={12} lg={6}>
           <RenderTextInput
-            label="Tons"
+            label="Tons/KWR"
             required
-            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            tooltip="Specify the chiller's capacity for the given unit."
             formItemProps={{
-              name: 'tons',
-              rules: [
-                {
-                  required: true,
-                  message: 'Please enter tons'
-                }
-              ]
+              name: 'tons/kwr',
+              rules: isUnitSelected
+                ? [
+                    {
+                      required: true,
+                      message: `Please enter ${isMetric ? 'KWR' : 'tons'}.`
+                    },
+                    {
+                      validator: getUnitValidator(isEnglish ? 'English' : 'SI Metric')
+                    }
+                  ]
+                : []
             }}
             inputProps={{
-              placeholder: 'Tons'
+              placeholder: 'Tons/KWR',
+              type: 'text',
+              maxLength: 10,
+              inputMode: 'decimal',
+              onKeyDown: allowTonsKwr,
+              disabled: !isUnitSelected
             }}
           />
         </Col>
@@ -120,20 +153,31 @@ const NamePlateForm: React.FC = () => {
           <RenderTextInput
             label="Efficiency Rating"
             colClassName="addonAfterClass"
-            required={false}
-            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            required={true}
+            tooltip="kw/ton - Value Must be between 0.3 and 3,
+COP - Value must be between 3 and 12"
             formItemProps={{
-              name: 'efficiency rating',
-              rules: [
-                {
-                  required: true,
-                  message: 'Please enter efficiency rating'
-                }
-              ]
+              name: 'efficiencyRating',
+              rules: isUnitSelected
+                ? [
+                    {
+                      required: true,
+                      message: `Please enter efficiency rating.`
+                    },
+                    {
+                      validator: getUnitValidatorForEfficiency(isEnglish ? 'English' : 'SI Metric')
+                    }
+                  ]
+                : []
             }}
             inputProps={{
+              disabled: !isUnitSelected,
               placeholder: 'Efficiency Rating',
-              addonAfterText: 'kw/ton'
+              addonAfterText: unit && unit === MEASUREMENT_UNITS?.[1]?.value ? 'COP' : 'kw/ton',
+              type: 'text', // use "text" for full control
+              inputMode: 'decimal', // show numeric keypad with decimal on mobile
+              onKeyDown: allowAverageLoad,
+              maxLength: 10
             }}
           />
         </Col>
@@ -142,24 +186,27 @@ const NamePlateForm: React.FC = () => {
             label="Energy Cost (kw. hr.)"
             required
             colClassName="addonAfterClass"
-            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            tooltip="Enter the energy cost in USD for (kw/hr)."
             formItemProps={{
-              name: 'Energy Cost',
+              name: 'energyCost',
               rules: [
                 {
-                  required: true,
-                  message: 'Please enter energy cost'
+                  validator: validateEnergyCost('energy cost', true)
                 }
               ]
             }}
             inputProps={{
               placeholder: 'Energy Cost',
-              addonAfterText: 'USD'
+              addonAfterText: 'USD',
+              maxLength: 10,
+              type: 'text',
+              inputMode: 'decimal',
+              onKeyDown: allowEnergyCost
             }}
           />
         </Col>
       </Row>
-    </Form>
+    </div>
   );
 };
 

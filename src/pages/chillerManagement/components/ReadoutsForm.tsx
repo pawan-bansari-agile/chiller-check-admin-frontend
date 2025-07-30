@@ -1,30 +1,34 @@
 import React from 'react';
 
-import { Col, Form, Row } from 'antd';
+import { Col, Row } from 'antd';
 
 import { RenderRadioGroupInput, RenderTextInput } from '@/shared/components/common/FormField';
+import { allowHoursPerWeek } from '@/shared/utils/functions';
 
 const ReadoutsForm: React.FC = () => {
-  const onSubmit = () => {
-    console.log('submit');
-  };
   return (
-    <Form className="chillerAddEfitForm" onFinish={onSubmit}>
+    <div className="chillerAddEfitForm">
       <Row gutter={[20, 25]}>
         <Col xs={24} sm={24} md={12} lg={12}>
           <RenderRadioGroupInput
-            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            tooltip="Select if the purge exists."
             label="Purge Total Pumpout Time Readout On Chiller?"
             colProps={{ span: 24 }}
             colClassName="radio-field"
             formItemProps={{
-              name: 'pumpoutTimeReadout',
-              rules: [{ required: true, message: 'This field is required' }]
+              name: 'pumpOutTimeReadout',
+              rules: [
+                {
+                  required: true,
+                  message:
+                    'Please select if the purge total pumpout time readout is on the chiller.'
+                }
+              ]
             }}
             inputProps={{
               options: [
-                { label: 'Yes', value: 'yes' },
-                { label: 'No', value: 'no' }
+                { label: 'Yes', value: true },
+                { label: 'No', value: false }
               ]
             }}
           />
@@ -33,11 +37,16 @@ const ReadoutsForm: React.FC = () => {
           <RenderRadioGroupInput
             colProps={{ span: 24 }}
             colClassName="radio-field"
-            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            tooltip="Select the purge reading unit."
             label="Purge Total Pumpout Time Measured In What Units?"
             formItemProps={{
-              name: 'purgePumpout',
-              rules: [{ required: true, message: 'This field is required' }]
+              name: 'purgePumpOutReading',
+              rules: [
+                {
+                  required: true,
+                  message: 'Please select the unit in which purge total pumpout time is measured.'
+                }
+              ]
             }}
             inputProps={{
               options: [
@@ -50,44 +59,53 @@ const ReadoutsForm: React.FC = () => {
         <Col xs={24} sm={24} md={12} lg={12}>
           <RenderTextInput
             label="Max. Daily Purge Total Pumpout Time Before Alert"
-            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            tooltip="Specify what is the maximum purge time."
             required
             colClassName="addonAfterClass"
             formItemProps={{
-              name: 'Design Voltage',
+              name: 'maxDailyPurge',
               rules: [
                 {
                   required: true,
-                  message: 'Please enter the design voltage'
+                  message: 'Please enter maximum daily purge total pumpout time before alert.'
                 }
               ]
             }}
             inputProps={{
-              placeholder: 'Design Voltage',
-              addonAfterText: 'Min.'
+              placeholder: 'Max. Daily Purge Total Pumpout Time Before Alert',
+              addonAfterText: 'Min.',
+              type: 'text',
+              inputMode: 'numeric',
+              onKeyDown: allowHoursPerWeek,
+              maxLength: 10
             }}
           />
         </Col>
         <Col xs={24} sm={24} md={12} lg={12}>
           <RenderRadioGroupInput
-            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            tooltip="Specify the bearing temperature presence."
             label="Readout For Bearing Temp.?"
             colProps={{ span: 24 }}
             colClassName="radio-field"
             formItemProps={{
               name: 'bearingTemp',
-              rules: [{ required: true, message: 'This field is required' }]
+              rules: [
+                {
+                  required: true,
+                  message: 'Please specify whether a readout for bearing temperature is available.'
+                }
+              ]
             }}
             inputProps={{
               options: [
-                { label: 'Yes', value: 'yes' },
-                { label: 'No', value: 'no' }
+                { label: 'Yes', value: true },
+                { label: 'No', value: false }
               ]
             }}
           />
         </Col>
       </Row>
-    </Form>
+    </div>
   );
 };
 

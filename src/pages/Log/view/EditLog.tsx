@@ -17,9 +17,7 @@ const EditLog: React.FC = () => {
         backBtn={true}
         button={
           <div className="logButtonWrap">
-            <Button type="primary" className="title-btn">
-              Cancel
-            </Button>
+            <Button className="title-cancel-btn">Cancel</Button>
             <Button type="primary" className="title-btn">
               Create
             </Button>

@@ -48,11 +48,27 @@ export const Wrapper = styled.div`
     }
   }
 
+  .chillerDataTable {
+    tbody tr td:first-of-type {
+      padding-left: 22px !important;
+    }
+  }
+
+  .extraActionButton {
+    justify-content: flex-end;
+    margin: 25px 0 !important;
+  }
+
   /* add-edit */
   .shadowWrap {
     display: flex;
     flex-direction: column;
     gap: 20px;
+  }
+
+  .addChillerBtnWrap {
+    display: flex;
+    gap: 10px;
   }
 
   .chillerAddEditHeader {
@@ -276,7 +292,7 @@ export const Wrapper = styled.div`
           margin-top: 4px;
 
           span {
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 500;
             line-height: 100%;
             color: ${({ theme }) => theme.colors.danger};
@@ -405,6 +421,18 @@ export const Wrapper = styled.div`
           color: #f04924;
         }
       }
+    }
+  }
+
+  .editButtonWrap {
+    display: flex;
+    gap: 10px;
+  }
+  .addEditHeader {
+    padding: 36px 18px 5px 25px !important;
+
+    &.userAddEditHeader {
+      padding: 36px 18px 25px 25px !important;
     }
   }
 

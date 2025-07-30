@@ -89,7 +89,7 @@ export const Wrapper = styled.div`
       margin-top: 4px;
 
       span {
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 500;
         line-height: 100%;
         color: ${({ theme }) => theme.colors.danger};

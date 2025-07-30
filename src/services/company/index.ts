@@ -13,22 +13,49 @@ const apiEndPoints = {
   companyView: 'company',
   activeInactive: 'company',
   addCompany: 'company/createCompany',
-  editCompany: 'company'
+  editCompany: 'company',
+  findAllCompany: 'company/findAll',
+  findAllCompanyUnAssigned: 'company/findAllNotAssigned'
 };
 
 export const companyQueryKeys = {
   all: ['company'] as const,
+  findAllCompany: ['company', 'findAllCompany'],
   companyList: (args: ICommonPagination) => [...companyQueryKeys.all, 'companyList', args],
   companyView: (id: string) => [...companyQueryKeys.all, 'companyView', id],
   activeInactive: ['activeInactive'],
   addCompany: ['addCompany'],
-  editCompany: ['editCompany']
+  editCompany: ['editCompany'],
+  companyListUnAssigned: (args: ICommonPagination) => [
+    ...companyQueryKeys.all,
+    'companyListUnAssigned',
+    args
+  ]
 };
 
 export const companyApi = {
+  async getCompanyAllList(): Promise<Types.IGetAllCompanyList[]> {
+    return apiInstance
+      .post(apiEndPoints.findAllCompany)
+      .then((response) => response?.data)
+      .catch((error) => {
+        throw error?.response?.data;
+      });
+  },
   async getCompanyList(data: ICommonPagination): Promise<Types.IGetCompanyListRes> {
     return apiInstance
       .post(apiEndPoints.companyList, data)
+      .then((response) => response?.data)
+      .catch((error) => {
+        throw error?.response?.data;
+      });
+  },
+
+  async getCompanyListUnAssigned(
+    data: ICommonPagination
+  ): Promise<Types.IGetCompanyUnAssignedList> {
+    return apiInstance
+      .post(apiEndPoints.findAllCompanyUnAssigned, data)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
@@ -44,10 +71,7 @@ export const companyApi = {
       });
   },
 
-  async activeInactiveCompany(
-    id: string,
-    status: string
-  ): Promise<IApiSuccess<Record<string, unknown>>> {
+  async activeInactiveCompany(id: string, status: string): Promise<IApiSuccess<string | null>> {
     return apiInstance
       .put(`${apiEndPoints.activeInactive}/${id}`, { status })
       .then((response) => {
@@ -82,10 +106,25 @@ export const companyApi = {
 };
 
 export const companyHooks = {
+  AllCompanyList: () => {
+    return useApiQuery(
+      companyQueryKeys.findAllCompany,
+      () => companyApi.getCompanyAllList(),
+      defaultQueryOptions
+    );
+  },
   CompanyList: (args: ICommonPagination) => {
     return useApiQuery(
       companyQueryKeys.companyList(args),
       () => companyApi.getCompanyList(args),
+      defaultQueryOptions
+    );
+  },
+
+  CompanyListUnAssigned: (args: ICommonPagination) => {
+    return useApiQuery(
+      companyQueryKeys.companyListUnAssigned(args),
+      () => companyApi.getCompanyListUnAssigned(args),
       defaultQueryOptions
     );
   },
@@ -99,7 +138,7 @@ export const companyHooks = {
 
   useActiveInactiveCompany: (
     mutationOptions?: UseMutationOptions<
-      IApiSuccess<Record<string, unknown>>,
+      IApiSuccess<string | null>,
       IApiError,
       { id: string; status: string }
     >

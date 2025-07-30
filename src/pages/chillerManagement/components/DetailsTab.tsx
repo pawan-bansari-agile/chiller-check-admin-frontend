@@ -1,34 +1,105 @@
 import React from 'react';
 
+import { IChillerViewRes } from '@/services/chiller/types';
+
 import Details from '@/shared/components/common/Details';
+import { MEASUREMENT_UNITS } from '@/shared/constants';
 
 import { Wrapper } from '../style';
 
-const DetailsTab: React.FC = () => {
+interface IProps {
+  chillerData: IChillerViewRes;
+}
+
+const DetailsTab: React.FC<IProps> = ({ chillerData }) => {
+  const {
+    type = '',
+    unit = '',
+    companyName = '',
+    facilityName = '',
+    ChillerNo = '',
+    weeklyHours,
+    weeksPerYear,
+    avgLoadProfile,
+    desInletWaterTemp,
+    make,
+    model,
+    serialNumber,
+    manufacturedYear,
+    refrigType,
+    tons,
+    efficiencyRating,
+    energyCost,
+    condDPDrop,
+    condDPDropUnit,
+    condAPDropUnit,
+    condPressureUnit,
+    condApproach,
+    condDesignFlow,
+    condDesignDeltaT,
+    evapAPDropUnit,
+    evapApproach,
+    evapDOWTemp,
+    evapDPDrop,
+    evapDPDropUnit,
+    evapDesignDeltaT,
+    evapDesignFlow,
+    evapPressureUnit,
+    useEvapRefrigTemp,
+    designVoltage,
+    voltageChoice,
+    ampChoice,
+    fullLoadAmps,
+    purgeReadingUnit,
+    maxPurgeTime,
+    havePurge,
+    haveBearingTemp,
+    compOPIndicator,
+    userNote,
+    numberOfCompressors,
+    useRunHours,
+    kwr
+  } = chillerData || {};
   return (
     <Wrapper className="detailsTabWrap">
       {/* general */}
       <div className="viewChillerDetailsWrap">
-        <h3 className="detailTabTitle">General</h3>
+        <h3 className="detailTabTitle themeColor">General</h3>
         <ul className="chillerDetailList">
           <Details
             detailsTitle="Type & Unit"
-            detailsDescription="Electric - US/English"
+            detailsDescription={`${type} - ${unit}`}
             detailsIcon
           />
-          <Details detailsTitle="Company Name" detailsDescription="Johnzeneterprise" detailsIcon />
-          <Details detailsTitle="Facility" detailsDescription="John eliza" detailsIcon />
-          <Details detailsTitle="Chiller Name/No" detailsDescription="CryoStream 20" detailsIcon />
+          <Details
+            detailsTitle="Company Name"
+            detailsDescription={companyName || '-'}
+            detailsIcon
+          />
+          <Details detailsTitle="Facility" detailsDescription={facilityName || '-'} detailsIcon />
+          <Details
+            detailsTitle="Chiller Name/No"
+            detailsDescription={ChillerNo || '-'}
+            detailsIcon
+          />
           <Details
             detailsTitle="Weekly Hours Of Operation"
-            detailsDescription="168 Hrs."
+            detailsDescription={weeklyHours?.toString() ? `${weeklyHours} Hrs.` : '-'}
             detailsIcon
           />
-          <Details detailsTitle="Weeks Per Year" detailsDescription="30" detailsIcon />
-          <Details detailsTitle="Avg. Load Profile" detailsDescription="75 %" detailsIcon />
+          <Details
+            detailsTitle="Weeks Per Year"
+            detailsDescription={weeksPerYear ?? '-'}
+            detailsIcon
+          />
+          <Details
+            detailsTitle="Avg. Load Profile"
+            detailsDescription={avgLoadProfile?.toString() ? `${avgLoadProfile} %` : '-'}
+            detailsIcon
+          />
           <Details
             detailsTitle="Design Inlet Water Temp."
-            detailsDescription="85°F / 29.44°C"
+            detailsDescription={desInletWaterTemp || '-'}
             detailsIcon
           />
         </ul>
@@ -36,98 +107,158 @@ const DetailsTab: React.FC = () => {
 
       {/* name plate data */}
       <div className="viewChillerDetailsWrap">
-        <h3 className="detailTabTitle">Name Plate Data</h3>
+        <h3 className="detailTabTitle themeColor">Name Plate Data</h3>
         <ul className="chillerDetailList">
-          <Details detailsTitle="Make" detailsDescription="Trane" detailsIcon />
-          <Details detailsTitle="Model" detailsDescription="CVHF128FA" detailsIcon />
-          <Details detailsTitle="Serial No." detailsDescription="L94K01466" detailsIcon />
-          <Details detailsTitle="Year Manufactured" detailsDescription="1994" detailsIcon />
-          <Details detailsTitle="Refrigerant Type" detailsDescription="R-123" detailsIcon />
-          <Details detailsTitle="Tons" detailsDescription="1000" detailsIcon />
-          <Details detailsTitle="Efficiency Rating" detailsDescription="0.55 kw/ton" detailsIcon />
-          <Details detailsTitle="Energy Cost (kw. hr.)" detailsDescription="0.04 USD" detailsIcon />
+          <Details detailsTitle="Make" detailsDescription={make || '-'} detailsIcon />
+          <Details detailsTitle="Model" detailsDescription={model || '-'} detailsIcon />
+          <Details detailsTitle="Serial No." detailsDescription={serialNumber || '-'} detailsIcon />
+          <Details
+            detailsTitle="Year Manufactured"
+            detailsDescription={manufacturedYear || '-'}
+            detailsIcon
+          />
+          <Details detailsTitle="Refrigerant Type" detailsDescription={refrigType} detailsIcon />
+          <Details
+            detailsTitle={unit === MEASUREMENT_UNITS?.[1]?.value ? 'KWR' : 'Tons'}
+            detailsDescription={
+              unit === MEASUREMENT_UNITS?.[1]?.value ? (kwr ?? '-') : (tons ?? '-')
+            }
+            detailsIcon
+          />
+          <Details
+            detailsTitle="Efficiency Rating"
+            detailsDescription={
+              unit === MEASUREMENT_UNITS?.[1]?.value
+                ? `${efficiencyRating ?? '-'} COP`
+                : `${efficiencyRating ?? '-'} kw/ton`
+            }
+            detailsIcon
+          />
+          <Details
+            detailsTitle="Energy Cost (kw. hr.)"
+            detailsDescription={`${energyCost ?? '-'} USD`}
+            detailsIcon
+          />
         </ul>
       </div>
 
       {/* condensor */}
       <div className="viewChillerDetailsWrap">
-        <h3 className="detailTabTitle">Condenser</h3>
+        <h3 className="detailTabTitle themeColor">Condenser</h3>
         <ul className="chillerDetailList">
-          <Details detailsTitle="Energy Cost (kw. hr.)" detailsDescription="0.04 USD" detailsIcon />
           <Details
-            detailsTitle="Weekly Hours Of Operation"
-            detailsDescription="168 Hrs."
+            detailsTitle="Design Condenser Water Pressure Drop"
+            detailsDescription={`${condDPDrop} ${condDPDropUnit}`}
             detailsIcon
           />
-          <Details detailsTitle="Weeks Per Year" detailsDescription="30" detailsIcon />
+          <Details
+            detailsTitle="Actual Condenser Water Pressure Drop Unit"
+            detailsDescription={condAPDropUnit}
+            detailsIcon
+          />
 
           {/* below detail is for additional look alike figma dont remove it */}
-          <Details className="extraDetails" detailsTitle="" detailsDescription="" detailsIcon />
+          <Details
+            className="extraDetails"
+            detailsTitle="Condenser Pressure Unit"
+            detailsDescription={condPressureUnit}
+            detailsIcon
+          />
 
-          <Details detailsTitle="Energy Cost (kw. hr.)" detailsDescription="0.04 USD" detailsIcon />
-          <Details detailsTitle="Weekly Hours Of Operation" detailsDescription="1000" detailsIcon />
-          <Details detailsTitle="Weeks Per Year" detailsDescription="30" detailsIcon />
+          <Details
+            detailsTitle="Design Condenser Approach Temp."
+            detailsDescription={`${condApproach ?? '-'} ${unit === MEASUREMENT_UNITS?.[1]?.value ? '°C' : '℉'}`}
+            detailsIcon
+          />
+          <Details
+            detailsTitle="Design Condenser ∆ T"
+            detailsDescription={condDesignDeltaT ?? '-'}
+            detailsIcon
+          />
+          <Details
+            detailsTitle="Design Condenser Flow"
+            detailsDescription={condDesignFlow ?? '-'}
+            detailsIcon
+          />
         </ul>
       </div>
 
       {/* evaporator */}
       <div className="viewChillerDetailsWrap">
-        <h3 className="detailTabTitle">Evaporator</h3>
+        <h3 className="detailTabTitle themeColor">Evaporator</h3>
         <ul className="chillerDetailList">
           <Details
             detailsTitle="Design Chill Water Pressure Drop"
-            detailsDescription="12.100000038147 Feet"
+            detailsDescription={`${evapDPDrop} ${evapDPDropUnit}`}
             detailsIcon
           />
           <Details
             detailsTitle="Actual Chill Water Pressure Drop Unit"
-            detailsDescription="PSIG"
+            detailsDescription={evapAPDropUnit}
             detailsIcon
           />
-          <Details detailsTitle="Evaporator Pressure Unit" detailsDescription="PSIG" detailsIcon />
+          <Details
+            detailsTitle="Evaporator Pressure Unit"
+            detailsDescription={evapPressureUnit}
+            detailsIcon
+          />
 
           {/* below detail is for additional look alike figma dont remove it */}
-          <Details className="extraDetails" detailsTitle="" detailsDescription="" detailsIcon />
+          <Details
+            className={`extraDetails ${!useEvapRefrigTemp ? 'reqadoutsBoolean' : 'evaporatorBoolean'} commonBadge`}
+            detailsTitle="Enter a Saturated Refrig. Temp.?"
+            detailsDescription={useEvapRefrigTemp ? 'Yes' : 'No'}
+            detailsIcon
+          />
 
           <Details
-            detailsTitle="Enter a Saturated Refrig. Temp.?"
-            detailsDescription="Yes"
-            detailsIcon
-            className="evaporatorBoolean commonBadge"
-          />
-          <Details
             detailsTitle="Design Evaporator Approach Temp."
-            detailsDescription="-"
+            detailsDescription={`${evapApproach ?? '-'} ${unit === MEASUREMENT_UNITS?.[1]?.value ? '°C' : '℉'}`}
             detailsIcon
           />
           <Details
             detailsTitle="Evaporator Design Outlet Water Temp."
-            detailsDescription="-"
+            detailsDescription={`${evapDOWTemp ?? '-'} ${unit === MEASUREMENT_UNITS?.[1]?.value ? '°C' : '℉'}`}
+            detailsIcon
+          />
+          <Details
+            detailsTitle="Evaporator Design ∆ T"
+            detailsDescription={`${evapDesignDeltaT ?? '-'} ${unit === MEASUREMENT_UNITS?.[1]?.value ? '°C' : '℉'}`}
             detailsIcon
           />
 
           {/* below detail is for additional look alike figma dont remove it */}
-          <Details className="extraDetails" detailsTitle="" detailsDescription="" detailsIcon />
-
-          <Details detailsTitle="Evaporator Design ∆ T" detailsDescription="-" detailsIcon />
-          <Details detailsTitle="Evaporator Design Flow" detailsDescription="-" detailsIcon />
+          <Details
+            className="extraDetails"
+            detailsTitle="Evaporator Design Flow"
+            detailsDescription={evapDesignFlow ?? '-'}
+            detailsIcon
+          />
         </ul>
       </div>
 
       {/* electrical */}
       <div className="viewChillerDetailsWrap">
-        <h3 className="detailTabTitle">Electrical</h3>
+        <h3 className="detailTabTitle themeColor">Electrical</h3>
         <ul className="chillerDetailList">
-          <Details detailsTitle="Design Voltage" detailsDescription="40" detailsIcon />
           <Details
-            detailsTitle="Voltage Choice"
-            detailsDescription="Do Not Log Voltage"
+            detailsTitle="Design Voltage"
+            detailsDescription={designVoltage ?? '-'}
             detailsIcon
           />
-          <Details detailsTitle="Full-Load Amperage" detailsDescription="20" detailsIcon />
+          <Details
+            detailsTitle="Voltage Choice"
+            detailsDescription={voltageChoice || '-'}
+            detailsIcon
+          />
+          <Details
+            detailsTitle="Full-Load Amperage"
+            detailsDescription={fullLoadAmps ?? '-'}
+            detailsIcon
+          />
           <Details
             detailsTitle="Amperage Choice"
-            detailsDescription="Enter Load Directly"
+            detailsDescription={ampChoice || '-'}
             detailsIcon
           />
         </ul>
@@ -135,63 +266,58 @@ const DetailsTab: React.FC = () => {
 
       {/* reqadouts */}
       <div className="viewChillerDetailsWrap">
-        <h3 className="detailTabTitle">Readouts</h3>
+        <h3 className="detailTabTitle themeColor">Readouts</h3>
         <ul className="chillerDetailList">
           <Details
-            detailsTitle="Enter a Saturated Refrig. Temp.?"
-            detailsDescription="No"
+            detailsTitle="Purge Total Pumpout Time Readout On Chiller?"
+            detailsDescription={havePurge ? 'Yes' : 'No'}
             detailsIcon
-            className="reqadoutsBoolean commonBadge"
+            className={`${!havePurge ? 'reqadoutsBoolean' : 'evaporatorBoolean'} commonBadge`}
           />
           <Details
-            detailsTitle="Design Evaporator Approach Temp."
-            detailsDescription="Hrs. & Min."
+            detailsTitle="Purge Total Pumpout Time Measured In What Units?"
+            detailsDescription={purgeReadingUnit || '-'}
             detailsIcon
             className="reqadoutsHrMin commonBadge"
           />
 
           {/* below two details are for additional look alike figma dont remove it */}
-          <Details className="extraDetails" detailsTitle="" detailsDescription="" detailsIcon />
-          <Details className="extraDetails" detailsTitle="" detailsDescription="" detailsIcon />
-
           <Details
-            detailsTitle="Design Evaporator Approach Temp."
-            detailsDescription="0 min"
+            className="extraDetails"
+            detailsTitle="Max. Daily Purge Total Pumpout Time Before Alert"
+            detailsDescription={maxPurgeTime ?? '-'}
             detailsIcon
           />
+
           <Details
-            detailsTitle="Design Evaporator Approach Temp."
-            detailsDescription="No"
+            detailsTitle="Readout For Bearing Temp.?"
+            detailsDescription={haveBearingTemp ? 'Yes' : 'No'}
             detailsIcon
-            className="reqadoutsBoolean commonBadge"
+            className={`${!haveBearingTemp ? 'reqadoutsBoolean' : 'evaporatorBoolean'} commonBadge`}
           />
         </ul>
       </div>
 
       {/* Additional Info */}
       <div className="viewChillerDetailsWrap">
-        <h3 className="detailTabTitle">Additional Info</h3>
+        <h3 className="detailTabTitle themeColor">Additional Info</h3>
         <ul className="chillerDetailList">
           <Details
             detailsTitle="Oil Pressure Differential"
-            detailsDescription="Do Not Log Tube System"
+            detailsDescription={compOPIndicator || '-'}
             detailsIcon
           />
           <Details
             detailsTitle="Calculate Efficiency Using"
-            detailsDescription="Run Hours"
+            detailsDescription={useRunHours || '-'}
             detailsIcon
           />
-          <Details detailsTitle="Number of Compressors" detailsDescription="2" detailsIcon />
-
-          {/* below detail is for additional look alike figma dont remove it */}
-          <Details className="extraDetails" detailsTitle="" detailsDescription="" detailsIcon />
-
           <Details
-            detailsTitle="User Notes"
-            detailsDescription="This is a test entry."
+            detailsTitle="Number of Compressors"
+            detailsDescription={numberOfCompressors ?? '-'}
             detailsIcon
           />
+          <Details detailsTitle="User Notes" detailsDescription={userNote || '-'} detailsIcon />
         </ul>
       </div>
     </Wrapper>

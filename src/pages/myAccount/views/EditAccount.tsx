@@ -1,10 +1,14 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
+import AlertsTab from '@/pages/UserManagement/components/AlertsTab';
+import PermissionTab from '@/pages/UserManagement/components/PermissionTab';
+import ViewFacilityResponsibilitiesTab from '@/pages/UserManagement/components/ViewFacilityResponsibilities';
+import ViewResponsibilitiesTab from '@/pages/UserManagement/components/ViewResponsibilitiesTab';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button, Col, Form, Image, Row, Spin, Tooltip } from 'antd';
+import { Button, Col, Form, Image, Row, Spin, Tabs, Tooltip } from 'antd';
 
 import { commonApi } from '@/services/common';
 import { profileHooks, profileQueryKey } from '@/services/profile';
@@ -16,11 +20,10 @@ import HeaderToolbar from '@/shared/components/common/HeaderToolbar';
 import { Loader } from '@/shared/components/common/Loader';
 import Meta from '@/shared/components/common/Meta';
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
-import { IMAGE_MODULE_NAME, IMAGE_URL, PATTERNS } from '@/shared/constants';
+import { IMAGE_MODULE_NAME, IMAGE_URL, PATTERNS, Role, USER_ROLES } from '@/shared/constants';
 import { ROUTES } from '@/shared/constants/routes';
 import { CameraIcon } from '@/shared/svg';
 import {
-  capitalizeFirstLetter,
   capitalizeFirstLetterWhileTyping,
   formatPhoneNumber,
   showToaster,
@@ -28,14 +31,6 @@ import {
 } from '@/shared/utils/functions';
 
 import { Wrapper } from '../style';
-
-// const items: TabsProps['items'] = [
-//   {
-//     key: '1',
-//     label: 'Permission',
-//     children: <PermissionTab />
-//   }
-// ];
 
 interface IFormReq {
   firstName: string;
@@ -48,6 +43,8 @@ interface IFormReq {
 const EditAccount: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const initialRef = useRef(false);
 
   const { userData, actions } = authStore((state) => state);
   const [form] = Form.useForm();
@@ -81,7 +78,7 @@ const EditAccount: React.FC = () => {
       lastName,
       email,
       phoneNumber: formatPhoneNumber(phoneNumber),
-      userRole: capitalizeFirstLetter(role)
+      userRole: role
     });
   }, [data, form]);
 
@@ -89,9 +86,15 @@ const EditAccount: React.FC = () => {
     const updateProfilePayload = {
       firstName: values?.firstName?.trim(),
       lastName: values?.lastName?.trim(),
+      email: values?.email || '',
       phoneNumber: data?.phoneNumber || '',
       role: data?.role || '',
-      profileImage: imageName || ''
+      profileImage: imageName || '',
+      permissions: data?.permissions,
+      companyId: data?.company?._id,
+      facilityIds: data?.facilityIds,
+      chillerIds: data?.chillerIds,
+      alerts: data?.alerts
     };
     const payload = {
       id: data?._id || '',
@@ -99,8 +102,8 @@ const EditAccount: React.FC = () => {
     };
     updateProfileAction(payload, {
       onSuccess: (res) => {
-        const { message } = res || {};
-        showToaster('success', message || '');
+        const { data } = res || {};
+        showToaster('success', data?.message || '');
         queryClient.invalidateQueries({ queryKey: profileQueryKey.all });
         navigate(ROUTES.MY_PROFILE);
         actions.authSuccess({ data: { ...userData, profileImage: imageName } });
@@ -179,43 +182,45 @@ const EditAccount: React.FC = () => {
           </div>
         }
       />
-      <div className="viewCompanyShadow">
-        <ShadowPaper>
-          <div className="viewUserDetails">
-            <h2>User Details</h2>
-          </div>
-          <div className="userInfo">
-            <div className="addProfilePic">
-              <div className="pictureLabel">
-                <label>Profile Pic</label>
-                <Tooltip
-                  color="#000ABC"
-                  title="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
-                >
-                  <InfoCircleOutlined style={{ color: '#000ABC' }} />
-                </Tooltip>
-              </div>
-              <div className="inputPicture">
-                {imageLoader && <Spin />}
-                <Image src={imageShow || toAbsoluteUrl('/icons/placeHolder.jpg')} alt="user" />
-                <span className="cameraIcon">
-                  <label className="fileLabel">
-                    <input type="file" onChange={handleFileChange} accept=".jpg, .jpeg, .png" />
-                    <CameraIcon />
-                  </label>
-                </span>
-              </div>
-              <h4 className="removeImg" onClick={removeImage}>
-                Remove Image
-              </h4>
+      <Form form={form} onFinish={onSubmit} autoComplete="off" disabled={isPending}>
+        <div className="viewCompanyShadow">
+          <ShadowPaper>
+            <div className="viewUserDetails">
+              <h2 className="themeColor">User Details</h2>
             </div>
-            <div className="profileForm">
-              <Form form={form} onFinish={onSubmit} autoComplete="off" disabled={isPending}>
+            <div className="userInfo">
+              <div className="addProfilePic">
+                <div className="pictureLabel">
+                  <label>Profile Pic</label>
+                  <Tooltip
+                    color="#000ABC"
+                    title="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+                  >
+                    <InfoCircleOutlined style={{ color: '#000ABC' }} />
+                  </Tooltip>
+                </div>
+                <div className="inputPicture">
+                  {imageLoader && <Spin />}
+                  <Image src={imageShow || toAbsoluteUrl('/icons/placeHolder.jpg')} alt="user" />
+                  <span className="cameraIcon">
+                    <label className="fileLabel">
+                      <input type="file" onChange={handleFileChange} accept=".jpg, .jpeg, .png" />
+                      <CameraIcon />
+                    </label>
+                  </span>
+                </div>
+                {imageName && (
+                  <h4 className="removeImg" onClick={removeImage}>
+                    Remove Image
+                  </h4>
+                )}
+              </div>
+              <div className="profileForm">
                 <Row gutter={[20, 25]}>
                   <Col xs={24} sm={24} md={12} lg={8}>
                     <RenderTextInput
                       label="First Name"
-                      tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+                      // tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
                       required
                       formItemProps={{
                         name: 'firstName',
@@ -243,7 +248,7 @@ const EditAccount: React.FC = () => {
                   <Col xs={24} sm={24} md={12} lg={8}>
                     <RenderTextInput
                       label="Last Name"
-                      tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+                      // tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
                       required
                       formItemProps={{
                         name: 'lastName',
@@ -271,7 +276,7 @@ const EditAccount: React.FC = () => {
                   <Col xs={24} sm={24} md={12} lg={8}>
                     <RenderTextInput
                       label="Email"
-                      tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+                      // tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
                       required
                       formItemProps={{
                         name: 'email'
@@ -285,7 +290,7 @@ const EditAccount: React.FC = () => {
                   <Col xs={24} sm={24} md={12} lg={8}>
                     <RenderTextInput
                       label="Phone number"
-                      tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+                      // tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
                       required
                       colClassName="userMobileInput"
                       formItemProps={{
@@ -306,19 +311,69 @@ const EditAccount: React.FC = () => {
                       }}
                       inputProps={{
                         placeholder: 'Select User Role',
+                        options: Role,
                         disabled: true
                       }}
                     />
                   </Col>
                 </Row>
-              </Form>
+              </div>
             </div>
-          </div>
-        </ShadowPaper>
-        {/* <ShadowPaper>
-          <Tabs defaultActiveKey="1" items={items} className="userTab" />
-        </ShadowPaper> */}
-      </div>
+          </ShadowPaper>
+          {userData?.role !== USER_ROLES.ADMIN && (
+            <ShadowPaper>
+              <Tabs defaultActiveKey="1" destroyInactiveTabPane={false}>
+                <Tabs.TabPane tab="Permission" key="1" forceRender>
+                  <Form.Item name="permissions">
+                    {data?.role && (
+                      <PermissionTab
+                        role={data?.role}
+                        form={form}
+                        id={userData?._id}
+                        permission={data?.permissions}
+                        isDisabled={true}
+                        initialRef={initialRef}
+                      />
+                    )}
+                  </Form.Item>
+                </Tabs.TabPane>
+
+                {data?.role && data?.role !== USER_ROLES.SUB_ADMIN && (
+                  <>
+                    <Tabs.TabPane tab="Responsibilities" key="2" forceRender>
+                      {data?.role === USER_ROLES.CORPORATE_MANAGER ? (
+                        <ViewResponsibilitiesTab
+                          companyList={data?.company ? [data?.company] : []}
+                        />
+                      ) : (
+                        (data?.role === USER_ROLES.FACILITY_MANAGER ||
+                          data?.role === USER_ROLES.OPERATOR) && (
+                          <ViewFacilityResponsibilitiesTab
+                            facilityList={data?.facilities || []}
+                            role={data?.role}
+                            chillerList={data?.chillers || []}
+                            companyName={data?.company?.name || '-'}
+                          />
+                        )
+                      )}
+                    </Tabs.TabPane>
+
+                    <Tabs.TabPane tab="Alerts" key="3" forceRender>
+                      <AlertsTab
+                        form={form}
+                        id={userData?._id}
+                        response={data?.alerts}
+                        isDisabled={true}
+                        role={data?.role}
+                      />
+                    </Tabs.TabPane>
+                  </>
+                )}
+              </Tabs>
+            </ShadowPaper>
+          )}
+        </div>
+      </Form>
     </Wrapper>
   );
 };

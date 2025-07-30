@@ -31,6 +31,10 @@ export const Wrapper = styled.div`
     margin-left: 5px;
   }
 
+  .time-bold {
+    font-weight: 600;
+  }
+
   .updateUser {
     display: flex;
     align-items: center;
@@ -57,10 +61,19 @@ export const Wrapper = styled.div`
 
   /* configure field */
 
+  .extraActionButton {
+    justify-content: flex-end;
+    margin: 25px 0 !important;
+  }
+
   .shadowWrap {
     display: flex;
     flex-direction: column;
     gap: 25px;
+  }
+
+  .configuredHeader {
+    padding: 39px 18px 5px 20px;
   }
 
   .viewButtonWrap {
@@ -92,11 +105,19 @@ export const Wrapper = styled.div`
   .cardWrap {
     width: 100%;
     display: flex;
+    flex-direction: column;
     gap: 20px;
+
+    .cardBody {
+      padding: 15px 32px 40px 32px;
+    }
+  }
+
+  .psCard {
+    width: 100%;
   }
 
   .ConfigureFiledForm {
-    padding: 15px 32px 40px 32px;
     .ant-form-item-label {
       margin-bottom: 5px;
     }

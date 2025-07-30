@@ -12,14 +12,15 @@ interface IHeaderToolbarProps {
   button?: React.ReactNode;
   backBtn?: boolean;
   backTo?: string;
+  className?: string;
 }
 
 const HeaderToolbar: React.FC<IHeaderToolbarProps> = (props) => {
-  const { title, button, backBtn, backTo } = props;
+  const { title, button, backBtn, backTo, className } = props;
   const navigate = useNavigate();
 
   return (
-    <Wrapper className="header-toolbar-wrap">
+    <Wrapper className={`header-toolbar-wrap ${className || ''}`}>
       <Row align="middle" justify="space-between" gutter={[10, 6]} className="main-row">
         {(title || button) && (
           <Col xs={24}>

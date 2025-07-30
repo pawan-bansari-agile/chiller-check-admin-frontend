@@ -196,7 +196,7 @@ const Dashboard: React.FC = () => {
       <Row gutter={[10, 10]}>
         <Col xs={24} sm={24} md={12} xl={6} lg={12}>
           <div className="dashboardCard">
-            <h2>Cost at avg. Load Profile</h2>
+            <h2 className="themeColor">Cost at avg. Load Profile</h2>
             <div className="avgContentWrap">
               <div className="avgTarget avgList">
                 <Line data={targetData} options={baseOptions} height={40} />
@@ -222,7 +222,7 @@ const Dashboard: React.FC = () => {
 
         <Col xs={24} sm={24} md={12} xl={6} lg={12}>
           <div className="dashboardCard">
-            <h2>Avg. Efficiency Loss</h2>
+            <h2 className="themeColor">Avg. Efficiency Loss</h2>
             <div className="circularEff">
               <CircularProgressbarWithChildren
                 value={70}
@@ -255,7 +255,7 @@ const Dashboard: React.FC = () => {
 
         <Col xs={24} sm={24} md={12} xl={6} lg={12}>
           <div className="dashboardCard">
-            <h2>KWh Loss</h2>
+            <h2 className="themeColor">KWh Loss</h2>
             <div className="lossWrap">
               <div className="kwhLoss commonLoss">
                 <img src={toAbsoluteUrl('/icons/kwhLoss.png')} alt="kwh" />
@@ -280,7 +280,7 @@ const Dashboard: React.FC = () => {
 
         <Col xs={24} sm={24} md={12} xl={6} lg={12}>
           <div className="dashboardCard">
-            <h2>Excess CO2</h2>
+            <h2 className="themeColor">Excess CO2</h2>
             <div className="gaugeChart">
               <img src={toAbsoluteUrl('/icons/gauge.png')} alt="guage" />
             </div>
@@ -298,7 +298,7 @@ const Dashboard: React.FC = () => {
 
         <Col xs={24} sm={24} md={12} lg={12}>
           <div className="dashboardCard">
-            <h2>Estimated Loss</h2>
+            <h2 className="themeColor">Estimated Loss</h2>
             <div className="estimatedChart">
               {/* <Line data={estimatedLossData} options={estimatedLossOptions} height={74} /> */}
               <img src={toAbsoluteUrl('/icons/estimatedLoss.png')} alt="estimated" />
@@ -347,7 +347,7 @@ const Dashboard: React.FC = () => {
           <Row gutter={[10, 10]}>
             <Col xs={24} sm={24} md={12} xl={6} lg={12}>
               <div className="dashboardCard">
-                <h2>Cost at avg. Load Profile</h2>
+                <h2 className="themeColor">Cost at avg. Load Profile</h2>
                 <div className="avgContentWrap">
                   <div className="avgTarget avgList">
                     <Line data={targetData} options={baseOptions} height={40} />
@@ -373,7 +373,7 @@ const Dashboard: React.FC = () => {
 
             <Col xs={24} sm={24} md={12} xl={6} lg={12}>
               <div className="dashboardCard">
-                <h2>Avg. Efficiency Loss</h2>
+                <h2 className="themeColor">Avg. Efficiency Loss</h2>
                 <div className="circularEff">
                   <CircularProgressbarWithChildren
                     value={70}
@@ -406,7 +406,7 @@ const Dashboard: React.FC = () => {
 
             <Col xs={24} sm={24} md={12} xl={6} lg={12}>
               <div className="dashboardCard">
-                <h2>KWh Loss</h2>
+                <h2 className="themeColor">KWh Loss</h2>
                 <div className="lossWrap">
                   <div className="kwhLoss commonLoss">
                     <img src={toAbsoluteUrl('/icons/kwhLoss.png')} alt="kwh" />
@@ -431,7 +431,7 @@ const Dashboard: React.FC = () => {
 
             <Col xs={24} sm={24} md={12} xl={6} lg={12}>
               <div className="dashboardCard">
-                <h2>Excess CO2</h2>
+                <h2 className="themeColor">Excess CO2</h2>
                 <div className="gaugeChart">
                   <img src={toAbsoluteUrl('/icons/gauge.png')} alt="guage" />
                 </div>
@@ -449,7 +449,7 @@ const Dashboard: React.FC = () => {
 
             <Col xs={24} sm={24} md={12} lg={12}>
               <div className="dashboardCard">
-                <h2>Estimated Loss</h2>
+                <h2 className="themeColor">Estimated Loss</h2>
                 <div className="estimatedChart">
                   {/* <Line data={estimatedLossData} options={estimatedLossOptions} height={74} /> */}
                   <img src={toAbsoluteUrl('/icons/estimatedLoss.png')} alt="estimated" />

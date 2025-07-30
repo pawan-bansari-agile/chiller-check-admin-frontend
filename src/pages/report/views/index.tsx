@@ -11,7 +11,7 @@ import ShadowPaper from '@/shared/components/common/ShadowPaper';
 import { CommonTable } from '@/shared/components/common/Table';
 import { ROUTES } from '@/shared/constants/routes';
 import { EditIcon } from '@/shared/svg';
-import { toAbsoluteUrl } from '@/shared/utils/functions';
+import { hasPermission, toAbsoluteUrl } from '@/shared/utils/functions';
 
 import { Wrapper } from '../style';
 
@@ -67,12 +67,14 @@ const columns = [
     title: 'Facility',
     key: 'facility',
     dataIndex: 'facility',
+    width: 150,
     sorter: (a: any, b: any) => a.facility - b.facility
   },
   {
     title: 'Parameter',
     key: 'parameter',
     dataIndex: 'parameter',
+    width: 150,
     sorter: (a: any, b: any) => a.parameter - b.parameter
   },
   {
@@ -113,20 +115,28 @@ const columns = [
       </div>
     )
   },
-  {
-    title: '',
-    key: 'action',
-    render: () => (
-      <div className="actionIonWrap">
-        <Link className="actionIcon" to={ROUTES.EDIT_REPORT}>
-          <EditIcon />
-        </Link>
-        <Link className="actionIcon" to={ROUTES.VIEW_REPORT}>
-          <EyeOutlined />
-        </Link>
-      </div>
-    )
-  }
+  ...(hasPermission('report', 'edit') || hasPermission('report', 'view')
+    ? [
+        {
+          title: '',
+          key: 'action',
+          render: () => (
+            <div className="actionIonWrap">
+              {hasPermission('report', 'edit') && (
+                <Link className="actionIcon" to={ROUTES.EDIT_REPORT}>
+                  <EditIcon />
+                </Link>
+              )}
+              {hasPermission('report', 'view') && (
+                <Link className="actionIcon" to={ROUTES.VIEW_REPORT}>
+                  <EyeOutlined />
+                </Link>
+              )}
+            </div>
+          )
+        }
+      ]
+    : [])
 ];
 
 const data = [
@@ -147,11 +157,13 @@ const Report: React.FC = () => {
       <HeaderToolbar
         title="Reports"
         button={
-          <Link to={ROUTES.ADD_REPORT}>
-            <Button type="primary" className="title-btn" size="small" icon={<PlusOutlined />}>
-              Create Report
-            </Button>
-          </Link>
+          hasPermission('report', 'add') && (
+            <Link to={ROUTES.ADD_REPORT}>
+              <Button type="primary" className="title-btn" size="small" icon={<PlusOutlined />}>
+                Create Report
+              </Button>
+            </Link>
+          )
         }
       />
       <ShadowPaper>

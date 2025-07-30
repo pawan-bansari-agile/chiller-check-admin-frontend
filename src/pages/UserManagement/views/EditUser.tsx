@@ -1,8 +1,5 @@
 import React from 'react';
 
-import { Button } from 'antd';
-
-import HeaderToolbar from '@/shared/components/common/HeaderToolbar';
 import Meta from '@/shared/components/common/Meta';
 
 import UserAddEditForm from '../components/UserAddEditForm';
@@ -13,17 +10,6 @@ const EditUser: React.FC = () => {
     <Wrapper>
       {' '}
       <Meta title="User Management" />
-      <HeaderToolbar
-        title="Edit User"
-        backBtn={true}
-        button={
-          <div className="editButtonWrap">
-            <Button type="primary" className="title-btn" shape="round">
-              Save
-            </Button>
-          </div>
-        }
-      />
       <UserAddEditForm />
     </Wrapper>
   );

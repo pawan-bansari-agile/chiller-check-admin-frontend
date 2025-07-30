@@ -14,7 +14,8 @@ const ApiEndPoints = {
   resetPassword: 'auth/resetPassword',
   logout: 'auth/logout',
   changePassword: 'auth/changePassword',
-  resendOtp: 'auth/resendOtp'
+  resendOtp: 'auth/resendOtp',
+  validatePhoneNumber: 'auth/validateUSMobileNumber'
 };
 
 //Query Keys
@@ -111,6 +112,20 @@ export const authApi = {
   }): Promise<IApiSuccess<Record<string, unknown>>> {
     return apiInstance
       .post(ApiEndPoints.changePassword, data)
+      .then((response) => {
+        return response;
+      })
+      .catch((error) => {
+        throw error.response?.data;
+      });
+  },
+
+  //validate phone number
+  async validatePhoneNumberAction(data: {
+    phone: string;
+  }): Promise<IApiSuccess<Record<string, unknown>>> {
+    return apiInstance
+      .post(ApiEndPoints.validatePhoneNumber, data)
       .then((response) => {
         return response;
       })

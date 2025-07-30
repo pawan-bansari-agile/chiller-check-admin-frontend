@@ -98,6 +98,13 @@ export const Wrapper = styled.div`
   }
 
   /* add-edit */
+
+  .extraActionButton {
+    justify-content: flex-end;
+    margin: 25px 0 0 !important;
+    padding-bottom: 25px;
+  }
+
   .maintenanceFields {
     padding: 22px 32px;
   }

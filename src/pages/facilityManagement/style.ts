@@ -38,6 +38,14 @@ export const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
     gap: 20px;
+  }
+
+  .extraActionButton {
+    justify-content: flex-end;
+    margin: 25px 0 !important;
+  }
+
+  .facilityFormWrap {
     padding: 22px;
   }
 
@@ -77,6 +85,11 @@ export const Wrapper = styled.div`
     margin: 10px 22px;
   }
 
+  .editButtonWrap {
+    display: flex;
+    gap: 10px;
+  }
+
   /* view */
   .requiredStar {
     color: #ff4d4f;
@@ -85,14 +98,32 @@ export const Wrapper = styled.div`
     padding-top: 4px;
   }
   .viewFacilityHeader {
-    padding: 6px 0 20px 32px;
+    padding: 6px 32px 20px;
     border-bottom: 1px solid ${({ theme }) => theme.colors.body};
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
     h2 {
       font-size: 18px;
       font-weight: 600;
       line-height: 28px;
       color: ${({ theme }) => theme.colors.inkBlue};
       margin-bottom: 0;
+    }
+    .statusBedge {
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 17px;
+      color: ${({ theme }) => theme.colors.white};
+      padding: 1px 13px;
+      border-radius: 20px;
+      &.active {
+        background: ${({ theme }) => theme.colors.green};
+      }
+      &.inactive {
+        background: ${({ theme }) => theme.colors.danger};
+      }
     }
   }
 
@@ -127,20 +158,17 @@ export const Wrapper = styled.div`
       font-weight: 600;
       line-height: 28px;
       color: ${({ theme }) => theme.colors.inkBlue};
-      margin: 6px 22px 20px;
+      margin: 6px 32px 20px;
     }
   }
 
   .chillerNameWrap {
-    text-align: left;
     .chillerName {
       color: ${({ theme }) => theme.colors.primary};
       border-bottom: 1px solid ${({ theme }) => theme.colors.primary};
-      margin-left: 22px;
     }
     span {
       display: block;
-      text-align: center;
     }
   }
 
@@ -154,6 +182,18 @@ export const Wrapper = styled.div`
 
     .selectUnitFacility {
       margin-top: 26px;
+    }
+  }
+
+  .facilityChillerTable {
+    .ant-table-tbody {
+      tr td {
+        vertical-align: top;
+
+        &:first-of-type {
+          vertical-align: middle;
+        }
+      }
     }
   }
 

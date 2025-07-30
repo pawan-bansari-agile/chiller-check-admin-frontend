@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-import { DownOutlined, EyeOutlined, SearchOutlined } from '@ant-design/icons';
-import { Checkbox, Col, Dropdown, Form, Input, MenuProps, Row, Space, Tag } from 'antd';
+import { DownOutlined, EyeOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Checkbox, Col, Dropdown, Form, Input, MenuProps, Row, Space, Tag } from 'antd';
 
 import {
   CKEditorFormItem,
@@ -13,8 +13,7 @@ import {
 } from '@/shared/components/common/FormField';
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
 import { CommonTable } from '@/shared/components/common/Table';
-import { ROUTES } from '@/shared/constants/routes';
-import { toAbsoluteUrl } from '@/shared/utils/functions';
+import { hasPermission, toAbsoluteUrl } from '@/shared/utils/functions';
 
 import { Wrapper } from '../style';
 
@@ -115,17 +114,24 @@ const columns = [
       </Tag>
     )
   },
-  {
-    title: '',
-    key: 'action',
-    render: () => (
-      <div className="actionIonWrap">
-        <Link className="actionIcon" to={ROUTES.NOTIFICATION}>
-          <EyeOutlined />
-        </Link>
-      </div>
-    )
-  }
+  ...(hasPermission('users', 'view')
+    ? [
+        {
+          title: '',
+          key: '_id',
+          dataIndex: '_id',
+          render: () => (
+            <div className="actionIonWrap">
+              {hasPermission('users', 'view') && (
+                <Link className="actionIcon" to={''}>
+                  <EyeOutlined />
+                </Link>
+              )}
+            </div>
+          )
+        }
+      ]
+    : [])
 ];
 
 const data: ReportRow[] = [
@@ -157,6 +163,7 @@ const statusColorMap: Record<string, string> = {
 
 const AddEditReport: React.FC = () => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
 
   const onSubmit = () => {
     console.log('submit');
@@ -172,7 +179,7 @@ const AddEditReport: React.FC = () => {
                 <RenderTextInput
                   label="Report name"
                   required
-                  tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+                  // tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
                   formItemProps={{
                     name: 'reportName',
                     rules: [
@@ -282,7 +289,7 @@ const AddEditReport: React.FC = () => {
                 <RenderTextAreaInput
                   colProps={{ span: 24 }}
                   label="Add Description"
-                  tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+                  // tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
                   formItemProps={{
                     name: 'Add Description',
                     label: 'Add Description',
@@ -303,7 +310,7 @@ const AddEditReport: React.FC = () => {
             <Col xs={24} sm={24} md={12} lg={12}>
               <CKEditorFormItem
                 label="Report Header Text"
-                tooltip="This will appear at the top of the report"
+                // tooltip="This will appear at the top of the report"
                 labelCol={{ span: 24 }}
                 wrapperCol={{ span: 24 }}
                 name={'privacyPolicy'}
@@ -320,7 +327,7 @@ const AddEditReport: React.FC = () => {
             <Col xs={24} sm={24} md={12} lg={12}>
               <CKEditorFormItem
                 label="Report Footer Text"
-                tooltip="This will appear at the top of the report"
+                // tooltip="This will appear at the top of the report"
                 labelCol={{ span: 24 }}
                 wrapperCol={{ span: 24 }}
                 name={'privacyPolicy'}
@@ -339,7 +346,7 @@ const AddEditReport: React.FC = () => {
         <ShadowPaper>
           <div className="reportContentHeader">
             <div className="dropdownWrap">
-              <h2 className="notifyUser">Notify Users [10]</h2>
+              <h2 className="notifyUser themeColor">Notify Users [10]</h2>
               <Dropdown menu={{ items: companyItems }} trigger={['click']}>
                 <a onClick={(e) => e.preventDefault()}>
                   <Space>
@@ -375,6 +382,15 @@ const AddEditReport: React.FC = () => {
           </div>
           <CommonTable columns={columns} dataSource={data} pagination={{ current: 6 }} />
         </ShadowPaper>
+      </div>
+
+      <div className="viewButtonWrap extraActionButton">
+        <Button className="title-cancel-btn" onClick={() => navigate(-1)}>
+          Cancel
+        </Button>
+        <Button type="primary" className="title-btn" size="small" icon={<PlusOutlined />}>
+          Add / Save
+        </Button>
       </div>
     </Wrapper>
   );

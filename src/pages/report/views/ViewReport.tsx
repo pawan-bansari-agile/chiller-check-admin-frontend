@@ -30,9 +30,8 @@ import HeaderToolbar from '@/shared/components/common/HeaderToolbar';
 import Meta from '@/shared/components/common/Meta';
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
 import { CommonTable } from '@/shared/components/common/Table';
-import { ROUTES } from '@/shared/constants/routes';
 import { EditIcon, FacilityIcon, SettingIcon, User } from '@/shared/svg';
-import { toAbsoluteUrl } from '@/shared/utils/functions';
+import { hasPermission, toAbsoluteUrl } from '@/shared/utils/functions';
 
 import { Wrapper } from '../style';
 
@@ -129,20 +128,29 @@ const columns = [
       </Tag>
     )
   },
-  {
-    title: '',
-    key: 'action',
-    render: () => (
-      <div className="actionIonWrap">
-        <Link className="actionIcon" to={ROUTES.EDIT_REPORT}>
-          <EditIcon />
-        </Link>
-        <Link className="actionIcon" to={ROUTES.NOTIFICATION}>
-          <EyeOutlined />
-        </Link>
-      </div>
-    )
-  }
+  ...(hasPermission('users', 'edit') || hasPermission('users', 'view')
+    ? [
+        {
+          title: '',
+          key: '_id',
+          dataIndex: '_id',
+          render: () => (
+            <div className="actionIonWrap">
+              {hasPermission('users', 'edit') && (
+                <Link className="actionIcon" to={''}>
+                  <EditIcon />
+                </Link>
+              )}
+              {hasPermission('users', 'view') && (
+                <Link className="actionIcon" to={''}>
+                  <EyeOutlined />
+                </Link>
+              )}
+            </div>
+          )
+        }
+      ]
+    : [])
 ];
 
 const data: ReportRow[] = [
@@ -229,15 +237,19 @@ const ViewReport: React.FC = () => {
         backBtn={true}
         button={
           <div className="viewButtonWrap">
-            <Button className="title-cancel-btn">
-              Export{' '}
-              <i>
-                <DownOutlined />
-              </i>
-            </Button>
-            <Button type="primary" className="title-btn" size="small" icon={<EditIcon />}>
-              Edit
-            </Button>
+            {hasPermission('report', 'view') && (
+              <Button className="title-cancel-btn">
+                Export{' '}
+                <i>
+                  <DownOutlined />
+                </i>
+              </Button>
+            )}
+            {hasPermission('report', 'edit') && (
+              <Button type="primary" className="title-btn" size="small" icon={<EditIcon />}>
+                Edit
+              </Button>
+            )}
           </div>
         }
       />
@@ -304,7 +316,7 @@ const ViewReport: React.FC = () => {
         <ShadowPaper>
           <div className="reportContentHeader">
             <div className="dropdownWrap">
-              <h2 className="notifyUser">Notify Users [10]</h2>
+              <h2 className="notifyUser themeColor">Notify Users [10]</h2>
               <Dropdown menu={{ items: companyItems }} trigger={['click']}>
                 <a onClick={(e) => e.preventDefault()}>
                   <Space>
@@ -346,6 +358,22 @@ const ViewReport: React.FC = () => {
             This information is confidential. Please make sure you not to share it with anyone else.
           </p>
         </ShadowPaper>
+      </div>
+
+      <div className="viewButtonWrap extraActionButton">
+        {hasPermission('report', 'view') && (
+          <Button className="title-cancel-btn">
+            Export{' '}
+            <i>
+              <DownOutlined />
+            </i>
+          </Button>
+        )}
+        {hasPermission('report', 'edit') && (
+          <Button type="primary" className="title-btn" size="small" icon={<EditIcon />}>
+            Edit
+          </Button>
+        )}
       </div>
     </Wrapper>
   );

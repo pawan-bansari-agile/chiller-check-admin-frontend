@@ -21,7 +21,7 @@ import {
   NonCondLossIcon,
   OtherLossIcon
 } from '@/shared/svg';
-import { toAbsoluteUrl } from '@/shared/utils/functions';
+import { hasPermission, toAbsoluteUrl } from '@/shared/utils/functions';
 
 import { Wrapper } from '../style';
 
@@ -34,12 +34,16 @@ const ViewLog: React.FC = () => {
         backBtn={true}
         button={
           <div className="logButtonWrap">
-            <Button className="title-cancel-btn delete-btn" icon={<DeleteOutlined />}>
-              Delete
-            </Button>
-            <Button type="primary" className="title-btn" icon={<EditIcon />}>
-              <Link to={ROUTES.EDIT_LOG_ENTRY}>Edit</Link>
-            </Button>
+            {hasPermission('log', 'toggleStatus') && (
+              <Button className="title-cancel-btn delete-btn" icon={<DeleteOutlined />}>
+                Delete
+              </Button>
+            )}
+            {hasPermission('log', 'edit') && (
+              <Button type="primary" className="title-btn" icon={<EditIcon />}>
+                <Link to={ROUTES.EDIT_LOG_ENTRY}>Edit</Link>
+              </Button>
+            )}
           </div>
         }
       />
@@ -390,6 +394,19 @@ const ViewLog: React.FC = () => {
           </ShadowPaper>
         </Col>
       </Row>
+
+      <div className="logButtonWrap extraActionButton">
+        {hasPermission('log', 'toggleStatus') && (
+          <Button className="title-cancel-btn delete-btn" icon={<DeleteOutlined />}>
+            Delete
+          </Button>
+        )}
+        {hasPermission('log', 'edit') && (
+          <Button type="primary" className="title-btn" icon={<EditIcon />}>
+            <Link to={ROUTES.EDIT_LOG_ENTRY}>Edit</Link>
+          </Button>
+        )}
+      </div>
     </Wrapper>
   );
 };

@@ -116,6 +116,11 @@ export const Wrapper = styled.div`
     gap: 10px;
   }
 
+  .extraActionButton {
+    justify-content: flex-end;
+    margin: 25px 0 !important;
+  }
+
   .companyFacilityTable {
     .ant-input,
     .pac-target-input,
@@ -125,6 +130,15 @@ export const Wrapper = styled.div`
     .ant-select-selection-placeholder,
     .ant-select-selection-item {
       text-align: left !important;
+    }
+    .ant-table-tbody {
+      tr td {
+        vertical-align: top;
+
+        &:first-of-type {
+          vertical-align: middle;
+        }
+      }
     }
   }
 

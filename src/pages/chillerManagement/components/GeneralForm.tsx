@@ -1,30 +1,60 @@
 import React from 'react';
 
-import { Col, Form, Row } from 'antd';
+import { Col, FormInstance, Row } from 'antd';
+
+import { authStore } from '@/store/auth';
 
 import { RenderSelect, RenderTextInput } from '@/shared/components/common/FormField';
+import { DES_INLET_WATER_TEMP, MEASUREMENT_UNITS, PATTERNS } from '@/shared/constants';
+import {
+  allowAverageLoad,
+  allowHoursPerWeek,
+  validateAverageLoad,
+  validateWeeklyHours
+} from '@/shared/utils/functions';
 
-const GeneralForm: React.FC = () => {
-  const onSubmit = () => {
-    console.log('submit');
-  };
+interface IProps {
+  companyOptions: { label: string; value: string }[] | [];
+  facilityOptions: { label: string; value: string }[] | [];
+  isCompanyLoading: boolean;
+  companyName?: string;
+  isFacilityLoading: boolean;
+  form: FormInstance;
+  id?: string;
+}
+
+const GeneralForm: React.FC<IProps> = ({
+  companyOptions,
+  isCompanyLoading,
+  companyName,
+  facilityOptions,
+  isFacilityLoading,
+  form,
+  id
+}) => {
+  const { userData } = authStore((state) => state);
   return (
-    <Form className="chillerAddEfitForm" onFinish={onSubmit}>
+    <div className="chillerAddEfitForm">
       <Row gutter={[20, 25]}>
         <Col xs={24} sm={24} md={12} lg={8}>
           <RenderSelect
-            label="Company name"
+            label="Company Name"
             colClassName="custom-select-col"
             formItemProps={{
-              name: 'Company name',
-              rules: [{ required: true, message: 'Please select a company' }]
+              name: 'companyId',
+              rules: [{ required: true, message: 'Please select company.' }]
             }}
             inputProps={{
               placeholder: 'Select Company',
-              options: [
-                { label: 'Petal Grove Academy', value: 'petal_grove_academy' },
-                { label: 'Angel investor', value: 'angel_investor' }
-              ]
+              options: companyOptions,
+              disabled: isCompanyLoading || !!id || !!userData?.companyId,
+              onChange: () => {
+                const isFacilityTouched = form.isFieldTouched('facilityId');
+                form.setFieldValue('facilityId', null);
+                if (isFacilityTouched) {
+                  form.validateFields(['facilityId']);
+                }
+              }
             }}
           />
         </Col>
@@ -33,16 +63,15 @@ const GeneralForm: React.FC = () => {
           <RenderSelect
             label="Facility"
             colClassName="custom-select-col"
+            required
             formItemProps={{
-              name: 'Facility name',
-              rules: [{ required: true, message: 'Please select a facility' }]
+              name: 'facilityId',
+              rules: companyName ? [{ required: true, message: 'Please select facility.' }] : []
             }}
             inputProps={{
               placeholder: 'Select Facility',
-              options: [
-                { label: 'Petal Grove Academy', value: 'petal_grove_academy' },
-                { label: 'Angel investor', value: 'angel_investor' }
-              ]
+              options: facilityOptions,
+              disabled: !companyName || isFacilityLoading || !!id
             }}
           />
         </Col>
@@ -52,33 +81,56 @@ const GeneralForm: React.FC = () => {
             label="Type"
             colClassName="custom-select-col"
             formItemProps={{
-              name: 'type',
-              rules: [{ required: true, message: 'Please select a type' }]
+              required: true,
+              initialValue: 'Electric',
+              name: 'type'
             }}
             inputProps={{
+              disabled: true,
               placeholder: 'Select Type',
-              options: [
-                { label: 'Electric', value: 'electric' },
-                { label: 'Chemical', value: 'chemical' }
-              ]
+              options: [{ label: 'Electric', value: 'Electric' }]
             }}
           />
         </Col>
-
         <Col xs={24} sm={24} md={12} lg={8}>
           <RenderSelect
             label="Unit"
             colClassName="custom-select-col"
             formItemProps={{
               name: 'unit',
-              rules: [{ required: true, message: 'Please select a unit' }]
+              rules: [{ required: true, message: 'Please select unit.' }]
             }}
             inputProps={{
               placeholder: 'Select Unit',
-              options: [
-                { label: 'US / English', value: 'us' },
-                { label: 'British / English', value: 'british' }
-              ]
+              options: MEASUREMENT_UNITS,
+              disabled: !!id,
+              onChange: () => {
+                const isTonsTouched = form.isFieldTouched('tons/kwr');
+                const isEfficiencyTouched = form.isFieldTouched('efficiencyRating');
+
+                if (isTonsTouched) {
+                  form.validateFields(['tons/kwr']);
+                }
+                if (isEfficiencyTouched) {
+                  form.validateFields(['efficiencyRating']);
+                }
+                form.setFieldValue('actualCondenserWaterPressureDrop', null);
+                form.validateFields(['actualCondenserWaterPressureDrop']);
+                form.setFieldValue('condenserWaterPressureDropOption', null);
+                form.validateFields(['condenserWaterPressureDropOption']);
+                form.setFieldValue('condenserPressureUnit', null);
+                form.validateFields(['condenserPressureUnit']);
+                form.setFieldValue('chillWaterPressureDropOption', null);
+                form.validateFields(['chillWaterPressureDropOption']);
+                form.setFieldValue('actualChillWaterPressureDropUnit', null);
+                form.validateFields(['actualChillWaterPressureDropUnit']);
+                form.setFieldValue('evaporatorPressureUnit', null);
+                form.validateFields(['evaporatorPressureUnit']);
+                form.setFieldValue('designCondenserApproachTemp', null);
+                form.validateFields(['designCondenserApproachTemp']);
+                form.setFieldValue('designEvaporatorApproachTemp', null);
+                form.validateFields(['designEvaporatorApproachTemp']);
+              }
             }}
           />
         </Col>
@@ -87,13 +139,16 @@ const GeneralForm: React.FC = () => {
           <RenderTextInput
             label="Chiller Name/No"
             required
-            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
             formItemProps={{
-              name: 'chiller name-no',
+              name: 'chillerNo',
               rules: [
                 {
                   required: true,
-                  message: 'Please enter chiller name/no'
+                  message: 'Please enter chiller name/no.'
+                },
+                {
+                  pattern: PATTERNS.BLANK_SPACE,
+                  message: 'Please enter valid chiller name/no.'
                 }
               ]
             }}
@@ -108,17 +163,20 @@ const GeneralForm: React.FC = () => {
             label="Weekly Hours Of Operation"
             colClassName="addonAfterClass"
             required
-            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            tooltip="Enter the hours is the chiller going to operate in a week. Ideally between 1 and 168"
             formItemProps={{
-              name: 'weekly hours',
+              name: 'weeklyHours',
               rules: [
                 {
-                  required: true,
-                  message: 'Please enter weekly hours of operation'
+                  validator: validateWeeklyHours('weekly hours of operation', 1, 168)
                 }
               ]
             }}
             inputProps={{
+              type: 'text',
+              maxLength: 10,
+              inputMode: 'numeric',
+              onKeyDown: allowHoursPerWeek,
               placeholder: 'Weekly Hours Of Operation',
               addonAfterText: 'Hrs'
             }}
@@ -129,17 +187,20 @@ const GeneralForm: React.FC = () => {
           <RenderTextInput
             label="Weeks Per Year"
             required
-            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            tooltip="Enter the number of weeks the chiller is going to operate in a year.  Ideally between 1 and 52."
             formItemProps={{
-              name: 'weeks per year',
+              name: 'weeksPerYear',
               rules: [
                 {
-                  required: true,
-                  message: 'Please enter weeks per year'
+                  validator: validateWeeklyHours('weeks per year', 1, 52)
                 }
               ]
             }}
             inputProps={{
+              type: 'text',
+              maxLength: 10,
+              inputMode: 'numeric',
+              onKeyDown: allowHoursPerWeek,
               placeholder: 'Weeks Per Year'
             }}
           />
@@ -150,17 +211,20 @@ const GeneralForm: React.FC = () => {
             label="Avg. Load Profile"
             colClassName="addonAfterClass"
             required
-            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            tooltip="An average load profile in a chiller represents the typical cooling demand or load on the chiller over a specific time period, used to assess performance and efficiency. Ideally within 10% to 100%."
             formItemProps={{
-              name: 'avg load profile',
+              name: 'avgLoadProfile',
               rules: [
                 {
-                  required: true,
-                  message: 'Please enter average load profile.'
+                  validator: validateAverageLoad('average load profile', 10, 100)
                 }
               ]
             }}
             inputProps={{
+              type: 'text', // use "text" for full control
+              maxLength: 10,
+              inputMode: 'decimal', // show numeric keypad with decimal on mobile
+              onKeyDown: allowAverageLoad,
               placeholder: 'Avg. Load Profile',
               addonAfterText: '%'
             }}
@@ -169,23 +233,21 @@ const GeneralForm: React.FC = () => {
 
         <Col xs={24} sm={24} md={12} lg={8}>
           <RenderSelect
-            label="Design Inlet Water Temp"
+            label="Design Inlet Water Temp."
+            tooltip="Enter the designed inlet water temperature of the chiller."
             colClassName="custom-select-col"
             formItemProps={{
-              name: 'Design Inlet Water Temp',
-              rules: [{ required: true, message: 'Please select design inlet water temp.' }]
+              name: 'designInletWaterTemp',
+              rules: [{ required: true, message: 'Please select design inlet water temperature.' }]
             }}
             inputProps={{
               placeholder: 'Design Inlet Water Temp.',
-              options: [
-                { label: 'Petal Grove Academy', value: 'petal_grove_academy' },
-                { label: 'Angel investor', value: 'angel_investor' }
-              ]
+              options: DES_INLET_WATER_TEMP
             }}
           />
         </Col>
       </Row>
-    </Form>
+    </div>
   );
 };
 

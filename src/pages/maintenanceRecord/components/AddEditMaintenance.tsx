@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+import { useNavigate } from 'react-router-dom';
+
 import {
   AuditOutlined,
   ClockCircleOutlined,
@@ -7,7 +9,7 @@ import {
   LoadingOutlined,
   PlusOutlined
 } from '@ant-design/icons';
-import { Col, Form, Row, Upload, message } from 'antd';
+import { Button, Col, Form, Row, Upload, message } from 'antd';
 import type { GetProp, UploadProps } from 'antd';
 
 import CardWithTitle from '@/shared/components/common/CardWithTitle';
@@ -45,6 +47,7 @@ const beforeUpload = (file: FileType) => {
 const AddEditMaintenance: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>();
+  const navigate = useNavigate();
 
   const handleChange: UploadProps['onChange'] = (info) => {
     if (info.file.status === 'uploading') {
@@ -108,7 +111,7 @@ const AddEditMaintenance: React.FC = () => {
           <Col xs={24} sm={24} md={12} lg={8}>
             <RenderDatePickerInput
               label="Maintenance Date & Time"
-              tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+              // tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
               formItemProps={{
                 name: 'startDate',
                 rules: [{ required: true, message: 'Please select a date' }]
@@ -204,6 +207,15 @@ const AddEditMaintenance: React.FC = () => {
           </CardWithTitle>
         </Col>
       </Row>
+
+      <div className="maintenanceButtonWrap extraActionButton">
+        <Button className="title-cancel-btn" onClick={() => navigate(-1)}>
+          Cancel
+        </Button>
+        <Button className="title-btn" type="primary" shape="round" icon={<PlusOutlined />}>
+          Add / Save
+        </Button>
+      </div>
     </Wrapper>
   );
 };

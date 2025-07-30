@@ -2,9 +2,13 @@ import { lazy } from 'react';
 
 import { Navigate, Route, Routes } from 'react-router-dom';
 
+import { authStore } from '@/store/auth';
+
 import Layout from '@/shared/components/layout';
+import { USER_ROLES } from '@/shared/constants';
 import { ROUTES } from '@/shared/constants/routes';
 import AuthGuard from '@/shared/guard/AuthGuard';
+import PermissionGuard from '@/shared/guard/PermissionGuard';
 
 const PageNotFound = lazy(() => import('@/pages/pageNotFound'));
 
@@ -12,6 +16,7 @@ const PageNotFound = lazy(() => import('@/pages/pageNotFound'));
 const Login = lazy(() => import('@/pages/login/views'));
 const VerifyOtp = lazy(() => import('@/pages/verifyOtp/views'));
 const ResetPassword = lazy(() => import('@/pages/resetPassword/views'));
+const SetPassword = lazy(() => import('@/pages/setPassword/views'));
 const ForgotPassword = lazy(() => import('@/pages/ForgotPassword/Views'));
 
 // PRIVATE ROUTES
@@ -55,14 +60,15 @@ const AddLog = lazy(() => import('@/pages/Log/view/AddLog'));
 const EditLog = lazy(() => import('@/pages/Log/view/EditLog'));
 const ViewLog = lazy(() => import('@/pages/Log/view/ViewLog'));
 
-const ComingSoon = lazy(() => import('@/pages/ComingSoon'));
-
 const Routing = () => {
+  const { userData } = authStore((state) => state);
+  const { permissions = {} } = userData;
   return (
     <Routes>
       <Route path={ROUTES.LOGIN} element={<Login />} />
       <Route path={ROUTES.VERIFY_OTP} element={<VerifyOtp />} />
       <Route path={ROUTES.RESET_PASSWORD(':token')} element={<ResetPassword />} />
+      <Route path={ROUTES.SET_PASSWORD(':token')} element={<SetPassword />} />
       <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPassword />} />
       <Route
         path={ROUTES.DEFAULT}
@@ -80,28 +86,148 @@ const Routing = () => {
         <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
 
         {/* company management */}
-        <Route path={ROUTES.COMPANY_MANAGEMENT} element={<CompanyManagement />} />
-        <Route path={ROUTES.Add_COMPANY_MANAGEMENT} element={<AddCompany />} />
-        <Route path={ROUTES.Edit_COMPANY_MANAGEMENT(':id')} element={<EditCompany />} />
-        <Route path={ROUTES.VIEW_COMPANY_MANAGEMENT(':id')} element={<ViewCompany />} />
+        <Route
+          path={ROUTES.COMPANY_MANAGEMENT}
+          element={
+            <PermissionGuard permissionKey="company" action="view" permissions={permissions}>
+              <CompanyManagement />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.Add_COMPANY_MANAGEMENT}
+          element={
+            <PermissionGuard permissionKey="company" action="add" permissions={permissions}>
+              <AddCompany />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.Edit_COMPANY_MANAGEMENT(':id')}
+          element={
+            <PermissionGuard permissionKey="company" action="edit" permissions={permissions}>
+              <EditCompany />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.VIEW_COMPANY_MANAGEMENT(':id')}
+          element={
+            <PermissionGuard permissionKey="company" action="view" permissions={permissions}>
+              <ViewCompany />
+            </PermissionGuard>
+          }
+        />
 
         {/* facility management */}
-        <Route path={ROUTES.FACILITY_MANAGEMENT} element={<FacilityManagement />} />
-        <Route path={ROUTES.Add_FACILITY_MANAGEMENT} element={<AddFacility />} />
-        <Route path={ROUTES.Edit_FACILITY_MANAGEMENT} element={<EditFacility />} />
-        <Route path={ROUTES.View_FACILITY_MANAGEMENT} element={<ViewFacility />} />
+        <Route
+          path={ROUTES.FACILITY_MANAGEMENT}
+          element={
+            <PermissionGuard permissionKey="facility" action="view" permissions={permissions}>
+              <FacilityManagement />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.Add_FACILITY_MANAGEMENT}
+          element={
+            <PermissionGuard permissionKey="facility" action="add" permissions={permissions}>
+              <AddFacility />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.Edit_FACILITY_MANAGEMENT(':id')}
+          element={
+            <PermissionGuard permissionKey="facility" action="edit" permissions={permissions}>
+              <EditFacility />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.View_FACILITY_MANAGEMENT(':id')}
+          element={
+            <PermissionGuard permissionKey="facility" action="view" permissions={permissions}>
+              <ViewFacility />
+            </PermissionGuard>
+          }
+        />
 
         {/* chiller management */}
-        <Route path={ROUTES.CHILLER_MANAGEMENT} element={<ChillerManagement />} />
-        <Route path={ROUTES.Add_CHILLER_MANAGEMENT} element={<AddChiller />} />
-        <Route path={ROUTES.Edit_CHILLER_MANAGEMENT} element={<EditChiller />} />
-        <Route path={ROUTES.View_CHILLER_MANAGEMENT} element={<ViewChiller />} />
+        <Route
+          path={ROUTES.CHILLER_MANAGEMENT}
+          element={
+            userData?.role !== USER_ROLES.OPERATOR ? (
+              <PermissionGuard permissionKey="chiller" action="view" permissions={permissions}>
+                <ChillerManagement />
+              </PermissionGuard>
+            ) : (
+              <ChillerManagement />
+            )
+          }
+        />
+        <Route
+          path={ROUTES.Add_CHILLER_MANAGEMENT}
+          element={
+            <PermissionGuard permissionKey="chiller" action="add" permissions={permissions}>
+              <AddChiller />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.Edit_CHILLER_MANAGEMENT(':id')}
+          element={
+            <PermissionGuard permissionKey="chiller" action="edit" permissions={permissions}>
+              <EditChiller />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.View_CHILLER_MANAGEMENT(':id')}
+          element={
+            userData?.role !== USER_ROLES.OPERATOR ? (
+              <PermissionGuard permissionKey="chiller" action="view" permissions={permissions}>
+                <ViewChiller />
+              </PermissionGuard>
+            ) : (
+              <ViewChiller />
+            )
+          }
+        />
 
         {/* User management */}
-        <Route path={ROUTES.USER_MANAGEMENT} element={<UserManagement />} />
-        <Route path={ROUTES.ADD_USER_MANAGEMENT} element={<AddUser />} />
-        <Route path={ROUTES.EDIT_USER_MANAGEMENT} element={<EditUser />} />
-        <Route path={ROUTES.VIEW_USER_MANAGEMENT} element={<ViewUser />} />
+        <Route
+          path={ROUTES.USER_MANAGEMENT}
+          element={
+            <PermissionGuard permissionKey="users" action="view" permissions={permissions}>
+              <UserManagement />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.ADD_USER_MANAGEMENT}
+          element={
+            <PermissionGuard permissionKey="users" action="add" permissions={permissions}>
+              <AddUser />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.EDIT_USER_MANAGEMENT(':id')}
+          element={
+            <PermissionGuard permissionKey="users" action="edit" permissions={permissions}>
+              <EditUser />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.VIEW_USER_MANAGEMENT(':id')}
+          element={
+            <PermissionGuard permissionKey="users" action="view" permissions={permissions}>
+              <ViewUser />
+            </PermissionGuard>
+          }
+        />
 
         {/* CMS */}
         <Route path={ROUTES.TERMS_CONDITION} element={<TermsCondition />} />
@@ -110,31 +236,127 @@ const Routing = () => {
         <Route path={ROUTES.EDIT_PRIVACY_POLICY} element={<EditPrivacyPolicy />} />
 
         {/* problem & solution */}
-        <Route path={ROUTES.PROBLEM_SOLUTION} element={<ProblemSolution />} />
-        <Route path={ROUTES.CONFIGURE_FIELD} element={<ConfigureFiled />} />
+        <Route
+          path={ROUTES.PROBLEM_SOLUTION}
+          element={
+            <PermissionGuard permissionKey="setting" action="view" permissions={permissions}>
+              <ProblemSolution />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.CONFIGURE_FIELD(':id')}
+          element={
+            <PermissionGuard permissionKey="setting" action="edit" permissions={permissions}>
+              <ConfigureFiled />
+            </PermissionGuard>
+          }
+        />
 
         {/* reports */}
-        <Route path={ROUTES.REPORT} element={<Report />} />
-        <Route path={ROUTES.ADD_REPORT} element={<AddReport />} />
-        <Route path={ROUTES.EDIT_REPORT} element={<EditReport />} />
-        <Route path={ROUTES.VIEW_REPORT} element={<ViewReport />} />
+        <Route
+          path={ROUTES.REPORT}
+          element={
+            <PermissionGuard permissionKey="report" action="view" permissions={permissions}>
+              <Report />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.ADD_REPORT}
+          element={
+            <PermissionGuard permissionKey="report" action="add" permissions={permissions}>
+              <AddReport />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.EDIT_REPORT}
+          element={
+            <PermissionGuard permissionKey="report" action="edit" permissions={permissions}>
+              <EditReport />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.VIEW_REPORT}
+          element={
+            <PermissionGuard permissionKey="report" action="view" permissions={permissions}>
+              <ViewReport />
+            </PermissionGuard>
+          }
+        />
 
         {/* maintenance */}
-        <Route path={ROUTES.MAINTENANCE} element={<MaintenanceRecord />} />
-        <Route path={ROUTES.ADD_MAINTENANCE} element={<AddMaintenance />} />
-        <Route path={ROUTES.EDIT_MAINTENANCE} element={<EditMaintenance />} />
-        <Route path={ROUTES.VIEW_MAINTENANCE} element={<ViewMaintenance />} />
+        <Route
+          path={ROUTES.MAINTENANCE}
+          element={
+            <PermissionGuard permissionKey="maintenance" action="view" permissions={permissions}>
+              <MaintenanceRecord />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.ADD_MAINTENANCE}
+          element={
+            <PermissionGuard permissionKey="maintenance" action="add" permissions={permissions}>
+              <AddMaintenance />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.EDIT_MAINTENANCE}
+          element={
+            <PermissionGuard permissionKey="maintenance" action="edit" permissions={permissions}>
+              <EditMaintenance />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.VIEW_MAINTENANCE}
+          element={
+            <PermissionGuard permissionKey="maintenance" action="view" permissions={permissions}>
+              <ViewMaintenance />
+            </PermissionGuard>
+          }
+        />
 
         {/* log */}
-        <Route path={ROUTES.LOG_ENTRY} element={<LogEntry />} />
-        <Route path={ROUTES.ADD_LOG_ENTRY} element={<AddLog />} />
-        <Route path={ROUTES.EDIT_LOG_ENTRY} element={<EditLog />} />
-        <Route path={ROUTES.VIEW_LOG_ENTRY} element={<ViewLog />} />
+        <Route
+          path={ROUTES.LOG_ENTRY}
+          element={
+            <PermissionGuard permissionKey="log" action="view" permissions={permissions}>
+              <LogEntry />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.ADD_LOG_ENTRY}
+          element={
+            <PermissionGuard permissionKey="log" action="add" permissions={permissions}>
+              <AddLog />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.EDIT_LOG_ENTRY}
+          element={
+            <PermissionGuard permissionKey="log" action="edit" permissions={permissions}>
+              <EditLog />
+            </PermissionGuard>
+          }
+        />
+        <Route
+          path={ROUTES.VIEW_LOG_ENTRY}
+          element={
+            <PermissionGuard permissionKey="log" action="view" permissions={permissions}>
+              <ViewLog />
+            </PermissionGuard>
+          }
+        />
 
         {/* notification */}
         <Route path={ROUTES.NOTIFICATION} element={<Notification />} />
-
-        <Route path={ROUTES.COMING_SOON} element={<ComingSoon />} />
 
         <Route path={ROUTES.DEFAULT} element={<Navigate replace to={ROUTES.DASHBOARD} />} />
         <Route path="*" element={<Navigate replace to={ROUTES.PAGE_NOT_FOUND} />} />

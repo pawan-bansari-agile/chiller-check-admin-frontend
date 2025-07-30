@@ -18,6 +18,12 @@ export interface IProfileRes {
   resetPasswordToken: string;
   failedLoginAttempts: number;
   lastFailedLoginAttempt: any;
+  permissions?: any;
+  chillers?: any;
+  chillerIds?: any[];
+  facilities?: any;
+  alerts?: any;
+  company?: any;
 }
 
 export interface IUpdateProfile {
@@ -53,4 +59,5 @@ export interface IUpdateProfileRes {
   lastFailedLoginAttempt: any;
   lastLoginTime: string;
   profileImage: string;
+  message?: string;
 }

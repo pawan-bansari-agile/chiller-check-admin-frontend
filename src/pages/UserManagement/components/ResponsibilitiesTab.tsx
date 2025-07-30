@@ -1,92 +1,138 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { Link } from 'react-router-dom';
 
 import { EyeOutlined } from '@ant-design/icons';
 import { Radio, Tag } from 'antd';
+import { FilterValue, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
+
+import { ICommonPagination } from '@/services/common/types';
+import { companyHooks } from '@/services/company';
+import { CompanyListUnAssigned } from '@/services/company/types';
 
 import { CommonTable } from '@/shared/components/common/Table';
+import EmptyState from '@/shared/components/common/Table/EmptyState';
 import { ROUTES } from '@/shared/constants/routes';
+import { capitalizeFirstLetter, getSortOrder } from '@/shared/utils/functions';
 
 import { Wrapper } from '../style';
 
+interface IProps {
+  companyId?: string;
+  setCompanyId: React.Dispatch<React.SetStateAction<string>>;
+}
+
 const statusColorMap: Record<string, string> = {
-  Active: '#00A86B',
-  Inactive: '#CF5439'
+  active: '#00A86B',
+  inactive: '#CF5439',
+  demo: '#D5A513',
+  prospect: '#00077B'
 };
 
-const columns = [
-  {
-    title: 'Title',
-    dataIndex: 'title',
-    key: 'title',
-    render: () => <Radio></Radio>
-  },
-  {
-    title: 'companyName',
-    dataIndex: 'companyName',
-    key: 'companyName'
-  },
-  {
-    title: 'Facilities',
-    dataIndex: 'facilities',
-    key: 'facilities',
-    sorter: (a: any, b: any) => a.facility - b.facility
-  },
-  {
-    title: 'Chillers',
-    dataIndex: 'chillers',
-    key: 'chillers',
-    sorter: (a: any, b: any) => a.chillers - b.chillers
-  },
-  {
-    title: 'Operators',
-    dataIndex: 'operators',
-    key: 'operators',
-    sorter: (a: any, b: any) => a.operators - b.operators
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    key: 'status',
-    render: (status: any) => (
-      <Tag className="statusTag" color={statusColorMap[status] || 'default'}>
-        {status}
-      </Tag>
-    ),
-    sorter: (a: any, b: any) => a.status - b.status
-  },
-  {
-    title: 'Action',
-    dataIndex: 'action',
-    key: 'action',
-    render: () => (
-      <div className="actionIonWrap">
-        <Link className="actionIcon" to={ROUTES.VIEW_USER_MANAGEMENT}>
-          <EyeOutlined />
-        </Link>
-      </div>
-    )
-  }
-];
+const ResponsibilitiesTab: React.FC<IProps> = ({ companyId, setCompanyId }) => {
+  const [args, setArgs] = useState<ICommonPagination>({
+    page: 1,
+    limit: 10,
+    sort_by: '',
+    sort_order: ''
+  });
 
-const data = [
-  {
-    title: '',
-    companyName: 'Petal Grove Academy',
-    facilities: '10',
-    chillers: '25',
-    operators: '5',
-    status: 'Active',
-    action: ''
-  }
-];
+  const { data, isLoading } = companyHooks.CompanyListUnAssigned(args);
 
-const ResponsibilitiesTab: React.FC = () => {
+  const columns = [
+    {
+      title: '',
+      dataIndex: '_id',
+      key: '_id',
+      render: (id: string) => (
+        <Radio checked={companyId === id} onChange={() => setCompanyId(id || '')} />
+      )
+    },
+    {
+      title: 'Company Name',
+      dataIndex: 'name',
+      key: 'name'
+    },
+    {
+      title: 'Facilities',
+      dataIndex: 'totalFacilities',
+      key: 'totalFacilities',
+      sorter: true
+    },
+    {
+      title: 'Chillers',
+      dataIndex: 'totalChiller',
+      key: 'totalChiller',
+      sorter: true
+    },
+    {
+      title: 'Operators',
+      dataIndex: 'totalOperators',
+      key: 'totalOperators',
+      sorter: true
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: string) =>
+        status ? (
+          <Tag className="statusTag" color={statusColorMap[status?.toLowerCase()] || 'default'}>
+            {capitalizeFirstLetter(status)}
+          </Tag>
+        ) : (
+          '-'
+        ),
+      sorter: true
+    },
+    {
+      title: 'Action',
+      dataIndex: '_id',
+      key: '_id',
+      render: (id: string) => (
+        <div className="actionIonWrap">
+          <Link className="actionIcon" to={ROUTES.VIEW_COMPANY_MANAGEMENT(id)}>
+            <EyeOutlined />
+          </Link>
+        </div>
+      )
+    }
+  ];
+
+  const handleTableChange = (
+    pagination: TablePaginationConfig,
+    _filters: Record<string, FilterValue | null>,
+    sorter: SorterResult<CompanyListUnAssigned> | SorterResult<CompanyListUnAssigned>[]
+  ) => {
+    if (!Array.isArray(sorter)) {
+      setArgs({
+        ...args,
+        page: pagination?.current ?? 1,
+        limit: pagination?.pageSize ?? 10,
+        sort_by: sorter?.order ? String(sorter?.field) : '',
+        sort_order: getSortOrder(sorter?.order) || ''
+      });
+    }
+  };
+
   return (
     <Wrapper>
-      <h2 className="resposibilityTitle">Company</h2>
-      <CommonTable columns={columns} dataSource={data} />
+      <h2 className="resposibilityTitle themeColor">Company</h2>
+      <CommonTable
+        scroll={{ x: 'max-content' }}
+        columns={columns}
+        dataSource={data?.companyList}
+        pagination={{
+          current: args?.page ?? 1,
+          pageSize: args?.limit ?? 10,
+          total: data?.totalRecords ?? 0
+        }}
+        onChange={handleTableChange}
+        loading={isLoading}
+        emptyText={
+          <EmptyState isEmpty={!data?.companyList?.length} defaultDescription="No Company Found" />
+        }
+      />
     </Wrapper>
   );
 };

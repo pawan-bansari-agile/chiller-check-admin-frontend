@@ -17,6 +17,20 @@ export const AntModal = createGlobalStyle`
 .ant-modal-close{
     top: 4px;
     color: #1D1B20;
+.ant-modal-close-x {
+
+  span {
+    display: none;
+  }
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='64 64 896 896' focusable='false' class='' data-icon='close' width='100%' height='100%' fill='currentColor' aria-hidden='true' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M563.8 512l182.1-182.1a7.03 7.03 0 0 0 0-9.9l-60.5-60.5a7.03 7.03 0 0 0-9.9 0L493.3 441.6 311.2 259.5a7.03 7.03 0 0 0-9.9 0l-60.5 60.5a7.03 7.03 0 0 0 0 9.9L422.9 512 240.8 694.1a7.03 7.03 0 0 0 0 9.9l60.5 60.5a7.03 7.03 0 0 0 9.9 0l182.1-182.1 182.1 182.1a7.03 7.03 0 0 0 9.9 0l60.5-60.5a7.03 7.03 0 0 0 0-9.9L563.8 512z'%3E%3C/path%3E%3C/svg%3E");
+  }
+}
+
 }
 }
 
@@ -45,7 +59,7 @@ gap: 10px;
             font-weight: 400;
             color: ${({ theme }) => theme.colors.lightPurple};
             border-bottom: 1px solid #F0F0F0;
-    padding: 1px 27px 30px 28px;
+    padding: 1px 27px 20px 28px;
     margin-bottom: 0;
     }
     }
@@ -155,6 +169,34 @@ gap: 10px;
             padding: 0 28px;
             margin-bottom: 0;
     }
+    .updateCount{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 52px 0;
+
+        h2{
+            font-size: 28px;
+            font-weight: 600;
+            line-height: 22px;
+            color: ${({ theme }) => theme.colors.inkBlue};
+            margin-bottom: 5px;
+        }
+
+        p{
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 20px;
+            color: ${({ theme }) => theme.colors.lightPurple};
+            margin-bottom: 0px;
+        }
+    }
+
+    .electricityField{
+        padding: 0 28px;
+        margin-bottom: 36px;
+    }
 
     .modalFooter{
         display: flex;
@@ -162,6 +204,7 @@ gap: 10px;
         gap: 10px;
         border-top: 1px solid #F0F0F0;
         padding: 15px 28px 16px 0;
+        margin-top: 20px;
                .ant-btn-default{
             font-size: 14px;
             font-weight: 700;
@@ -172,6 +215,10 @@ gap: 10px;
 
         .footerBtn{
             background: ${({ theme }) => theme.colors.primary};
+            color: ${({ theme }) => theme.colors.white};
+        }
+        .unassignBtn{
+            background: ${({ theme }) => theme.colors.danger};
             color: ${({ theme }) => theme.colors.white};
         }
     }

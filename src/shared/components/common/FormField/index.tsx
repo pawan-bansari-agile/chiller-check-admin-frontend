@@ -3,7 +3,7 @@ import React from 'react';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
-import { Checkbox, Col, DatePicker, Form, Input, InputNumber, Radio, Select, Tooltip } from 'antd';
+import { Checkbox, DatePicker, Form, Input, InputNumber, Radio, Select, Tooltip } from 'antd';
 import GoogleAutocomplete, { ReactGoogleAutocompleteInputProps } from 'react-google-autocomplete';
 import { PatternFormat } from 'react-number-format';
 import OtpInput from 'react-otp-input';
@@ -38,7 +38,7 @@ export const RenderTextInput: React.FC<PropType.IRenderTextInputProps> = (props)
   );
 
   return (
-    <Col {...colProps} className={colClassName}>
+    <div {...colProps} className={colClassName}>
       <Form.Item
         {...formItemProps}
         label={label ? labelNode : undefined}
@@ -53,7 +53,7 @@ export const RenderTextInput: React.FC<PropType.IRenderTextInputProps> = (props)
           size={inputProps?.size ?? 'middle'}
         />
       </Form.Item>
-    </Col>
+    </div>
   );
 };
 
@@ -80,7 +80,7 @@ export const RenderTextAreaInput: React.FC<PropType.IRenderTextAreaInputProps> =
   );
 
   return (
-    <Col {...colProps} className={colClassName}>
+    <div {...colProps} className={colClassName}>
       <Form.Item
         {...formItemProps}
         label={labelNode}
@@ -90,18 +90,18 @@ export const RenderTextAreaInput: React.FC<PropType.IRenderTextAreaInputProps> =
       >
         <Input.TextArea {...inputProps} size={inputProps?.size ?? 'middle'} />
       </Form.Item>
-    </Col>
+    </div>
   );
 };
 
 export const RenderNumberInput: React.FC<PropType.IRenderNumberInputProps> = (props) => {
   const { colProps, formItemProps, inputProps, colClassName = '' } = props;
   return (
-    <Col {...colProps} className={colClassName}>
+    <div {...colProps} className={colClassName}>
       <Form.Item {...formItemProps} labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
         <InputNumber {...inputProps} size={inputProps?.size ?? 'middle'} />
       </Form.Item>
-    </Col>
+    </div>
   );
 };
 
@@ -128,7 +128,7 @@ export const RenderPasswordInput: React.FC<PropType.IRenderPasswordInputProps> =
   );
 
   return (
-    <Col {...colProps} className={colClassName}>
+    <div {...colProps} className={colClassName}>
       <Form.Item
         required={required}
         {...formItemProps}
@@ -138,7 +138,7 @@ export const RenderPasswordInput: React.FC<PropType.IRenderPasswordInputProps> =
       >
         <Input.Password {...inputProps} size={inputProps?.size ?? 'middle'} />
       </Form.Item>
-    </Col>
+    </div>
   );
 };
 
@@ -165,7 +165,7 @@ export const RenderSelect: React.FC<PropType.IRenderSelectProps> = (props) => {
   ) : undefined;
 
   return (
-    <Col {...colProps} className={colClassName}>
+    <div {...colProps} className={colClassName}>
       <Form.Item
         required={required}
         {...formItemProps}
@@ -188,18 +188,68 @@ export const RenderSelect: React.FC<PropType.IRenderSelectProps> = (props) => {
           }
         />
       </Form.Item>
-    </Col>
+    </div>
+  );
+};
+
+export const RenderSelectDropDown: React.FC<PropType.IRenderSelectProps> = (props) => {
+  const {
+    colProps,
+    formItemProps,
+    inputProps,
+    colClassName = '',
+    label,
+    tooltip,
+    required
+  } = props;
+
+  const labelNode = label ? (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <span>{label}</span>
+      {tooltip && (
+        <Tooltip title={tooltip} color="#000ABC">
+          <InfoCircleOutlined style={{ color: '#000ABC' }} />
+        </Tooltip>
+      )}
+    </div>
+  ) : undefined;
+
+  return (
+    <div {...colProps} className={colClassName}>
+      <Form.Item
+        required={required}
+        {...formItemProps}
+        labelCol={{ span: 24 }}
+        wrapperCol={{ span: 24 }}
+        label={labelNode}
+      >
+        <Select
+          {...inputProps}
+          allowClear={inputProps?.allowClear ?? true}
+          size={inputProps?.size ?? 'middle'}
+          showSearch={inputProps?.showSearch ?? true}
+          filterOption={
+            inputProps?.filterOption ??
+            ((input: string, option: any) => {
+              return (option?.label?.toString() ?? '')
+                .toLowerCase()
+                .includes(input?.toString().toLowerCase());
+            })
+          }
+        />
+      </Form.Item>
+    </div>
   );
 };
 
 export const RenderSearchInput: React.FC<PropType.IRenderSearchInputProps> = (props) => {
   const { colProps, formItemProps, inputProps, colClassName = '' } = props;
   return (
-    <Col {...colProps} className={colClassName}>
+    <div {...colProps} className={colClassName}>
       <Form.Item {...formItemProps} labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
         <Input.Search {...inputProps} size={inputProps?.size ?? 'middle'} />
       </Form.Item>
-    </Col>
+    </div>
   );
 };
 
@@ -213,7 +263,7 @@ export const RenderDatePickerInput: React.FC<PropType.IRenderDatePickerInputProp
       <span>
         {label}
         <Tooltip title={tooltip}>
-          <InfoCircleOutlined style={{ marginLeft: 4 }} />
+          <InfoCircleOutlined style={{ marginLeft: 4, color: '#000ABC' }} />
         </Tooltip>
       </span>
     ) : (
@@ -222,7 +272,7 @@ export const RenderDatePickerInput: React.FC<PropType.IRenderDatePickerInputProp
   };
 
   return (
-    <Col {...colProps} className={colClassName}>
+    <div {...colProps} className={colClassName}>
       <Form.Item
         {...formItemProps}
         labelCol={{ span: 24 }}
@@ -237,28 +287,33 @@ export const RenderDatePickerInput: React.FC<PropType.IRenderDatePickerInputProp
           showNow={inputProps?.showNow ?? false}
         />
       </Form.Item>
-    </Col>
+    </div>
   );
 };
 
 export const RenderCheckboxInput: React.FC<PropType.IRenderCheckboxInputProps> = (props) => {
   const { colProps, formItemProps, inputProps, colClassName = '' } = props;
   return (
-    <Col {...colProps} className={colClassName}>
+    <div {...colProps} className={colClassName}>
       <Form.Item {...formItemProps} labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
         <Checkbox {...inputProps}>{props?.children}</Checkbox>
       </Form.Item>
-    </Col>
+    </div>
   );
 };
 
 export const RenderCheckboxGroupInput: React.FC<PropType.IRenderCheckboxGroupInputProps> = (
   props
 ) => {
-  const { colProps, formItemProps, inputProps, colClassName = '', options } = props;
+  const { colProps, formItemProps, inputProps, colClassName = '', options, required } = props;
   return (
-    <Col {...colProps} className={colClassName}>
-      <Form.Item {...formItemProps} labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
+    <div {...colProps} className={colClassName}>
+      <Form.Item
+        {...formItemProps}
+        labelCol={{ span: 24 }}
+        wrapperCol={{ span: 24 }}
+        required={required ?? required}
+      >
         <Checkbox.Group {...inputProps}>
           {options?.map((option) => (
             <Checkbox {...option} key={option.id || option.value}>
@@ -267,18 +322,18 @@ export const RenderCheckboxGroupInput: React.FC<PropType.IRenderCheckboxGroupInp
           ))}
         </Checkbox.Group>
       </Form.Item>
-    </Col>
+    </div>
   );
 };
 
 export const RenderRadioInput: React.FC<PropType.IRenderRadioInputProps> = (props) => {
   const { colProps, formItemProps, inputProps, colClassName = '' } = props;
   return (
-    <Col {...colProps} className={colClassName}>
+    <div {...colProps} className={colClassName}>
       <Form.Item {...formItemProps} labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
         <Radio {...inputProps} />
       </Form.Item>
-    </Col>
+    </div>
   );
 };
 
@@ -305,7 +360,7 @@ export const RenderRadioGroupInput: React.FC<PropType.IRenderRadioGroupInputProp
   );
 
   return (
-    <Col {...colProps} className={colClassName}>
+    <div {...colProps} className={colClassName}>
       <Form.Item
         required={required}
         label={labelNode}
@@ -319,37 +374,58 @@ export const RenderRadioGroupInput: React.FC<PropType.IRenderRadioGroupInputProp
           buttonStyle={inputProps?.buttonStyle ?? 'solid'}
         />
       </Form.Item>
-    </Col>
+    </div>
   );
 };
 
 export const RenderPatternFormatInput: React.FC<PropType.IRenderPatternFormatInputProps> = (
   props
 ) => {
-  const { colProps, formItemProps, inputProps, colClassName = '', format } = props;
+  const {
+    colProps,
+    formItemProps,
+    inputProps,
+    colClassName = '',
+    format,
+    label,
+    required,
+    tooltip
+  } = props;
+
+  const labelNode = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <span>{label}</span>
+      {tooltip && (
+        <Tooltip title={tooltip} color="#000ABC">
+          <InfoCircleOutlined style={{ color: '#000ABC' }} />
+        </Tooltip>
+      )}
+    </div>
+  );
   return (
-    <Col {...colProps} className={colClassName}>
+    <div {...colProps} className={colClassName}>
       <Form.Item
-        className={`${formItemProps?.className ?? ''} patter-format-wrap`}
         {...formItemProps}
+        label={label ? labelNode : undefined}
+        required={required ?? required}
         labelCol={{ span: 24 }}
         wrapperCol={{ span: 24 }}
       >
         <PatternFormat
           size="middle"
           {...inputProps}
-          format={format ?? '(###) ###-####'}
+          format={format ?? '### ### ####'}
           customInput={Input}
         />
       </Form.Item>
-    </Col>
+    </div>
   );
 };
 
 export const RenderOtpInput: React.FC<PropType.IRenderOtpInputProps> = (props) => {
   const { colProps, colClassName = '' } = props;
   return (
-    <Col {...colProps} className={colClassName}>
+    <div {...colProps} className={colClassName}>
       <OtpInput
         value={props.value}
         onChange={props.onChange}
@@ -360,7 +436,7 @@ export const RenderOtpInput: React.FC<PropType.IRenderOtpInputProps> = (props) =
           <input {...inputProps} disabled={props.disabled} placeholder="-" />
         )}
       />
-    </Col>
+    </div>
   );
 };
 
@@ -398,7 +474,7 @@ export const RenderGoogleAutocompleteInput: React.FC<PropType.IRenderGoogleAutoc
   const { colProps, formItemProps, inputProps, googleAutocompleteProps, colClassName = '' } = props;
 
   return (
-    <Col {...colProps} className={colClassName}>
+    <div {...colProps} className={colClassName}>
       <Form.Item
         {...formItemProps}
         className={`${formItemProps?.className ?? ''} autoCompleteFormItem`}
@@ -413,6 +489,6 @@ export const RenderGoogleAutocompleteInput: React.FC<PropType.IRenderGoogleAutoc
           {...(inputProps as ReactGoogleAutocompleteInputProps)}
         />
       </Form.Item>
-    </Col>
+    </div>
   );
 };

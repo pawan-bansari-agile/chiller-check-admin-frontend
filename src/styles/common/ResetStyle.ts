@@ -134,4 +134,21 @@ input[type=number]::-webkit-outer-spin-button {
     appearance: none;
     margin: 0; 
 }
+
+.addEditHeader{
+    padding: 36px 18px 5px 25px!important;
+
+    &.userAddEditHeader{
+    padding: 36px 18px 25px 25px!important;
+    }
+}
+
+.setPasswordWrap{
+    padding: 50px 0;
+}
+
+.ant-btn:focus{
+    outline: none !important;
+    box-shadow: none !important;
+}
 `;

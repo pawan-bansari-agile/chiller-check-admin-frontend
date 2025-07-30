@@ -238,10 +238,56 @@ export const AntdFormInput = createGlobalStyle`
       border-bottom-right-radius: 0;
     }
   }
+
+  /* dropdown with search listing */
+  .dropdownWithSearch{
+    width: 175px;
+    .ant-form-item-control-input{
+      min-height: auto !important;
+
+      .ant-select-single{
+        height: auto !important;
+      }
+    }
+    .ant-select-selector{
+      border-radius: 30px !important;
+      padding: 0 20px !important;
+
+      .ant-select-selection-placeholder{
+             font-size: 14px;
+             font-weight: 500;
+    line-height: 22px;
+    color: rgba(0, 0, 0, 0.85);
+      }
+    }
+  }
+
+  .logCheckbox{
+    .ant-checkbox-wrapper{
+      span{
+              font-size: 14px;
+      font-weight: 400;
+      line-height: 28px;
+      color: #040C2B;
+      }
+    }
+  }
+
+          .automatedNotification {
+      .ant-checkbox-wrapper {
+        span {
+          font-size: 14px;
+          font-weight: 400;
+          line-height: 22px;
+          color: rgba(0, 0, 0, 0.85) !important;
+        }
+      }
+    }
   
   @media only screen and (max-width: ${({ theme }) => theme.device.xs}) {
   /* for otp screen */
   .commonOtpInputWrapper {
+    margin: 0 auto;
     & > div {
         gap: 10px;
         justify-content: center;

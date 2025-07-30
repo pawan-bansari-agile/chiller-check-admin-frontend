@@ -1,10 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
+import AlertsTab from '@/pages/UserManagement/components/AlertsTab';
 import PermissionTab from '@/pages/UserManagement/components/PermissionTab';
+import ViewFacilityResponsibilitiesTab from '@/pages/UserManagement/components/ViewFacilityResponsibilities';
+import ViewResponsibilitiesTab from '@/pages/UserManagement/components/ViewResponsibilitiesTab';
 import { ExclamationCircleOutlined, LoginOutlined, PhoneOutlined } from '@ant-design/icons';
-import { Button, Image, Tabs, TabsProps } from 'antd';
+import { Button, Form, Image, Tabs } from 'antd';
 
 import { profileHooks } from '@/services/profile';
 
@@ -15,7 +18,7 @@ import HeaderToolbar from '@/shared/components/common/HeaderToolbar';
 import { Loader } from '@/shared/components/common/Loader';
 import Meta from '@/shared/components/common/Meta';
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
-import { IMAGE_MODULE_NAME, IMAGE_URL } from '@/shared/constants';
+import { IMAGE_MODULE_NAME, IMAGE_URL, Role, USER_ROLES } from '@/shared/constants';
 import { formatLoginTime } from '@/shared/constants/day';
 import { ROUTES } from '@/shared/constants/routes';
 import { EditIcon, EmailIcon, User, UserRole } from '@/shared/svg';
@@ -23,18 +26,13 @@ import { capitalizeFirstLetter, formatPhoneNumber } from '@/shared/utils/functio
 
 import { Wrapper } from '../style';
 
-const items: TabsProps['items'] = [
-  {
-    key: '1',
-    label: 'Permission',
-    children: <PermissionTab />
-  }
-];
-
 const MyAccount: React.FC = () => {
   const navigate = useNavigate();
   const { userData } = authStore((state) => state);
   const { data, isLoading } = profileHooks.useProfile(userData?._id ?? '');
+  const [form] = Form.useForm();
+
+  const initialRef = useRef(false);
 
   const profileImage = useMemo(() => {
     if (!data?.profileImage) return '';
@@ -42,8 +40,6 @@ const MyAccount: React.FC = () => {
       `${IMAGE_URL}chiller-check/${IMAGE_MODULE_NAME.PROFILE_PIC}/${data?.profileImage || ''}` || ''
     );
   }, [data?.profileImage]);
-
-  const userRole = useMemo(() => capitalizeFirstLetter(data?.role || '-'), [data?.role]);
 
   const statusButton = useMemo(
     () => (
@@ -87,7 +83,7 @@ const MyAccount: React.FC = () => {
       <div className="viewCompanyShadow">
         <ShadowPaper>
           <div className="viewUserDetails">
-            <h2>User Details</h2>
+            <h2 className="themeColor">User Details</h2>
           </div>
           <div className="userInfo">
             <figure className="userImg">
@@ -106,7 +102,7 @@ const MyAccount: React.FC = () => {
               <Details
                 detailsIcon={<UserRole />}
                 detailsTitle="User Role"
-                detailsDescription={userRole}
+                detailsDescription={Role?.find((val) => val?.value === data?.role)?.label || '-'}
               />
               <Details
                 detailsIcon={<LoginOutlined />}
@@ -131,9 +127,60 @@ const MyAccount: React.FC = () => {
             </ul>
           </div>
         </ShadowPaper>
-        <ShadowPaper>
-          <Tabs defaultActiveKey="1" items={items} />
-        </ShadowPaper>
+        {userData?.role !== USER_ROLES.ADMIN && (
+          <ShadowPaper>
+            <Form form={form}>
+              <Tabs defaultActiveKey="1" destroyInactiveTabPane={false}>
+                <Tabs.TabPane tab="Permission" key="1" forceRender>
+                  <Form.Item name="permissions">
+                    {data?.role && (
+                      <PermissionTab
+                        role={data?.role}
+                        form={form}
+                        id={userData?._id}
+                        permission={data?.permissions}
+                        isDisabled={true}
+                        initialRef={initialRef}
+                      />
+                    )}
+                  </Form.Item>
+                </Tabs.TabPane>
+
+                {data?.role && data?.role !== USER_ROLES.SUB_ADMIN && (
+                  <>
+                    <Tabs.TabPane tab="Responsibilities" key="2" forceRender>
+                      {data?.role === USER_ROLES.CORPORATE_MANAGER ? (
+                        <ViewResponsibilitiesTab
+                          companyList={data?.company ? [data?.company] : []}
+                        />
+                      ) : (
+                        (data?.role === USER_ROLES.FACILITY_MANAGER ||
+                          data?.role === USER_ROLES.OPERATOR) && (
+                          <ViewFacilityResponsibilitiesTab
+                            facilityList={data?.facilities || []}
+                            role={data?.role}
+                            chillerList={data?.chillers || []}
+                            companyName={data?.company?.name || '-'}
+                          />
+                        )
+                      )}
+                    </Tabs.TabPane>
+
+                    <Tabs.TabPane tab="Alerts" key="3" forceRender>
+                      <AlertsTab
+                        form={form}
+                        id={userData?._id}
+                        response={data?.alerts}
+                        isDisabled={true}
+                        role={data?.role}
+                      />
+                    </Tabs.TabPane>
+                  </>
+                )}
+              </Tabs>
+            </Form>
+          </ShadowPaper>
+        )}
       </div>
     </Wrapper>
   );

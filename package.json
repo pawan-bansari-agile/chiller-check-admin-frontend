@@ -8,7 +8,7 @@
     "start": " npm run format && vite --port 3000",
     "build": "tsc && vite build --mode development",
     "build:prod": "tsc && vite build --mode production",
-    "test": "vitest run && vitest --ui",
+    "test": "vitest run",
     "coverage": "vitest run --coverage ",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 10",
     "preview": "vite preview",

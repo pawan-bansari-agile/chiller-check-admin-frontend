@@ -16,7 +16,8 @@ import Meta from '@/shared/components/common/Meta';
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
 import { CommonTable } from '@/shared/components/common/Table';
 import { ROUTES } from '@/shared/constants/routes';
-import { toAbsoluteUrl } from '@/shared/utils/functions';
+import { EditIcon } from '@/shared/svg';
+import { hasPermission, toAbsoluteUrl } from '@/shared/utils/functions';
 
 import { Wrapper } from '../style';
 
@@ -80,6 +81,7 @@ const columns = [
   {
     title: 'Chiller Name',
     key: 'chillerName',
+    width: 165,
     render: () => (
       <div className="chillerNameWrap">
         <a className="chillerName">CryoStream</a>
@@ -92,6 +94,7 @@ const columns = [
     title: 'Make & Model',
     key: 'makeModel',
     dataIndex: 'makeModel',
+    width: 165,
     sorter: (a: any, b: any) => a.makeModel - b.makeModel,
     render: () => (
       <>
@@ -122,6 +125,7 @@ const columns = [
     title: 'Updated At',
     dataIndex: 'updatedAt',
     key: 'updatedAt',
+    width: 165,
     sorter: (a: any, b: any) => a.updatedAt - b.updatedAt,
     render: () => (
       <>
@@ -130,17 +134,28 @@ const columns = [
       </>
     )
   },
-  {
-    title: '',
-    key: 'action',
-    render: () => (
-      <div className="actionIonWrap">
-        <Link className="actionIcon" to={ROUTES.VIEW_MAINTENANCE}>
-          <EyeOutlined />
-        </Link>
-      </div>
-    )
-  }
+  ...(hasPermission('maintenance', 'edit') || hasPermission('maintenance', 'view')
+    ? [
+        {
+          title: '',
+          key: 'action',
+          render: () => (
+            <div className="actionIonWrap">
+              {hasPermission('maintenance', 'edit') && (
+                <Link className="actionIcon" to={ROUTES.EDIT_MAINTENANCE}>
+                  <EditIcon />
+                </Link>
+              )}
+              {hasPermission('maintenance', 'view') && (
+                <Link className="actionIcon" to={ROUTES.VIEW_MAINTENANCE}>
+                  <EyeOutlined />
+                </Link>
+              )}
+            </div>
+          )
+        }
+      ]
+    : [])
 ];
 
 const data = [
@@ -162,12 +177,16 @@ const MaintenanceRecord: React.FC = () => {
         title="Maintenance Records"
         button={
           <div className="maintenanceButtonWrap">
-            <Button type="primary" className="title-btn" size="small" icon={<UploadOutlined />}>
-              Export (2)
-            </Button>
-            <Button type="primary" className="title-btn" icon={<PlusOutlined />}>
-              <Link to={ROUTES.ADD_MAINTENANCE}>Add Log</Link>
-            </Button>
+            {hasPermission('maintenance', 'view') && (
+              <Button type="primary" className="title-btn" size="small" icon={<UploadOutlined />}>
+                Export (2)
+              </Button>
+            )}
+            {hasPermission('maintenance', 'add') && (
+              <Button type="primary" className="title-btn" icon={<PlusOutlined />}>
+                <Link to={ROUTES.ADD_MAINTENANCE}>Add Log</Link>
+              </Button>
+            )}
           </div>
         }
       />

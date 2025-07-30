@@ -77,7 +77,7 @@ describe('CompanyAddEditForm – create mode', () => {
       target: { value: 'Anytown' }
     });
 
-    fireEvent.change(screen.getByPlaceholderText('Add Corporate Website'), {
+    fireEvent.change(screen.getByPlaceholderText('Add Website'), {
       target: { value: 'https://test.com' }
     });
 

@@ -31,6 +31,7 @@ const Header = () => {
     return new Promise((resolve, reject) => {
       logout()
         .then((res) => {
+          localStorage.removeItem('selectedSidebarKey');
           showToaster('success', res?.message);
           actions.authFail();
           queryClient.removeQueries();

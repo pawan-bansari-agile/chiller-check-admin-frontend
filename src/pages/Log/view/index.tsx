@@ -19,7 +19,8 @@ import Meta from '@/shared/components/common/Meta';
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
 import { CommonTable } from '@/shared/components/common/Table';
 import { ROUTES } from '@/shared/constants/routes';
-import { toAbsoluteUrl } from '@/shared/utils/functions';
+import { EditIcon } from '@/shared/svg';
+import { hasPermission, toAbsoluteUrl } from '@/shared/utils/functions';
 
 import { Wrapper } from '../style';
 
@@ -76,7 +77,7 @@ const data: ChillerRow[] = [
     facilityName: 'CryoSystems ArcticCore V10',
     chiller: { name: 'CryoStream', code: 'CHL-983472-AQ', link: '#' },
     updatedAt: '12/11/24 15:00',
-    efficiencyLoss: 50,
+    efficiencyLoss: 40,
     condLoss: 29,
     evapLoss: 29,
     nonCondLoss: 29,
@@ -95,7 +96,7 @@ const columns: ColumnsType<any> = [
     title: 'Creator & Timestamp',
     dataIndex: 'creator',
     key: 'creator',
-    width: 200,
+    // width: 200,
     render: () => (
       <div className="updateUser">
         <figure>
@@ -116,6 +117,7 @@ const columns: ColumnsType<any> = [
   {
     title: 'Chiller Name',
     key: 'chillerName',
+    // width: 165,
     render: (_: any, record: ChillerRow) => (
       <div className="chillerNameWrap">
         <a className="chillerName">{record.chiller.name}</a>
@@ -128,11 +130,13 @@ const columns: ColumnsType<any> = [
     title: 'Updated At',
     dataIndex: 'updatedAt',
     key: 'updatedAt',
+    // width: 165,
     sorter: (a: any, b: any) => a.updatedAt - b.updatedAt
   },
   {
     title: 'Efficiency Loss %',
     key: 'efficiencyLoss',
+    // width: 185,
     sorter: (a: any, b: any) => a.efficiencyLoss - b.efficiencyLoss,
     render: (_: any, record: ChillerRow) => {
       let className = '';
@@ -185,6 +189,7 @@ const columns: ColumnsType<any> = [
     title: 'Other Losses %',
     key: 'otherLoss',
     dataIndex: 'otherLoss',
+    // width: 165,
     sorter: (a: any, b: any) => a.otherLoss - b.otherLoss,
     render: (_: any, record: ChillerRow) => {
       let className = '';
@@ -194,18 +199,29 @@ const columns: ColumnsType<any> = [
       return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
     }
   },
-  {
-    title: '',
-    key: 'action',
-    fixed: 'right',
-    render: () => (
-      <div className="actionIonWrap">
-        <Link className="actionIcon" to={ROUTES.VIEW_LOG_ENTRY}>
-          <EyeOutlined />
-        </Link>
-      </div>
-    )
-  }
+  ...(hasPermission('log', 'edit') || hasPermission('log', 'view')
+    ? [
+        {
+          title: '',
+          key: 'action',
+          fixed: 'right' as any,
+          render: () => (
+            <div className="actionIonWrap">
+              {hasPermission('log', 'edit') && (
+                <Link className="actionIcon" to={ROUTES.EDIT_LOG_ENTRY}>
+                  <EditIcon />
+                </Link>
+              )}
+              {hasPermission('log', 'view') && (
+                <Link className="actionIcon" to={ROUTES.VIEW_LOG_ENTRY}>
+                  <EyeOutlined />
+                </Link>
+              )}
+            </div>
+          )
+        }
+      ]
+    : [])
 ];
 
 const LogEntry: React.FC = () => {
@@ -216,30 +232,40 @@ const LogEntry: React.FC = () => {
         title="Log Entries"
         button={
           <div className="logButtonWrap">
-            <Button type="primary" className="title-btn" size="small" icon={<UploadOutlined />}>
-              Export (2)
-            </Button>
-            <Button type="primary" className="title-btn" size="small" icon={<DownloadOutlined />}>
-              Import CSV
-            </Button>
-            <Link to={ROUTES.ADD_LOG_ENTRY}>
-              <Button type="primary" className="title-btn" size="small" icon={<PlusOutlined />}>
-                Add Log
+            {hasPermission('log', 'view') && (
+              <Button type="primary" className="title-btn" size="small" icon={<UploadOutlined />}>
+                Export (2)
               </Button>
-            </Link>
-            <Button type="primary" className="title-btn" size="small" icon={<SlidersOutlined />}>
-              Columns
-            </Button>
+            )}
+            {hasPermission('log', 'view') && (
+              <Button type="primary" className="title-btn" size="small" icon={<DownloadOutlined />}>
+                Import CSV
+              </Button>
+            )}
+            {hasPermission('log', 'add') && (
+              <Link to={ROUTES.ADD_LOG_ENTRY}>
+                <Button type="primary" className="title-btn" size="small" icon={<PlusOutlined />}>
+                  Add Log
+                </Button>
+              </Link>
+            )}
+            {hasPermission('log', 'view') && (
+              <Button type="primary" className="title-btn" size="small" icon={<SlidersOutlined />}>
+                Columns
+              </Button>
+            )}
           </div>
         }
       />
       <ShadowPaper>
         <div className="chillerContentHeader">
           <div className="dropdownWrap">
-            <div>
-              <label className="peakLoad">Peak Load</label>
-              <Switch defaultChecked />
-            </div>
+            {hasPermission('log', 'view') && (
+              <div>
+                <label className="peakLoad">Peak Load</label>
+                <Switch defaultChecked />
+              </div>
+            )}
             <Dropdown menu={{ items: companyItems }} trigger={['click']}>
               <a onClick={(e) => e.preventDefault()}>
                 <Space>

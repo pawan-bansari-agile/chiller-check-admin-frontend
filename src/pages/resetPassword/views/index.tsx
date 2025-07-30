@@ -39,7 +39,7 @@ const ResetPassword: React.FC = () => {
           onFieldsChange={handleFieldsChange}
         >
           <Row gutter={[15, 20]}>
-            <Col span={24}>
+            <Col xs={24}>
               <RenderPasswordInput
                 label="Enter Password"
                 required
@@ -56,7 +56,7 @@ const ResetPassword: React.FC = () => {
                 character.
               </p>
             </Col>
-            <Col span={24} className="extra-gap-30">
+            <Col xs={24} className="extra-gap-30">
               <RenderPasswordInput
                 colProps={{ xs: 24 }}
                 label="Re-Enter New Password"

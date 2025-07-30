@@ -4,12 +4,13 @@ import { Wrapper } from './style';
 
 interface ICardTitleProps {
   title: string;
+  className?: string;
   children: React.ReactNode;
 }
 
-const CardWithTitle: React.FC<ICardTitleProps> = ({ title, children }) => {
+const CardWithTitle: React.FC<ICardTitleProps> = ({ title, children, className }) => {
   return (
-    <Wrapper>
+    <Wrapper className={className}>
       <div className="CardWithTitleWrap">
         <div className="cardHeaderTitle">
           <h2>{title}</h2>

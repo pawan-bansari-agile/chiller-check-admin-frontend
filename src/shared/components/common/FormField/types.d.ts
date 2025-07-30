@@ -38,6 +38,8 @@ export interface IRenderCheckboxGroupInputProps<T = any>
 
 export interface IRenderCheckboxInputProps extends IBaseInputProps<AntdType.CheckboxProps> {
   children?: React.ReactNode;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  checked?: boolean;
 }
 
 export interface IRenderUploadInputProps extends IBaseInputProps<AntdType.UploadProps> {
@@ -77,4 +79,5 @@ export interface IRenderGoogleAutocompleteProps {
     options?: google.maps.places.AutocompleteOptions;
   };
   colClassName?: string;
+  required?: boolean;
 }

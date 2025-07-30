@@ -6,12 +6,12 @@ export const ROUTES = {
   REGISTER: `/register`,
   VERIFY_OTP: `/verify-otp`,
   RESET_PASSWORD: (token: string) => `/reset-password/${token}`,
+  SET_PASSWORD: (token: string) => `/set-password/${token}`,
   FORGOT_PASSWORD: `/forgot-password`,
 
   CHANGE_PASSWORD: `/change-password`,
   MY_PROFILE: `/my-profile`,
   EDIT_MY_PROFILE: `/my-profile/edit`,
-  COMING_SOON: `/coming-soon`,
 
   DASHBOARD: `/dashboard`,
 
@@ -24,20 +24,20 @@ export const ROUTES = {
   // facility management
   FACILITY_MANAGEMENT: `/facility-management`,
   Add_FACILITY_MANAGEMENT: `/facility-management/add`,
-  Edit_FACILITY_MANAGEMENT: `/facility-management/edit`,
-  View_FACILITY_MANAGEMENT: `/facility-management/view`,
+  Edit_FACILITY_MANAGEMENT: (id: string) => `/facility-management/edit/${id}`,
+  View_FACILITY_MANAGEMENT: (id: string) => `/facility-management/view/${id}`,
 
   // chiller management
   CHILLER_MANAGEMENT: `/chiller-management`,
   Add_CHILLER_MANAGEMENT: `/chiller-management/add`,
-  Edit_CHILLER_MANAGEMENT: `/chiller-management/edit`,
-  View_CHILLER_MANAGEMENT: `/chiller-management/view`,
+  Edit_CHILLER_MANAGEMENT: (id: string) => `/chiller-management/edit/${id}`,
+  View_CHILLER_MANAGEMENT: (id: string) => `/chiller-management/view/${id}`,
 
   // user management
   USER_MANAGEMENT: `/user-management`,
   ADD_USER_MANAGEMENT: `/user-management/add`,
-  EDIT_USER_MANAGEMENT: `/user-management/edit`,
-  VIEW_USER_MANAGEMENT: `/user-management/view`,
+  EDIT_USER_MANAGEMENT: (id: string) => `/user-management/edit/${id}`,
+  VIEW_USER_MANAGEMENT: (id: string) => `/user-management/view/${id}`,
 
   // CMS
   TERMS_CONDITION: `/terms-condition`,
@@ -48,7 +48,7 @@ export const ROUTES = {
 
   // problem & solution
   PROBLEM_SOLUTION: `/problem-solution`,
-  CONFIGURE_FIELD: `/configure-field`,
+  CONFIGURE_FIELD: (id: string) => `/configure-field/${id}`,
 
   // reports
   REPORT: `/report`,

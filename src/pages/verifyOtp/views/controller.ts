@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { Form } from 'antd';
 
 import { authHooks } from '@/services/auth';
@@ -15,6 +16,7 @@ import { initializeDeviceId, showToaster } from '@/shared/utils/functions';
 const useVerifyOtpController = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const queryClient = useQueryClient();
   const [form] = Form.useForm();
   const { actions } = authStore((state) => state);
 
@@ -44,6 +46,7 @@ const useVerifyOtpController = () => {
         const { data, message } = res || {};
         actions.authSuccess({ data });
         showToaster('success', message);
+        queryClient.removeQueries();
         navigate(ROUTES.DASHBOARD);
       },
       onError: (err) => {

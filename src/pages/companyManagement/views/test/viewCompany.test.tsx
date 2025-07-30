@@ -1,6 +1,9 @@
-import { render } from '@/test/utils';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+// src/pages/companyManagement/test/ViewCompany.test.tsx
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { companyHooks } from '@/services/company';
 
@@ -8,68 +11,48 @@ import ViewCompany from '../viewCompany';
 
 import ThemeProvider from '@/styles/config';
 
-// Mock useParams and useNavigate
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return {
-    ...actual,
-    useParams: () => ({ id: '123' }),
-    useNavigate: () => vi.fn()
-  };
-});
-
-// Mock QueryClientProvider
-vi.mock('@tanstack/react-query', async () => {
-  const actual = await vi.importActual('@tanstack/react-query');
-  return {
-    ...actual,
-    useQueryClient: () => ({
-      invalidateQueries: vi.fn()
-    })
-  };
-});
-
-// Sample mock data
-const mockCompanyData = {
-  name: 'Test Corp',
-  status: 'active',
-  website: 'www.test.com',
-  address: '123 Main St',
-  totalChiller: 3,
-  totalOperators: 4,
-  totalFacilities: 2,
-  facilities: [
-    {
-      name: 'Facility 1',
-      address1: 'A1',
-      address2: 'B1',
-      city: 'City',
-      state: 'State',
-      zipcode: '12345',
-      altitude: 100,
-      altitudeUnit: 'm',
-      country: 'Country',
-      timezone: 'IST',
-      totalChiller: 1,
-      totalOperators: 2,
-      status: 'active'
-    }
-  ]
-};
-
-// Mock Company Hooks
 vi.mock('@/services/company', () => ({
   companyHooks: {
     CompanyView: vi.fn(),
     useActiveInactiveCompany: () => ({
       mutate: vi.fn(),
       isPending: false
-    }),
-    companyQueryKeys: {
-      all: ['company-all']
-    }
+    })
   }
 }));
+
+vi.mock('@/store/auth', () => ({
+  authStore: () => ({
+    userData: { role: 'admin' }
+  })
+}));
+
+vi.mock('@/shared/utils/functions', async (importOriginal) => {
+  const original: any = await importOriginal();
+  return {
+    ...original,
+    hasPermission: () => true,
+    showToaster: vi.fn()
+  };
+});
+
+vi.mock('@/shared/components/common/Loader', () => ({
+  Loader: () => <div data-testid="loader">Mocked Loader</div>
+}));
+
+const mockCompanyData = {
+  name: 'Test Company',
+  status: 'active',
+  website: 'testcompany.com',
+  totalFacilities: 2,
+  totalChiller: 5,
+  totalOperators: 3,
+  address: '123 Main St',
+  facilities: [],
+  chillers: []
+};
+
+const queryClient = new QueryClient();
 
 describe('ViewCompany Component', () => {
   beforeEach(() => {
@@ -79,54 +62,52 @@ describe('ViewCompany Component', () => {
     });
   });
 
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
-
   const renderComponent = () =>
     render(
-      <ThemeProvider>
-        <ViewCompany />
-      </ThemeProvider>
+      <MemoryRouter initialEntries={[`/company-management/view/123`]}>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <Routes>
+              <Route path="/company-management/view/:id" element={<ViewCompany />} />
+            </Routes>
+          </ThemeProvider>
+        </QueryClientProvider>
+      </MemoryRouter>
     );
 
-  it('renders company info correctly', async () => {
+  it('renders company details correctly', async () => {
     renderComponent();
-
-    expect(await screen.findByText('Test Corp')).toBeInTheDocument();
-    expect(screen.getAllByText('Facilities').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Chillers').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Operators').length).toBeGreaterThan(0);
-    expect(screen.getByText('www.test.com')).toBeInTheDocument();
+    expect(screen.getByText('View Company')).toBeInTheDocument();
+    expect(screen.getByText('Test Company')).toBeInTheDocument();
+    expect(screen.getByText('123 Main St')).toBeInTheDocument();
+    expect(screen.getAllByText('Facilities')).toHaveLength(2);
+    expect(screen.getAllByText('Chillers')).toHaveLength(2);
   });
 
-  it('displays "Inactivate" button if company is active', () => {
+  it('opens and closes modal on button click', async () => {
     renderComponent();
-    const inactivateBtn = screen.getByText('Inactivate');
-    expect(inactivateBtn).toBeInTheDocument();
-  });
 
-  it('opens modal on clicking Inactivate button', async () => {
-    renderComponent();
-    const inactivateBtn = screen.getByText('Inactivate');
-    fireEvent.click(inactivateBtn);
-    expect(await screen.findByText(/Inactivate Company/)).toBeInTheDocument();
-    expect(screen.getByText(/If a company is inactivated, all the facilities/)).toBeInTheDocument();
-  });
+    const toggleButton = screen.getByText('Inactivate');
+    fireEvent.click(toggleButton);
 
-  it('renders facility table correctly', () => {
-    renderComponent();
-    expect(screen.getByText('Facility 1')).toBeInTheDocument();
-    expect(screen.getAllByText('Facilities').length).toBeGreaterThan(0);
-  });
+    expect(screen.getByText('Inactivate Company', { exact: false })).toBeInTheDocument();
 
-  it('calls mutation when confirming modal action', async () => {
-    renderComponent();
-    fireEvent.click(screen.getByText('Inactivate'));
+    const cancelButton = screen.getByText('Cancel');
+    fireEvent.click(cancelButton);
 
     await waitFor(() => {
-      const buttons = screen.getAllByText('Inactivate');
-      fireEvent.click(buttons[0]); // Header button to open modal
+      expect(screen.queryByText('Inactivate Company', { exact: false })).not.toBeInTheDocument();
     });
+  });
+
+  it('shows loader when loading', () => {
+    (companyHooks.CompanyView as any).mockReturnValue({
+      data: undefined,
+      isLoading: true
+    });
+
+    renderComponent();
+
+    expect(screen.getByTestId('loader')).toBeInTheDocument();
   });
 });

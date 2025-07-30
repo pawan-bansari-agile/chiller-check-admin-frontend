@@ -1,38 +1,92 @@
 import React from 'react';
 
-import { Col, Form, Row } from 'antd';
+import { Col, Row } from 'antd';
 
 import { RenderSelect, RenderTextInput } from '@/shared/components/common/FormField';
+import {
+  Actual_Condenser_Water_Pressure_Drop_English,
+  Actual_Condenser_Water_Pressure_Drop_SI_Metric,
+  Design_Condenser_Water_Pressure_Drop_English,
+  Design_Condenser_Water_Pressure_Drop_SI_Metric,
+  MEASUREMENT_UNITS
+} from '@/shared/constants';
+import { allowNegativeDecimalOnly } from '@/shared/utils/functions';
 
-const CondensorForm: React.FC = () => {
-  const onSubmit = () => {
-    console.log('submit');
-  };
+export interface IProps {
+  unit?: string;
+}
+
+const CondensorForm: React.FC<IProps> = ({ unit }) => {
+  const isMetric = unit === MEASUREMENT_UNITS[1]?.value;
+  const isEnglish = unit === MEASUREMENT_UNITS[0]?.value;
+  const isUnitSelected = isMetric || isEnglish;
+
   return (
-    <Form className="chillerAddEfitForm" onFinish={onSubmit}>
+    <div className="chillerAddEfitForm">
       <Row gutter={[20, 25]}>
-        <Col xs={24} sm={24} md={12} lg={12} xl={8}>
-          <Row gutter={[5, 5]} className="doubleInputRow">
-            <Col xs={24} sm={24} md={24} lg={16} xl={16}>
+        <Col xs={24} sm={24} md={12} lg={12} xl={24}>
+          <Row gutter={[20, 25]} className="doubleInputRow">
+            <Col xs={24} sm={24} md={24} lg={16} xl={8}>
               <RenderTextInput
                 label="Design Condenser Water Pressure Drop"
+                tooltip="Enter the Condenser differential pressure drop.
+                Select the Condenser differential pressure drop unit."
                 formItemProps={{
-                  name: 'condenser water pressure drop'
+                  name: 'condenserWaterPressureDrop',
+                  rules: [
+                    {
+                      validator(_, value) {
+                        if (!value?.trim()) return Promise.resolve();
+                        if (value === '-' || value === '.' || value === '-.') {
+                          return Promise.reject(
+                            new Error('Please enter a valid design condenser water pressure drop.')
+                          );
+                        }
+
+                        const validNumberRegex = /^-?\d+(\.\d+)?$/;
+
+                        if (!validNumberRegex.test(value)) {
+                          return Promise.reject(
+                            new Error('Please enter a valid design condenser water pressure drop.')
+                          );
+                        }
+
+                        const num = Number(value);
+
+                        if (isNaN(num)) {
+                          return Promise.reject(
+                            new Error('Please enter a valid design condenser water pressure drop.')
+                          );
+                        }
+
+                        return Promise.resolve();
+                      }
+                    }
+                  ]
                 }}
                 inputProps={{
-                  placeholder: 'Enter Here'
+                  placeholder: 'Enter Here',
+                  type: 'text',
+                  maxLength: 10,
+                  onKeyDown: allowNegativeDecimalOnly
                 }}
               />
             </Col>
             <Col xs={24} sm={24} md={12} lg={12} xl={8}>
               <RenderSelect
                 colClassName="custom-select-col"
+                formItemProps={{
+                  name: 'condenserWaterPressureDropOption'
+                }}
                 inputProps={{
+                  disabled: !isUnitSelected,
                   placeholder: 'Choose',
-                  options: [
-                    { label: '10 Pa', value: '10 Pa' },
-                    { label: '20 Pa', value: '20 Pa' }
-                  ]
+                  options:
+                    isUnitSelected && isEnglish
+                      ? Design_Condenser_Water_Pressure_Drop_English
+                      : isUnitSelected && isMetric
+                        ? Design_Condenser_Water_Pressure_Drop_SI_Metric
+                        : []
                 }}
               />
             </Col>
@@ -40,68 +94,120 @@ const CondensorForm: React.FC = () => {
         </Col>
         <Col xs={24} sm={24} md={12} lg={12} xl={8}>
           <RenderSelect
-            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
             label="Actual Condenser Water Pressure Drop Unit"
+            tooltip="Select the Condenser approach pressure drop unit."
             colClassName="custom-select-col"
+            required
             formItemProps={{
-              name: 'condenser water pressure drop',
-              rules: [
-                {
-                  required: true,
-                  message: 'Please select an actual condenser water pressure drop unit'
-                }
-              ]
+              name: 'actualCondenserWaterPressureDrop',
+              rules: isUnitSelected
+                ? [
+                    {
+                      required: true,
+                      message: 'Please select an actual condenser water pressure drop unit.'
+                    }
+                  ]
+                : []
             }}
             inputProps={{
+              disabled: !isUnitSelected,
               placeholder: 'Select',
-              options: [
-                { label: 'Pascal', value: 'pascal' },
-                { label: 'Kilopascal', value: 'kilopascal' }
-              ]
+              options:
+                isUnitSelected && isEnglish
+                  ? Design_Condenser_Water_Pressure_Drop_English
+                  : isUnitSelected && isMetric
+                    ? Design_Condenser_Water_Pressure_Drop_SI_Metric
+                    : []
             }}
           />
         </Col>
         <Col xs={24} sm={24} md={12} lg={12} xl={8}>
           <RenderSelect
             label="Condenser Pressure Unit"
-            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            tooltip="Select the Condenser pressure unit."
             colClassName="custom-select-col"
+            required
             formItemProps={{
-              name: 'pressure unit',
-              rules: [
-                {
-                  required: true,
-                  message: 'Please select the condenser pressure unit'
-                }
-              ]
+              name: 'condenserPressureUnit',
+              rules: isUnitSelected
+                ? [
+                    {
+                      required: true,
+                      message: 'Please select the condenser pressure unit.'
+                    }
+                  ]
+                : []
             }}
             inputProps={{
+              disabled: !isUnitSelected,
               placeholder: 'Select',
-              options: [
-                { label: 'Pascal', value: 'pascal' },
-                { label: 'Kilopascal', value: 'kilopascal' }
-              ]
+              options:
+                isUnitSelected && isEnglish
+                  ? Actual_Condenser_Water_Pressure_Drop_English
+                  : isUnitSelected && isMetric
+                    ? Actual_Condenser_Water_Pressure_Drop_SI_Metric
+                    : []
             }}
           />
         </Col>
 
         <Col xs={24} sm={24} md={12} lg={12} xl={8}>
           <RenderTextInput
-            label="Design Condenser Approach Temp"
+            label="Design Condenser Approach Temp."
+            tooltip="Enter the Condenser Approach - in a chiller is the pressure of the refrigerant inside the condenser as it releases heat and condenses from a vapor to a liquid."
             colClassName="addonAfterClass"
-            required={false}
+            required={true}
             formItemProps={{
-              name: 'Design Condenser Approach Temp',
+              name: 'designCondenserApproachTemp',
               rules: [
                 {
                   required: true,
-                  message: 'Please enter design condensor approach temperature'
+                  message: 'Please enter design condensor approach temperature.'
+                },
+                {
+                  validator(_, value) {
+                    if (!value?.trim()) return Promise.resolve();
+                    if (value === '-' || value === '.' || value === '-.') {
+                      return Promise.reject(
+                        new Error('Please enter a valid design condenser approach temperature.')
+                      );
+                    }
+                    const num = parseFloat(value);
+                    const min = 0;
+                    const max = isMetric ? 11 : 20;
+                    if (isNaN(num)) {
+                      return Promise.reject(
+                        new Error('Please enter a valid design condenser approach temperature.')
+                      );
+                    }
+
+                    const decimalRegex = /^-?\d+(\.\d+)?$/; // allows 0, 0.1, 10.25, etc.
+
+                    if (!decimalRegex.test(value)) {
+                      return Promise.reject(
+                        new Error(`Please enter a valid design condenser approach temperature.`)
+                      );
+                    }
+
+                    if (isNaN(num) || num < min || num > max) {
+                      return Promise.reject(
+                        new Error(
+                          `Design condenser approach temperature must be between ${min} and ${max} degrees.`
+                        )
+                      );
+                    }
+
+                    return Promise.resolve();
+                  }
                 }
               ]
             }}
             inputProps={{
-              placeholder: 'Design Condenser Approach Temp',
-              addonAfterText: '℉'
+              placeholder: 'Design Condenser Approach Temp.',
+              addonAfterText: isMetric ? '°C' : '℉',
+              onKeyDown: allowNegativeDecimalOnly,
+              type: 'text',
+              maxLength: 10
             }}
           />
         </Col>
@@ -109,12 +215,48 @@ const CondensorForm: React.FC = () => {
         <Col xs={24} sm={24} md={12} lg={12} xl={8}>
           <RenderTextInput
             label="Design Condenser ∆ T"
-            required={false}
+            tooltip="The temperature difference between the condensing temperature and the entering condenser water temperature under design conditions. This ΔT helps determine heat rejection performance and sizing for cooling towers and condenser water loops."
+            required={true}
             formItemProps={{
-              name: 'Design Condenser ∆ T'
+              name: 'designCondenserT',
+              rules: [
+                {
+                  validator(_, value) {
+                    if (!value || !value?.trim()) {
+                      return Promise.reject(new Error('Please enter design condenser ∆ T.'));
+                    }
+                    if (value === '-' || value === '.' || value === '-.') {
+                      return Promise.reject(
+                        new Error('Please enter a valid design condenser ∆ T.')
+                      );
+                    }
+
+                    const validNumberRegex = /^-?\d+(\.\d+)?$/;
+
+                    if (!validNumberRegex.test(value)) {
+                      return Promise.reject(
+                        new Error('Please enter a valid design condenser ∆ T.')
+                      );
+                    }
+
+                    const num = Number(value);
+
+                    if (isNaN(num)) {
+                      return Promise.reject(
+                        new Error('Please enter a valid design condenser ∆ T.')
+                      );
+                    }
+
+                    return Promise.resolve();
+                  }
+                }
+              ]
             }}
             inputProps={{
-              placeholder: 'Design Condenser ∆ T'
+              placeholder: 'Design Condenser ∆ T',
+              onKeyDown: allowNegativeDecimalOnly,
+              type: 'text',
+              maxLength: 10
             }}
           />
         </Col>
@@ -122,18 +264,53 @@ const CondensorForm: React.FC = () => {
         <Col xs={24} sm={24} md={12} lg={12} xl={8}>
           <RenderTextInput
             label="Design Condenser Flow"
-            required={false}
-            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            required={true}
+            tooltip="The specified rate of water flow required through the condenser to efficiently reject heat under design conditions."
             formItemProps={{
-              name: 'Design Condenser Flow'
+              name: 'designCondenserFlow',
+              rules: [
+                {
+                  validator(_, value) {
+                    if (!value || !value?.trim()) {
+                      return Promise.reject(new Error('Please enter design condenser flow.'));
+                    }
+                    if (value === '-' || value === '.' || value === '-.') {
+                      return Promise.reject(
+                        new Error('Please enter a valid design condenser flow.')
+                      );
+                    }
+
+                    const validNumberRegex = /^-?\d+(\.\d+)?$/;
+
+                    if (!validNumberRegex.test(value)) {
+                      return Promise.reject(
+                        new Error('Please enter a valid design condenser flow.')
+                      );
+                    }
+
+                    const num = Number(value);
+
+                    if (isNaN(num)) {
+                      return Promise.reject(
+                        new Error('Please enter a valid design condenser flow.')
+                      );
+                    }
+
+                    return Promise.resolve();
+                  }
+                }
+              ]
             }}
             inputProps={{
-              placeholder: 'Design Condenser Flow'
+              placeholder: 'Design Condenser Flow',
+              onKeyDown: allowNegativeDecimalOnly,
+              type: 'text',
+              maxLength: 10
             }}
           />
         </Col>
       </Row>
-    </Form>
+    </div>
   );
 };
 

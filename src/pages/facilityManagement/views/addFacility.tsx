@@ -1,8 +1,5 @@
 import React from 'react';
 
-import { Button } from 'antd';
-
-import HeaderToolbar from '@/shared/components/common/HeaderToolbar';
 import Meta from '@/shared/components/common/Meta';
 
 import FacilityAddEditForm from '../components/facilityAddEditForm';
@@ -12,15 +9,6 @@ const AddFacility: React.FC = () => {
   return (
     <Wrapper>
       <Meta title="Facility Management" />
-      <HeaderToolbar
-        title="Add Facility"
-        backBtn={true}
-        button={
-          <Button type="primary" shape="round" className="title-btn">
-            Add
-          </Button>
-        }
-      />
       <FacilityAddEditForm />
     </Wrapper>
   );

@@ -107,6 +107,24 @@ export const Wrapper = styled.div`
     }
   }
 
+  .checkCMS {
+    span {
+      color: #040c2b;
+      font-size: 14px;
+      line-height: 22px;
+      font-weight: 400;
+    }
+  }
+
+  .agreeText {
+    a {
+      margin: 0 5px;
+      color: ${({ theme }) => theme.colors.inkBlue};
+      font-weight: 700;
+      border-bottom: 1px solid ${({ theme }) => theme.colors.inkBlue};
+    }
+  }
+
   @media only screen and (max-width: ${({ theme }) => theme.device.xl}) {
     padding: 40px;
 

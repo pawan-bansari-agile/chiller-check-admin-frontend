@@ -20,6 +20,9 @@ export interface ISignInRes {
   deviceId: string;
   profileImage?: string;
   deviceType: string;
+  permissions?: any;
+  blockLogin?: boolean;
+  companyId?: string;
 }
 
 export interface IVerifyOtpReq {
@@ -33,4 +36,7 @@ export interface IVerifyOtpReq {
 export interface IForgotPasswordRes {
   resetPasswordToken: string;
   _id: string;
+  emailTemplate?: {
+    html: string;
+  };
 }

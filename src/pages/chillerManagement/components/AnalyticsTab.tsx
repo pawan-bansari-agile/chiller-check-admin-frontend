@@ -32,7 +32,25 @@ ChartJS.register(
   annotationPlugin
 );
 
-const AnalyticsTab: React.FC = () => {
+interface IProps {
+  maker: string;
+  year: string;
+  module: string;
+  cost: string;
+  facilityName: string;
+  serialNumber: string;
+  chillerName?: string;
+}
+
+const AnalyticsTab: React.FC<IProps> = ({
+  maker,
+  year,
+  module,
+  cost,
+  facilityName,
+  serialNumber,
+  chillerName
+}) => {
   const data = {
     labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
     datasets: [
@@ -92,17 +110,25 @@ const AnalyticsTab: React.FC = () => {
   return (
     <>
       <div className="chillerAnalyticsDetailsWrap">
-        <h3>Chiller 1</h3>
+        <h3>{chillerName || '-'}</h3>
         <ul className="chillerAnalyticsDetails">
           <Details
             detailsIcon
-            detailsTitle="R-1349(2021)"
+            detailsTitle={module && year ? `${module}(${year})` : '-'}
             detailsDescription="Making Year and Module"
           />
-          <Details detailsIcon detailsTitle="$0.1 KW/hr" detailsDescription="Cost" />
-          <Details detailsIcon detailsTitle="Trane" detailsDescription="Maker" />
-          <Details detailsIcon detailsTitle="Ontario" detailsDescription="Facilities" />
-          <Details detailsIcon detailsTitle="Lk2154201" detailsDescription="Serial Number" />
+          <Details
+            detailsIcon
+            detailsTitle={cost ? `$${cost} KW/hr` : '-'}
+            detailsDescription="Cost"
+          />
+          <Details detailsIcon detailsTitle={maker || '-'} detailsDescription="Maker" />
+          <Details detailsIcon detailsTitle={facilityName || '-'} detailsDescription="Facility" />
+          <Details
+            detailsIcon
+            detailsTitle={serialNumber || '-'}
+            detailsDescription="Serial Number"
+          />
         </ul>
       </div>
       <div className="analyticsGraph">
@@ -116,7 +142,7 @@ const AnalyticsTab: React.FC = () => {
           <Row gutter={[20, 20]}>
             <Col xs={24} sm={24} md={24} lg={8}>
               <div className="charityCard">
-                <h2>Average Energy Loss</h2>
+                <h2 className="themeColor">Average Energy Loss</h2>
                 <div className="gaugeChart">
                   <img src={toAbsoluteUrl('/icons/gaugeSVG.svg')} alt="guage" />
                 </div>
@@ -133,7 +159,7 @@ const AnalyticsTab: React.FC = () => {
             </Col>
             <Col xs={24} sm={24} md={24} lg={8}>
               <div className="charityCard">
-                <h2>Efficient Rating</h2>
+                <h2 className="themeColor">Efficient Rating</h2>
                 <div className="gaugeChart">
                   <img src={toAbsoluteUrl('/icons/effChart.svg')} alt="guage" />
                 </div>
@@ -147,7 +173,7 @@ const AnalyticsTab: React.FC = () => {
             </Col>
             <Col xs={24} sm={24} md={24} lg={8}>
               <div className="charityCard">
-                <h2>Cost At load</h2>
+                <h2 className="themeColor">Cost At Load</h2>
                 <div className="gaugeChart">
                   <img src={toAbsoluteUrl('/icons/costLoad.svg')} alt="guage" />
                 </div>
@@ -164,7 +190,7 @@ const AnalyticsTab: React.FC = () => {
             </Col>
             <Col xs={24} sm={24} md={24}>
               <div className="charityCard">
-                <h2>Avarage Energy Consumption</h2>
+                <h2 className="themeColor">Average Energy Consumption</h2>
                 <div className="consumptionChart">
                   <Line data={data} options={options as any} height={70} />
                 </div>
@@ -173,7 +199,7 @@ const AnalyticsTab: React.FC = () => {
             <Col span={24}>
               <div className="charityCard">
                 <div className="issueHeader">
-                  <h2>Issue Reported - Condenser</h2>
+                  <h2 className="themeColor">Issue Reported - Condenser</h2>
                   <Link to={ROUTES.REPORT}>View All</Link>
                 </div>
                 <div className="scrollDiv">

@@ -10,6 +10,10 @@ export const Wrapper = styled.section`
   overflow: hidden auto;
   padding: 30px 10px;
 
+  .btnNotFound {
+    padding: 10px 15px;
+  }
+
   .error-img {
     text-align: center;
     .animateNumber {

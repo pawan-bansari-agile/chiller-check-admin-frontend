@@ -42,7 +42,7 @@ const ChangePassword: React.FC = () => {
               <RenderPasswordInput
                 colProps={{ xs: 24 }}
                 label="Current Password"
-                tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+                // tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
                 required
                 inputProps={{ placeholder: 'Enter Current Password', maxLength: 64 }}
                 formItemProps={{
@@ -64,7 +64,7 @@ const ChangePassword: React.FC = () => {
               <RenderPasswordInput
                 colProps={{ xs: 24 }}
                 label="New Password"
-                tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+                // tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
                 required
                 inputProps={{ placeholder: 'Enter New Password', maxLength: 64 }}
                 formItemProps={{
@@ -91,7 +91,7 @@ const ChangePassword: React.FC = () => {
               <RenderPasswordInput
                 colProps={{ xs: 24 }}
                 label="Confirm Password"
-                tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+                // tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
                 required
                 inputProps={{ placeholder: 'Enter Confirm Password', maxLength: 64 }}
                 formItemProps={{

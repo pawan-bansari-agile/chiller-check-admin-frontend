@@ -6,7 +6,10 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button, Col, Form, Row } from 'antd';
 
+import { chillerQueryKeys } from '@/services/chiller';
 import { companyHooks, companyQueryKeys } from '@/services/company';
+import { facilityQueryKeys } from '@/services/facility';
+import { userQueryKeys } from '@/services/user';
 
 import {
   RenderGoogleAutocompleteInput,
@@ -115,6 +118,9 @@ const CompanyAddEditForm: React.FC = () => {
       };
 
       form.setFieldsValue({ facilities: updatedFacilities });
+      updatedFacilities.forEach((_, i) => {
+        form.validateFields([['facilities', i, 'facilityName']]);
+      });
     };
 
   const clearFieldErrors = (fields: { name: any; errors: string[] }[]) => {
@@ -182,6 +188,9 @@ const CompanyAddEditForm: React.FC = () => {
   const handleSuccess = (message: string) => {
     showToaster('success', message);
     queryClient.invalidateQueries({ queryKey: companyQueryKeys.all });
+    queryClient.invalidateQueries({ queryKey: facilityQueryKeys.all });
+    queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
+    queryClient.invalidateQueries({ queryKey: chillerQueryKeys.all });
     navigate(-1);
   };
 
@@ -231,15 +240,13 @@ const CompanyAddEditForm: React.FC = () => {
           backBtn={true}
           button={
             <div className="editButtonWrap">
-              {id && (
-                <Button
-                  className="title-cancel-btn"
-                  onClick={() => navigate(-1)}
-                  disabled={isPending || isEditPending}
-                >
-                  Cancel
-                </Button>
-              )}
+              <Button
+                className="title-cancel-btn"
+                onClick={() => navigate(-1)}
+                disabled={isPending || isEditPending}
+              >
+                Cancel
+              </Button>
               <Button
                 type="primary"
                 shape="round"
@@ -249,7 +256,7 @@ const CompanyAddEditForm: React.FC = () => {
                 htmlType="submit"
                 icon={!id && <PlusOutlined />}
               >
-                {id ? 'Save' : 'Add'}
+                {id ? 'Save' : 'Add / Save'}
               </Button>
             </div>
           }
@@ -257,7 +264,7 @@ const CompanyAddEditForm: React.FC = () => {
         <div className="shadowWrap">
           <ShadowPaper>
             <div className="company-details-header">
-              <h2>Company Details</h2>
+              <h2 className="themeColor">Company Details</h2>
             </div>
             <Row gutter={[20, 20]} className="companyAddEditMainForm">
               <Col xs={24} sm={24} md={12} lg={8}>
@@ -319,14 +326,9 @@ const CompanyAddEditForm: React.FC = () => {
               <Col xs={24} sm={24} md={12} lg={8}>
                 <RenderTextInput
                   label="Address Line 2"
-                  required
                   formItemProps={{
                     name: 'address2',
                     rules: [
-                      {
-                        required: true,
-                        message: 'Please enter address line2.'
-                      },
                       {
                         pattern: PATTERNS.BLANK_SPACE,
                         message: 'Please enter valid address line2.'
@@ -349,7 +351,7 @@ const CompanyAddEditForm: React.FC = () => {
                     rules: [
                       {
                         required: true,
-                        message: 'Please enter a city.'
+                        message: 'Please enter city.'
                       },
                       {
                         pattern: PATTERNS.BLANK_SPACE,
@@ -429,24 +431,19 @@ const CompanyAddEditForm: React.FC = () => {
 
               <Col xs={24} sm={24} md={12} lg={8}>
                 <RenderTextInput
-                  label="Corporate Website"
-                  required
+                  label="Website"
                   formItemProps={{
                     name: 'website',
                     rules: [
                       {
-                        required: true,
-                        message: 'Please enter corporate website.'
-                      },
-                      {
                         pattern:
                           /^(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})(:\d+)?(\/[^\s]*)?$/,
-                        message: 'Please enter valid corporate website.'
+                        message: 'Please enter valid website.'
                       }
                     ]
                   }}
                   inputProps={{
-                    placeholder: 'Add Corporate Website'
+                    placeholder: 'Add Website'
                   }}
                 />
               </Col>
@@ -454,7 +451,7 @@ const CompanyAddEditForm: React.FC = () => {
           </ShadowPaper>
           <ShadowPaper>
             <div className="company-details-header">
-              <h2>Facilities</h2>
+              <h2 className="themeColor">Facilities</h2>
             </div>
             <Form.List name="facilities">
               {(fields, { add, remove }) => (
@@ -568,10 +565,6 @@ const CompanyAddEditForm: React.FC = () => {
                                 name: [index, 'facilityAddress2'],
                                 rules: [
                                   {
-                                    required: true,
-                                    message: 'Please enter address line2.'
-                                  },
-                                  {
                                     pattern: PATTERNS.BLANK_SPACE,
                                     message: 'Please enter valid address line2.'
                                   }
@@ -597,7 +590,7 @@ const CompanyAddEditForm: React.FC = () => {
                                 rules: [
                                   {
                                     required: true,
-                                    message: 'Please enter a city.'
+                                    message: 'Please enter city.'
                                   },
                                   {
                                     pattern: PATTERNS.BLANK_SPACE,
@@ -764,6 +757,7 @@ const CompanyAddEditForm: React.FC = () => {
                                 inputProps={{
                                   disabled: shouldDisable(index),
                                   placeholder: 'Altitude',
+                                  maxLength: 10,
                                   type: 'text',
                                   onKeyDown: allowNegativeDecimalOnly
                                 }}
@@ -843,6 +837,26 @@ const CompanyAddEditForm: React.FC = () => {
               )}
             </Form.List>
           </ShadowPaper>
+        </div>
+        <div className="editButtonWrap extraActionButton">
+          <Button
+            className="title-cancel-btn"
+            onClick={() => navigate(-1)}
+            disabled={isPending || isEditPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            shape="round"
+            className="title-btn"
+            loading={isPending || isEditPending}
+            disabled={isPending || isEditPending || isLoading}
+            htmlType="submit"
+            icon={!id && <PlusOutlined />}
+          >
+            {id ? 'Save' : 'Add / Save'}
+          </Button>
         </div>
       </Form>
     </div>

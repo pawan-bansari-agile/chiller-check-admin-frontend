@@ -64,7 +64,7 @@ export const StyledLayout = styled(Layout)`
 
     /* Sidebar */
     .ant-layout-sider {
-      min-height: calc(100vh - 55px);
+      height: calc(100vh - 55px);
       background: ${({ theme }) => theme.colors.inkBlue} !important ;
 
       &.hover-expand-sidebar:not(:hover) .ant-menu-submenu-arrow {
@@ -74,7 +74,7 @@ export const StyledLayout = styled(Layout)`
         width: 60px !important;
         max-width: 60px !important;
         min-width: 60px !important;
-        overflow: hidden;
+        overflow: auto !important;
         transition: all 0.3s;
         position: absolute;
         left: 0;
@@ -107,21 +107,6 @@ export const StyledLayout = styled(Layout)`
         &.sm {
           padding: 10px 4px 6px;
         }
-      }
-
-      /* Show submenu popup on hover (not click) */
-      .sidebar-menu.hover-submenu .ant-menu-submenu {
-        pointer-events: auto;
-      }
-
-      /* Open submenu on hover */
-      .sidebar-menu.hover-submenu .ant-menu-submenu:hover > .ant-menu-submenu-title {
-        background-color: #001529;
-      }
-
-      .sidebar-menu.hover-submenu .ant-menu-submenu:hover > .ant-menu {
-        display: block !important;
-        position: relative;
       }
 
       .ant-layout-sider-trigger {
@@ -162,6 +147,10 @@ export const StyledLayout = styled(Layout)`
 
         .ant-menu-item {
           color: ${({ theme }) => theme.colors.white};
+
+          .anticon {
+            font-size: 18px;
+          }
         }
         .ant-menu-item-selected {
           background: ${({ theme }) => theme.colors.lightBlue};
@@ -169,6 +158,15 @@ export const StyledLayout = styled(Layout)`
         .ant-menu-submenu {
           .ant-menu-submenu-title {
             color: ${({ theme }) => theme.colors.white};
+
+            .anticon {
+              font-size: 18px;
+
+              svg {
+                width: 18px;
+                height: 18px;
+              }
+            }
           }
         }
       }

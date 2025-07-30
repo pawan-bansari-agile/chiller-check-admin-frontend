@@ -22,7 +22,8 @@ import {
   capitalizeFirstLetter,
   debounce,
   getAntDSortOrder,
-  getSortOrder
+  getSortOrder,
+  hasPermission
 } from '@/shared/utils/functions';
 
 import { Wrapper } from '../style';
@@ -36,6 +37,8 @@ const statusColorMap: Record<string, string> = {
 
 const CompanyManagement: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const latestSearchParamsRef = useRef(searchParams);
 
   const [searchVal, setSearchVal] = useState<string>('');
   const [args, setArgs] = useState<ICommonPagination>({
@@ -52,13 +55,31 @@ const CompanyManagement: React.FC = () => {
     if (args?.search) setSearchVal(args?.search);
   }, [args?.search]);
 
+  useEffect(() => {
+    latestSearchParamsRef.current = searchParams;
+  }, [searchParams]);
+
   const updateParamsAndArgs = useCallback(
-    (newArgs: Partial<ICommonPagination>) => {
-      const updatedArgs = { ...args, ...newArgs };
-      setArgs(updatedArgs);
-      setSearchParams(buildSearchParams(updatedArgs));
+    (newArgs: Partial<ICommonPagination>, baseParams?: URLSearchParams) => {
+      const currentParams = Object.fromEntries((baseParams || searchParams).entries());
+
+      const mergedArgs: Record<string, any> = {
+        page: Number(currentParams.page) || 1,
+        limit: Number(currentParams.limit) || 10,
+        search: currentParams.search || '',
+        sort_by: currentParams.sort_by ?? '', // <-- always ensure present
+        sort_order: currentParams.sort_order ?? '', // <-- always ensure present
+        ...newArgs // override anything as needed
+      };
+
+      // Apply number conversion only after merge
+      if (mergedArgs.page) mergedArgs.page = Number(mergedArgs.page);
+      if (mergedArgs.limit) mergedArgs.limit = Number(mergedArgs.limit);
+
+      setArgs(mergedArgs as ICommonPagination);
+      setSearchParams(buildSearchParams(mergedArgs));
     },
-    [args, setSearchParams]
+    [searchParams, setSearchParams]
   );
 
   const handleTableChange = (
@@ -79,10 +100,13 @@ const CompanyManagement: React.FC = () => {
   const debouncedSearch = useRef(
     debounce((value: string) => {
       const trimmed = value?.trim();
-      updateParamsAndArgs({
-        search: trimmed,
-        page: 1
-      });
+      updateParamsAndArgs(
+        {
+          search: trimmed,
+          page: 1
+        },
+        latestSearchParamsRef.current
+      );
     })
   ).current;
 
@@ -97,7 +121,8 @@ const CompanyManagement: React.FC = () => {
       title: 'Corporate Name',
       dataIndex: 'name',
       key: 'name',
-      render: (value) => capitalizeFirstLetter(value)
+      render: (value) => capitalizeFirstLetter(value),
+      width: 220
     },
     {
       title: 'Address',
@@ -123,6 +148,7 @@ const CompanyManagement: React.FC = () => {
       title: 'Company Website',
       dataIndex: 'website',
       key: 'website',
+      width: 160,
       render: (text) => (
         <a className="companyWebsiteLink" href={`https://${text}`} target="_blank" rel="noreferrer">
           {text || '-'}
@@ -141,7 +167,7 @@ const CompanyManagement: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       render: (status) => (
-        <Tag className="statusTag" color={statusColorMap[status] || 'default'}>
+        <Tag className="statusTag" color={statusColorMap[status?.toLowerCase()] || 'default'}>
           {capitalizeFirstLetter(status)}
         </Tag>
       ),
@@ -156,21 +182,29 @@ const CompanyManagement: React.FC = () => {
       sorter: true,
       sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'isAssign')
     },
-    {
-      title: '',
-      key: '_id',
-      dataIndex: '_id',
-      render: (id) => (
-        <div className="actionIonWrap">
-          <Link className="actionIcon" to={ROUTES.Edit_COMPANY_MANAGEMENT(id)}>
-            <EditIcon />
-          </Link>
-          <Link className="actionIcon" to={ROUTES.VIEW_COMPANY_MANAGEMENT(id)}>
-            <EyeOutlined />
-          </Link>
-        </div>
-      )
-    }
+    ...(hasPermission('company', 'edit') || hasPermission('company', 'view')
+      ? [
+          {
+            title: '',
+            key: '_id',
+            dataIndex: '_id',
+            render: (id: string) => (
+              <div className="actionIonWrap">
+                {hasPermission('company', 'edit') && (
+                  <Link className="actionIcon" to={ROUTES.Edit_COMPANY_MANAGEMENT(id)}>
+                    <EditIcon />
+                  </Link>
+                )}
+                {hasPermission('company', 'view') && (
+                  <Link className="actionIcon" to={ROUTES.VIEW_COMPANY_MANAGEMENT(id)}>
+                    <EyeOutlined />
+                  </Link>
+                )}
+              </div>
+            )
+          }
+        ]
+      : [])
   ];
 
   return (
@@ -179,11 +213,13 @@ const CompanyManagement: React.FC = () => {
       <HeaderToolbar
         title="Company management"
         button={
-          <Link to={ROUTES.Add_COMPANY_MANAGEMENT}>
-            <Button type="primary" className="title-btn" shape="round" icon={<PlusOutlined />}>
-              Add Company
-            </Button>
-          </Link>
+          hasPermission('company', 'add') && (
+            <Link to={ROUTES.Add_COMPANY_MANAGEMENT}>
+              <Button type="primary" className="title-btn" shape="round" icon={<PlusOutlined />}>
+                Add Company
+              </Button>
+            </Link>
+          )
         }
       />
       <ShadowPaper>
@@ -200,7 +236,7 @@ const CompanyManagement: React.FC = () => {
         <CommonTable
           scroll={{ x: 'max-content' }}
           columns={columns}
-          dataSource={data?.companyList}
+          dataSource={data?.companyList || []}
           pagination={{
             current: args?.page ?? 1,
             pageSize: args?.limit ?? 10,

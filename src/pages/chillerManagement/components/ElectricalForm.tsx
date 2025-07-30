@@ -1,104 +1,104 @@
 import React from 'react';
 
-import { Col, Form, Row } from 'antd';
+import { Col, Row } from 'antd';
 
 import { RenderSelect, RenderTextInput } from '@/shared/components/common/FormField';
+import { AMPERAGE_CHOICE, VOLTAGE_CHOICE } from '@/shared/constants';
+import { allowAverageLoad, validateDesignVoltage } from '@/shared/utils/functions';
 
 const ElectricalForm: React.FC = () => {
-  const onSubmit = () => {
-    console.log('submit');
-  };
   return (
-    <Form className="chillerAddEfitForm" onFinish={onSubmit}>
+    <div className="chillerAddEfitForm">
       <Row gutter={[20, 25]}>
         <Col xs={24} sm={24} md={12} lg={12} xl={6}>
           <RenderTextInput
             label="Design Voltage"
+            tooltip="Enter the designed voltage of the chiller."
             required
             formItemProps={{
-              name: 'Design Voltage',
+              name: 'designVoltage',
               rules: [
                 {
-                  required: true,
-                  message: 'Please enter the design voltage'
+                  validator: validateDesignVoltage('design voltage', 208, 13000)
                 }
               ]
             }}
             inputProps={{
-              placeholder: 'Design Voltage'
+              placeholder: 'Design Voltage',
+              type: 'text', // use "text" for full control
+              inputMode: 'decimal', // show numeric keypad with decimal on mobile
+              onKeyDown: allowAverageLoad,
+              maxLength: 10
             }}
           />
         </Col>
 
         <Col xs={24} sm={24} md={12} lg={12} xl={6}>
           <RenderSelect
-            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            tooltip="Select the voltage choice of the chiller. You can select 'Do not log voltage' if you don't want to report voltage."
             label="Voltage Choice"
             colClassName="custom-select-col"
             formItemProps={{
-              name: 'Voltage Choice',
+              name: 'voltageChoice',
               rules: [
                 {
                   required: true,
-                  message: 'Please select a voltage choice'
+                  message: 'Please select a voltage choice.'
                 }
               ]
             }}
             inputProps={{
               placeholder: 'Voltage Choice',
-              options: [
-                { label: 'Pascal', value: 'pascal' },
-                { label: 'Kilopascal', value: 'kilopascal' }
-              ]
+              options: VOLTAGE_CHOICE
             }}
           />
         </Col>
 
         <Col xs={24} sm={24} md={12} lg={12} xl={6}>
           <RenderTextInput
-            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            tooltip="Enter the amperage at full load."
             label="Full-Load Amperage"
             required
             formItemProps={{
-              name: 'Full-Load Amperage',
+              name: 'fullLoadAmperage',
               rules: [
                 {
-                  required: true,
-                  message: 'Please enter the full-load amperage'
+                  validator: validateDesignVoltage('full load amperage', 15, 3000)
                 }
               ]
             }}
             inputProps={{
-              placeholder: 'Full-Load Amperage'
+              placeholder: 'Full-Load Amperage',
+              type: 'text', // use "text" for full control
+              inputMode: 'decimal', // show numeric keypad with decimal on mobile
+              onKeyDown: allowAverageLoad,
+              maxLength: 10
             }}
           />
         </Col>
 
         <Col xs={24} sm={24} md={12} lg={12} xl={6}>
           <RenderSelect
-            tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            tooltip="Select how the Amperage will be reported."
             label="Amperage Choice"
             colClassName="custom-select-col"
             formItemProps={{
-              name: 'Amperage Choice',
+              name: 'amperageChoice',
               rules: [
                 {
                   required: true,
-                  message: 'Please select an amperage option'
+                  message: 'Please select an amperage option.'
                 }
               ]
             }}
             inputProps={{
               placeholder: 'Amperage Choice',
-              options: [
-                { label: 'Pascal', value: 'pascal' },
-                { label: 'Kilopascal', value: 'kilopascal' }
-              ]
+              options: AMPERAGE_CHOICE
             }}
           />
         </Col>
       </Row>
-    </Form>
+    </div>
   );
 };
 

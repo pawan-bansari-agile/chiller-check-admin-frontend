@@ -140,6 +140,10 @@ export const CommonStyle = createGlobalStyle`
     flex-direction: column;
 }
 
+.last-entry-cell{
+    padding: 0 15px;
+}
+
 .bgYellow{
     border: 1px solid ${({ theme }) => theme.colors.yellow};
     border-radius: 10px;
@@ -168,6 +172,17 @@ export const CommonStyle = createGlobalStyle`
     }
     button{
         width: 60px;
+    }
+  }
+
+  .themeColor{
+    color: ${({ theme }) => theme.colors.primary} !important;
+  }
+
+  .extraActionButton{
+    .ant-btn-primary span{
+        font-weight: 500 !important;
+        line-height: 22px !important;
     }
   }
 `;

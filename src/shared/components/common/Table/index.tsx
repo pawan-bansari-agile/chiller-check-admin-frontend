@@ -9,6 +9,7 @@ const { useBreakpoint } = Grid;
 interface CustomProps {
   summaryRow?: React.ReactNode;
   emptyText?: React.ReactNode;
+  rowKey?: any;
 }
 
 export const TableSummaryCell: React.FC<{
@@ -32,7 +33,7 @@ const defaultPaginationSettings: Partial<TablePaginationConfig> = {
 };
 
 export const CommonTable: React.FC<TableProps<any> & CustomProps> = (props) => {
-  const { pagination, summaryRow, scroll, emptyText } = props;
+  const { pagination, summaryRow, scroll, emptyText, rowKey } = props;
   const screens = useBreakpoint();
 
   const responsiveScroll = !screens.md
@@ -44,7 +45,7 @@ export const CommonTable: React.FC<TableProps<any> & CustomProps> = (props) => {
       size="small"
       {...props}
       pagination={pagination ? { ...defaultPaginationSettings, ...pagination } : false}
-      rowKey={(record: any) => (record?._id ? record?._id : '')}
+      rowKey={rowKey ? rowKey : (record: any) => (record?._id ? record?._id : '')}
       scroll={responsiveScroll}
       locale={{
         emptyText: emptyText || (

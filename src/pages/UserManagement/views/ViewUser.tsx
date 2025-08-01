@@ -288,7 +288,7 @@ const ViewUser: React.FC = () => {
           width={565}
           centered={true}
           maskClosable={false}
-          className="InactiveModalWrap"
+          className="InactiveModalWrap active-inactive-user-modal"
           title={
             <div className="modalTitleWrapper">
               <i>

@@ -68,6 +68,7 @@ gap: 10px;
         display: flex;
         justify-content: flex-end;
         padding: 16px 28px;
+        flex-wrap: wrap;
 
         .footerBtn{
             background: ${({ theme }) => theme.colors.primary};
@@ -202,6 +203,7 @@ gap: 10px;
         display: flex;
         justify-content: flex-end;
         gap: 10px;
+        flex-wrap: wrap;
         border-top: 1px solid #F0F0F0;
         padding: 15px 28px 16px 0;
         margin-top: 20px;
@@ -224,5 +226,17 @@ gap: 10px;
     }
    }
 }
+
+  @media only screen and (max-width: ${({ theme }) => theme.device.sm}) {
+.active-inactive-user-modal{
+    .modalFooter{
+        .unassignBtn{
+            width: 91%;
+        }
+        button:not(.unassignBtn){
+            width: 44%;
+        }
+    }
+}}
 
 `;

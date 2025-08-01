@@ -55,6 +55,7 @@ export const Wrapper = styled.div`
 
   .extraActionButton {
     justify-content: flex-end;
+    flex-wrap: wrap;
     margin: 25px 0 !important;
   }
 
@@ -210,6 +211,7 @@ export const Wrapper = styled.div`
   /* view */
   .button-wrap {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
   }
 
@@ -426,7 +428,7 @@ export const Wrapper = styled.div`
     .userInfo {
       flex-direction: column;
       gap: 30px;
-      padding: 0;
+      /* padding: 0; */
 
       ul li {
         width: 50%;

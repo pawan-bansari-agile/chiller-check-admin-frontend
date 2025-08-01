@@ -185,4 +185,9 @@ export const CommonStyle = createGlobalStyle`
         line-height: 22px !important;
     }
   }
+  @media only screen and (max-width: ${({ theme }) => theme.device.sm}) {
+  .ant-picker-panels{
+    flex-direction: column !important;
+  }
+}
 `;

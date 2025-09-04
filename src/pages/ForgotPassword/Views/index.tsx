@@ -20,11 +20,7 @@ const ForgotPassword: React.FC = () => {
     onSubmit,
     handleFieldsChange,
     isModalOpen,
-    setIsModalOpen,
-    navigate,
-    emailHTML,
-    copyHtmlToClipboard,
-    openHtmlInNewWindow
+    setIsModalOpen
   } = useForgotPasswordController();
 
   return (
@@ -97,26 +93,23 @@ const ForgotPassword: React.FC = () => {
           className="changePasswordModal"
           title={
             <div className="modalTitleWrapper">
-              <span className="main-title">Email Template Copied</span>
+              <span className="main-title">Password Reset Assistance</span>
             </div>
           }
           onCancel={() => {
             setIsModalOpen(false);
-            navigate(ROUTES.LOGIN);
           }}
         >
+          <p>Please contact your admin to reset your password.</p>
           <div className="modalFooter">
             <Button
               type="primary"
               className="footerBtn"
               onClick={() => {
-                copyHtmlToClipboard(emailHTML);
-                openHtmlInNewWindow(emailHTML);
                 setIsModalOpen(false);
-                navigate(ROUTES.LOGIN);
               }}
             >
-              OK
+              Okay
             </Button>
           </div>
         </CommonModal>

@@ -4,7 +4,15 @@ const apiEndPoints = {
   imageUpload: 'uploadMultipleFile'
 };
 export const commonApi = {
-  async uploadFileAction(data: { files: any; moduleName: string }): Promise<[{ name: string }]> {
+  async uploadFileAction(data: { files: any; moduleName: string }): Promise<
+    [
+      {
+        name: string;
+        realName?: string;
+        size?: number;
+      }
+    ]
+  > {
     const formData = new FormData();
     const fileArray = Array.isArray(data?.files) ? data?.files : [data?.files];
     fileArray?.map((value) => {

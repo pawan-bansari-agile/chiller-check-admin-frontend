@@ -12,11 +12,17 @@ import {
 } from '@ant-design/icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button, Tag } from 'antd';
+import dayjs from 'dayjs';
 
 import { chillerQueryKeys } from '@/services/chiller';
+import { LatestLog } from '@/services/chiller/types';
 import { companyQueryKeys } from '@/services/company';
+import { dashboardQueryKey } from '@/services/dashboard';
 import { facilityHooks, facilityQueryKeys } from '@/services/facility';
 import { ChillerData } from '@/services/facility/types';
+import { logQueryKeys } from '@/services/log';
+import { maintenanceQueryKey } from '@/services/maintenance';
+import { reportQueryKey } from '@/services/report';
 import { userQueryKeys } from '@/services/user';
 
 import { authStore } from '@/store/auth';
@@ -29,7 +35,7 @@ import CommonModal from '@/shared/components/common/Modal/components/CommonModal
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
 import { CommonTable } from '@/shared/components/common/Table';
 import EmptyState from '@/shared/components/common/Table/EmptyState';
-import { USER_ROLES } from '@/shared/constants';
+import { ALERT_TYPE, USER_ROLES } from '@/shared/constants';
 import { ROUTES } from '@/shared/constants/routes';
 import { ChillerIcon, EditIcon, FacilityIcon, ScaleIcon } from '@/shared/svg';
 import { capitalizeFirstLetter, hasPermission, showToaster } from '@/shared/utils/functions';
@@ -68,6 +74,11 @@ const ViewFacility: React.FC = () => {
         queryClient.invalidateQueries({ queryKey: companyQueryKeys.all });
         queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
         queryClient.invalidateQueries({ queryKey: chillerQueryKeys.all });
+        queryClient.invalidateQueries({ queryKey: logQueryKeys.all });
+        queryClient.invalidateQueries({ queryKey: maintenanceQueryKey.all });
+        queryClient.invalidateQueries({ queryKey: reportQueryKey.all });
+        queryClient.invalidateQueries({ queryKey: dashboardQueryKey.all });
+
         setIsModalOpen(false);
       },
       onError: (err) => {
@@ -84,27 +95,27 @@ const ViewFacility: React.FC = () => {
       render: () => data?.name || '-'
     },
     {
-      title: 'Chiller Name',
+      title: 'Make / Model',
       key: 'chillerName',
       render: (_: any, record: ChillerData) => (
         <div className="chillerNameWrap">
-          <a className="chillerName">{record?.make + ' ' + record?.model}</a>
-          <span>{record?.ChillerNo}</span>
+          {record?.make && record?.model && (
+            <a className="chillerName">{record?.make + ' ' + record?.model}</a>
+          )}
+          <span>{record?.ChillerNo || ''}</span>
         </div>
       )
     },
     {
       title: 'Efficiency Loss %',
-      key: 'efficiencyLoss',
-      render: () => {
-        const record = {
-          efficiencyLoss: 40
-        };
+      key: 'latestLog',
+      dataIndex: 'latestLog',
+      render: (data: LatestLog) => {
         let className = '';
-        if (record.efficiencyLoss >= 50) className = 'bgRed';
-        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
+        if (data?.effLoss?.type === ALERT_TYPE.ALERT) className = 'bgRed';
+        if (data?.effLoss?.type === ALERT_TYPE.WARNING) className = 'bgYellow';
 
-        return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
+        return <div className={`loss-cell ${className}`}>{data?.effLoss?.value ?? '-'}</div>;
       }
     },
     // {
@@ -127,23 +138,16 @@ const ViewFacility: React.FC = () => {
         )
     },
     {
-      title: 'Last Entry',
-      key: 'lastEntry',
-      render: () => {
-        const record = {
-          efficiencyLoss: 40,
-          lastEntry: {
-            name: 'Monica Geller',
-            datetime: '12/11/24 15:00'
-          }
-        };
-        let className = '';
-        if (record.efficiencyLoss >= 50) className = 'bgRed';
-        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
+      title: 'Last Log Entry',
+      key: 'latestLog',
+      dataIndex: 'latestLog',
+      render: (data: LatestLog) => {
         return (
-          <div className={`last-entry-cell ${className}`}>
-            <div className="entryName">{record.lastEntry.name}</div>
-            <div>{record.lastEntry.datetime}</div>
+          <div className={`last-entry-cell`}>
+            <div>
+              {(data?.updatedByUser?.firstName || '') + ' ' + (data?.updatedByUser?.lastName || '')}
+            </div>
+            <div>{data?.updatedAt ? dayjs(data?.updatedAt).format('MM/DD/YY HH:mm') : '-'}</div>
           </div>
         );
       }

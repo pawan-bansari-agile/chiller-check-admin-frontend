@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import {
   AuditOutlined,
@@ -9,11 +9,11 @@ import {
   DownOutlined,
   ExclamationCircleOutlined,
   EyeOutlined,
-  NotificationOutlined,
-  SearchOutlined
+  NotificationOutlined
 } from '@ant-design/icons';
-import { Button, Dropdown, Input, MenuProps, Space, Tag } from 'antd';
+import { Button, Dropdown, Tag } from 'antd';
 import {
+  BarElement,
   CategoryScale,
   Chart as ChartJS,
   Filler,
@@ -23,60 +23,54 @@ import {
   PointElement,
   Tooltip
 } from 'chart.js';
-import { Line } from 'react-chartjs-2';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import { Bar, Line } from 'react-chartjs-2';
+
+import { reportHooks } from '@/services/report';
+import { UserList } from '@/services/report/types';
 
 import Details from '@/shared/components/common/Details';
+import { RenderSelectDropDown } from '@/shared/components/common/FormField';
 import HeaderToolbar from '@/shared/components/common/HeaderToolbar';
+import { Loader } from '@/shared/components/common/Loader';
 import Meta from '@/shared/components/common/Meta';
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
 import { CommonTable } from '@/shared/components/common/Table';
+import {
+  CHART_DROPDOWN,
+  ChartType,
+  DateRange,
+  IMAGE_MODULE_NAME,
+  IMAGE_URL,
+  NotificationType,
+  Role
+} from '@/shared/constants';
+import { ROUTES } from '@/shared/constants/routes';
 import { EditIcon, FacilityIcon, SettingIcon, User } from '@/shared/svg';
-import { hasPermission, toAbsoluteUrl } from '@/shared/utils/functions';
+import {
+  formatPhoneNumberInUsFormat,
+  generateColors,
+  hasPermission,
+  showToaster,
+  toAbsoluteUrl
+} from '@/shared/utils/functions';
 
+import { capitalizeFirstLetter } from '../../../shared/utils/functions';
 import { Wrapper } from '../style';
 
-ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend, Filler);
+ChartJS.register(
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+  Filler,
+  BarElement
+);
 
-const companyItems: MenuProps['items'] = [
-  {
-    label: <span>Petal Grove Academy</span>,
-    key: '0'
-  },
-  {
-    label: <span>Angel investor</span>,
-    key: '1'
-  }
-];
-
-const facilityItems: MenuProps['items'] = [
-  {
-    label: <span>ChillTech ArcticCore V156</span>,
-    key: 'ChillTech ArcticCore V156'
-  },
-  {
-    label: <span>ChillTech ArcticCore V10</span>,
-    key: 'ChillTech ArcticCore V10'
-  }
-];
-
-const roleItems: MenuProps['items'] = [
-  {
-    label: <span>Admin</span>,
-    key: 'Admin'
-  },
-  {
-    label: <span>Corporate Manager</span>,
-    key: 'Corporate Manager'
-  },
-  {
-    label: <span>Facility Manager</span>,
-    key: 'Facility Manager'
-  },
-  {
-    label: <span>Operator</span>,
-    key: 'Operator'
-  }
-];
+dayjs.extend(utc);
 
 const columns = [
   {
@@ -84,65 +78,69 @@ const columns = [
     dataIndex: 'user',
     key: 'user',
     width: 200,
-    render: () => (
+    render: (_: any, record: UserList) => (
       <div className="updateUser">
         <figure>
-          <img src={toAbsoluteUrl('/public/icons/header-logo.svg')} alt="user" />
+          <img
+            src={`${record?.profileImage ? `${IMAGE_URL}chiller-check/${IMAGE_MODULE_NAME.PROFILE_PIC}/${record?.profileImage}` : toAbsoluteUrl('/icons/placeHolder.jpg')}`}
+            alt="user"
+          />{' '}
         </figure>
-        <h4>Joey Tribiyani</h4>
+        <h4>{record?.firstName + ' ' + record?.lastName}</h4>
       </div>
     )
   },
   {
     title: 'Role',
     key: 'role',
-    dataIndex: 'role'
+    dataIndex: 'role',
+    render: (role: string) => Role?.find((val) => val?.value === role)?.label || '-'
   },
   {
     title: 'Email Address',
-    key: 'emailAddress',
-    dataIndex: 'emailAddress'
+    key: 'email',
+    dataIndex: 'email'
   },
   {
     title: 'Phone Number',
     key: 'phoneNumber',
-    dataIndex: 'phoneNumber'
+    dataIndex: 'phoneNumber',
+    render: formatPhoneNumberInUsFormat
   },
   {
     title: 'Company Name',
-    key: 'companyName',
-    dataIndex: 'companyName'
+    key: 'company',
+    dataIndex: 'company',
+    render: (data: { name: string }) => data?.name || '-'
   },
   {
     title: 'Facilities',
     key: 'facilities',
-    dataIndex: 'facilities'
+    dataIndex: 'facilities',
+    render: (data: { name: string }[]) => {
+      return data?.map((fac) => fac?.name)?.join(', ') || '-';
+    }
   },
   {
     title: 'Status',
-    dataIndex: 'status',
-    key: 'status',
+    dataIndex: 'isActive',
+    key: 'isActive',
     render: (status: any) => (
-      <Tag className="statusTag" color={statusColorMap[status] || 'default'}>
-        {status}
+      <Tag className="statusTag" color={status ? '#00A86B' : '#CF5439'}>
+        {status ? 'Active' : 'Inactive'}
       </Tag>
     )
   },
-  ...(hasPermission('users', 'edit') || hasPermission('users', 'view')
+  ...(hasPermission('users', 'view')
     ? [
         {
           title: '',
           key: '_id',
           dataIndex: '_id',
-          render: () => (
+          render: (id: string) => (
             <div className="actionIonWrap">
-              {hasPermission('users', 'edit') && (
-                <Link className="actionIcon" to={''}>
-                  <EditIcon />
-                </Link>
-              )}
               {hasPermission('users', 'view') && (
-                <Link className="actionIcon" to={''}>
+                <Link className="actionIcon" to={ROUTES.VIEW_USER_MANAGEMENT(id)}>
                   <EyeOutlined />
                 </Link>
               )}
@@ -153,100 +151,207 @@ const columns = [
     : [])
 ];
 
-const data: ReportRow[] = [
-  {
-    role: 'admin',
-    emailAddress: 'xyz@xyz.com',
-    phoneNumber: '+1 203 125 9988',
-    companyName: 'The Agile Info',
-    facilities: 'CryoSystems ArcticCore V10',
-    status: 'Active'
-  }
-];
-
-interface ReportRow {
-  role: string;
-  emailAddress: string;
-  phoneNumber: string;
-  companyName: string;
-  facilities: string;
-  status: string;
-}
-
-const statusColorMap: Record<string, string> = {
-  Active: '#00A86B',
-  Inactive: '#CF5439'
-};
-
-const chartData = {
-  labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-  datasets: [
-    {
-      label: 'East Coast',
-      data: [4.5, 10, 7.5, 5.75, 10.5, 6, 5.5],
-      fill: true,
-      backgroundColor: 'rgba(240, 74, 36, 0.1)',
-      borderColor: '#F04924',
-      pointBackgroundColor: '#F04924',
-      tension: 0.4
-    },
-    {
-      label: 'West Coast',
-      data: [6.5, 5.8, 10.7, 5.2, 7.5, 16, 4.8],
-      fill: true,
-      backgroundColor: 'rgba(30, 64, 175, 0.1)',
-      borderColor: '#1E40AF',
-      pointBackgroundColor: '#1E40AF',
-      tension: 0.4
-    }
-  ]
-};
-
-const options: any = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'top',
-      labels: {
-        usePointStyle: true,
-        pointStyle: 'circle'
-      }
-    },
-    tooltip: {
-      callbacks: {
-        label: (context: any) => `${context.dataset.label}: ${context.parsed.y}`
-      }
-    }
-  },
-  scales: {
-    y: {
-      beginAtZero: true,
-      ticks: {
-        stepSize: 5
-      }
-    }
-  }
-};
-
 const ViewReport: React.FC = () => {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const [args, setArgs] = useState<{ id: string; isFacility: boolean }>({
+    id: id || '',
+    isFacility: true
+  });
+  const { data: reportData, isLoading: isReportViewLoading, error } = reportHooks.ReportView(id!);
+  const { data: reportChartData, isLoading: isReportChartLoading } =
+    reportHooks.ReportChartList(args);
+  const { mutate: exportAction, isPending } = reportHooks.useExportReport();
+
+  const [isLoader, setIsLoader] = useState(false);
+  const [selectedChartDataType, setSelectedChartDataType] = useState(CHART_DROPDOWN[0]?.value);
+
+  useEffect(() => {
+    if (error) {
+      showToaster('error', error?.message || error?.message?.[0] || 'Something went wrong');
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (id) {
+      setArgs((prevArgs) => ({
+        ...prevArgs,
+        id
+      }));
+    }
+  }, [id]);
+
+  useEffect(() => {
+    setArgs((prevArgs) => ({
+      ...prevArgs,
+      isFacility: selectedChartDataType === CHART_DROPDOWN?.[0]?.value
+    }));
+  }, [selectedChartDataType]);
+
+  const saveFullPageAsPDF = async () => {
+    setIsLoader(true);
+    const element: any = document.getElementById('capture-area');
+
+    if (!element) {
+      setIsLoader(false);
+      return;
+    }
+
+    // Save old styles
+    const oldOverflow = element.style.overflow;
+    const oldHeight = element.style.height;
+
+    // Expand full content
+    element.style.overflow = 'visible';
+    element.style.height = 'auto';
+
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+
+      const imgData = canvas.toDataURL('image/png');
+      const { jsPDF } = await import('jspdf');
+
+      const pdf = new jsPDF('p', 'mm', 'a2');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`report_${Date.now()}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    } finally {
+      // Restore styles
+      element.style.overflow = oldOverflow;
+      element.style.height = oldHeight;
+      setIsLoader(false);
+    }
+  };
+
+  const menu = {
+    items: [
+      {
+        key: 'pdf',
+        label: 'Save as PDF',
+        onClick: () => saveFullPageAsPDF()
+      },
+      {
+        key: 'excel',
+        label: 'Save as Excel',
+        onClick: () => exportReport()
+      }
+    ]
+  };
+
+  const chartData = useMemo(() => {
+    const datasetsCount = reportChartData?.datasets?.length || 0;
+    const colors = generateColors(datasetsCount);
+
+    return {
+      labels: reportChartData?.labels || [],
+      datasets:
+        reportChartData?.datasets?.map(({ label, data }: any, index: number) => {
+          const color = colors[index];
+          return {
+            label,
+            data,
+            fill: true,
+            tension: 0.4,
+            backgroundColor: color.bg,
+            borderColor: color.border,
+            pointBackgroundColor: color.border
+          };
+        }) || []
+    };
+  }, [reportChartData]);
+
+  const options = useMemo(
+    () => ({
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            usePointStyle: true,
+            pointStyle: 'circle'
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: (context: any) => `${context.dataset.label}: ${context.parsed.y}`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: reportChartData?.parameter || '',
+            font: {
+              size: 14,
+              weight: 'bold'
+            },
+            padding: {
+              top: 10,
+              bottom: 10
+            }
+          },
+          ticks: {
+            stepSize: 5
+          }
+        }
+      }
+    }),
+    [reportChartData]
+  );
+
+  const exportReport = () => {
+    exportAction(args, {
+      onSuccess: async (res) => {
+        if (!res?.data?.name) return showToaster('error', 'No data found to export.');
+        const fileName = res?.data?.name;
+        if (!fileName) return;
+        const excelPath = `${IMAGE_URL}tmp-chiller-check/report/${fileName}`;
+        const a = document.createElement('a');
+        a.href = excelPath;
+        a.download = fileName; // Optional — helps set filename on some browsers
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        showToaster('success', res?.message || 'Export Successfully.');
+      },
+      onError: (err) => {
+        showToaster('error', err?.message || err?.message?.[0] || 'Something went wrong');
+      }
+    });
+  };
+
   return (
     <Wrapper>
+      {(isReportViewLoading || isLoader || isReportChartLoading || isPending) && <Loader />}
       <Meta title="Reports" />
       <HeaderToolbar
-        title="Build Reports"
+        title="View Report"
         backBtn={true}
         button={
           <div className="viewButtonWrap">
             {hasPermission('report', 'view') && (
-              <Button className="title-cancel-btn">
-                Export{' '}
-                <i>
-                  <DownOutlined />
-                </i>
-              </Button>
+              <Dropdown menu={menu} trigger={['click']}>
+                <Button type="primary" className="title-btn">
+                  Export <DownOutlined />
+                </Button>
+              </Dropdown>
             )}
             {hasPermission('report', 'edit') && (
-              <Button type="primary" className="title-btn" size="small" icon={<EditIcon />}>
+              <Button
+                onClick={() => navigate(ROUTES.EDIT_REPORT(id!))}
+                type="primary"
+                className="title-btn"
+                size="small"
+                icon={<EditIcon />}
+              >
                 Edit
               </Button>
             )}
@@ -254,53 +359,63 @@ const ViewReport: React.FC = () => {
         }
       />
 
-      <div className="shadowPaperWrap">
+      <div className="shadowPaperWrap" id="capture-area">
         <ShadowPaper>
           <p className="headerFooterViewContent">
-            This information is confidential. Please make sure you not to share it with anyone else.
+            <p dangerouslySetInnerHTML={{ __html: reportData?.header || '' }} />
           </p>
         </ShadowPaper>
 
         <ShadowPaper>
           <ul className="reportDetailsList">
             <Details
-              detailsTitle="Report name"
-              detailsDescription="Chiller Performance Overview"
+              detailsTitle="Report Name"
+              detailsDescription={reportData?.name || '-'}
               detailsIcon={<AuditOutlined />}
             />
             <Details
               detailsTitle="Start Date and End Date"
-              detailsDescription="Last 6 Months"
+              detailsDescription={
+                reportData?.dateType === DateRange['Custom Range']
+                  ? `${reportData?.dateType} (${dayjs.utc(reportData?.startDate).format('MM/DD/YYYY')} to ${dayjs.utc(reportData?.endDate).format('MM/DD/YYYY')})`
+                  : reportData?.dateType
+              }
               detailsIcon={<CalendarOutlined />}
             />
             <Details
               detailsTitle="Automated Notification"
-              detailsDescription="Web & Email"
+              detailsDescription={
+                reportData?.notification?.toLowerCase() === NotificationType.BOTH?.toLowerCase()
+                  ? 'Web & Email'
+                  : capitalizeFirstLetter(reportData?.notification) || '-'
+              }
               detailsIcon={<NotificationOutlined />}
             />
             <Details
               detailsTitle="Parameter"
-              detailsDescription="Con. Inlet Temp"
+              detailsDescription={reportData?.parameter || '-'}
               detailsIcon={<SettingIcon />}
             />
             <Details
               detailsTitle="Company"
-              detailsDescription="Agile tech info | John tech hub"
+              detailsDescription={reportData?.companyName || '-'}
               detailsIcon={<BankOutlined />}
             />
             <Details
               detailsTitle="Facilities"
-              detailsDescription="Bldg A, Bldg B, Bldg C, Bldg D"
+              detailsDescription={reportData?.facilityNames?.join(', ') || '-'}
               detailsIcon={<FacilityIcon />}
             />
             <Details
               detailsTitle="Report Owner"
-              detailsDescription="Doe John"
+              detailsDescription={
+                reportData?.createdByUser?.firstName + ' ' + reportData?.createdByUser?.lastName
+              }
               detailsIcon={<User />}
             />
             <Details
               detailsTitle="Description"
-              detailsDescription="Lorem ipsum lorem ipsum Lorem ipsum lorem ipsumLorem ipsum lorem ipsumLorem ipsum lorem ipsumLorem ipsum lorem ipsumLorem ipsum lorem ipsumLorem "
+              detailsDescription={reportData?.description || '-'}
               detailsIcon={<ExclamationCircleOutlined />}
               className="descriptionDetails"
             />
@@ -308,69 +423,73 @@ const ViewReport: React.FC = () => {
         </ShadowPaper>
 
         <ShadowPaper>
-          <div className="reportLineChart">
-            <Line data={chartData} options={options} height={80} />
+          <RenderSelectDropDown
+            colClassName="dropdownWithSearch graph-dropdown"
+            inputProps={{
+              value: selectedChartDataType,
+              allowClear: false,
+              placeholder: 'Select',
+              options: CHART_DROPDOWN,
+              onChange: (value) => setSelectedChartDataType(value)
+            }}
+          />
+          <div className="chartWrapper">
+            <div className="reportLineChart">
+              {reportData?.chartType === ChartType['Line Chart'] ? (
+                <Line
+                  data={chartData}
+                  options={{ ...options, responsive: true, maintainAspectRatio: false } as any}
+                />
+              ) : reportData?.chartType === ChartType['Bar Chart'] ? (
+                <Bar
+                  data={chartData}
+                  options={{ ...options, responsive: true, maintainAspectRatio: false } as any}
+                />
+              ) : (
+                <p>No chart available</p>
+              )}
+            </div>
           </div>
         </ShadowPaper>
 
         <ShadowPaper>
           <div className="reportContentHeader">
             <div className="dropdownWrap">
-              <h2 className="notifyUser themeColor">Notify Users [10]</h2>
-              <Dropdown menu={{ items: companyItems }} trigger={['click']}>
-                <a onClick={(e) => e.preventDefault()}>
-                  <Space>
-                    Select Company
-                    <DownOutlined />
-                  </Space>
-                </a>
-              </Dropdown>
-
-              <Dropdown menu={{ items: facilityItems }} trigger={['click']}>
-                <a onClick={(e) => e.preventDefault()}>
-                  <Space>
-                    Select Facility
-                    <DownOutlined />
-                  </Space>
-                </a>
-              </Dropdown>
-
-              <Dropdown menu={{ items: roleItems }} trigger={['click']}>
-                <a onClick={(e) => e.preventDefault()}>
-                  <Space>
-                    Select Role
-                    <DownOutlined />
-                  </Space>
-                </a>
-              </Dropdown>
+              <h2 className="notifyUser themeColor">
+                Notify Users [{reportData?.sharedUser?.length || 0}]
+              </h2>
             </div>
-            <Input
-              className="searchReport"
-              placeholder="Search for User"
-              prefix={<SearchOutlined />}
-            />
           </div>
-          <CommonTable columns={columns} dataSource={data} pagination={{ current: 6 }} />
+          <CommonTable
+            columns={columns}
+            dataSource={reportData?.sharedUser || []}
+            pagination={false}
+          />
         </ShadowPaper>
 
         <ShadowPaper>
           <p className="headerFooterViewContent">
-            This information is confidential. Please make sure you not to share it with anyone else.
+            <p dangerouslySetInnerHTML={{ __html: reportData?.footer || '' }} />
           </p>
         </ShadowPaper>
       </div>
 
       <div className="viewButtonWrap extraActionButton">
         {hasPermission('report', 'view') && (
-          <Button className="title-cancel-btn">
-            Export{' '}
-            <i>
-              <DownOutlined />
-            </i>
-          </Button>
+          <Dropdown menu={menu} trigger={['click']}>
+            <Button type="primary" className="title-btn">
+              Export <DownOutlined />
+            </Button>
+          </Dropdown>
         )}
         {hasPermission('report', 'edit') && (
-          <Button type="primary" className="title-btn" size="small" icon={<EditIcon />}>
+          <Button
+            onClick={() => navigate(ROUTES.EDIT_REPORT(id!))}
+            type="primary"
+            className="title-btn"
+            size="small"
+            icon={<EditIcon />}
+          >
             Edit
           </Button>
         )}

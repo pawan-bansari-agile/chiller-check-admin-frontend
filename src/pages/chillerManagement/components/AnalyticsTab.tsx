@@ -1,243 +1,276 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-import { FallOutlined } from '@ant-design/icons';
-import { Col, Row } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+
 import {
-  CategoryScale,
-  Chart as ChartJS,
-  Filler,
-  Legend,
-  LineElement,
-  LinearScale,
-  PointElement,
-  Tooltip
-} from 'chart.js';
-import annotationPlugin from 'chartjs-plugin-annotation';
-import { Line } from 'react-chartjs-2';
+  CompressorRunHours,
+  PerformanceSummary,
+  PurgeData,
+  RecentReadingAnalysis
+} from '@/services/chiller/types';
 
-import Details from '@/shared/components/common/Details';
+import CommonModal from '@/shared/components/common/Modal/components/CommonModal';
+import { TimezoneEnum } from '@/shared/constants';
 import { ROUTES } from '@/shared/constants/routes';
-import { toAbsoluteUrl } from '@/shared/utils/functions';
 
-ChartJS.register(
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Filler,
-  Legend,
-  annotationPlugin
-);
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 interface IProps {
-  maker: string;
-  year: string;
-  module: string;
-  cost: string;
-  facilityName: string;
-  serialNumber: string;
-  chillerName?: string;
+  recentReadings: RecentReadingAnalysis;
+  performanceSummary: PerformanceSummary;
+  purgeData: PurgeData;
+  compressorRunHours: CompressorRunHours;
+  facilityTimezone?: string;
 }
 
 const AnalyticsTab: React.FC<IProps> = ({
-  maker,
-  year,
-  module,
-  cost,
-  facilityName,
-  serialNumber,
-  chillerName
+  recentReadings,
+  performanceSummary,
+  purgeData,
+  compressorRunHours,
+  facilityTimezone = TimezoneEnum.EST
 }) => {
-  const data = {
-    labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-    datasets: [
-      {
-        data: [5000, 6000, 11000, 5000, 7000, 23000, 4500],
-        borderColor: '#0000cc',
-        backgroundColor: 'rgba(0, 0, 255, 0.1)',
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: '#0000cc',
-        pointBorderColor: '#0000cc',
-        pointRadius: 6,
-        pointHoverRadius: 8
-      }
-    ]
-  };
+  const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [problemData, setProblemData] = useState<{
+    problem: string;
+    solution: string;
+    field: string;
+  } | null>(null);
 
-  const options = {
-    responsive: true,
-    plugins: {
-      tooltip: {
-        callbacks: {
-          label: (context: any) => `$${context.formattedValue}`
-        },
-        backgroundColor: '#fff',
-        titleColor: '#000',
-        bodyColor: '#000',
-        borderColor: '#ccc',
-        borderWidth: 1,
-        titleFont: { weight: 'bold' }
-      },
-      legend: {
-        display: false
-      },
-      annotation: {
-        annotations: {
-          verticalLine: {
-            type: 'line',
-            scaleID: 'x',
-            value: 'Thursday',
-            borderColor: '#00cc99',
-            borderWidth: 3
-          }
-        }
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          callback: (value: number) => `${value}`
-        }
-      }
-    }
-  };
+  const formatRunHr = (value: number | null | undefined) =>
+    value != null || value != undefined ? `${value} %` : '-';
+
+  const formatDollar = (value: number | null | undefined) =>
+    value != null || value != undefined ? `$ ${value?.toLocaleString('en-US')}` : '-';
+
+  const selectedZone = useMemo(() => {
+    return TimezoneEnum[facilityTimezone as keyof typeof TimezoneEnum] || TimezoneEnum.EST;
+  }, [facilityTimezone]);
+
+  const readingDate = useMemo(() => {
+    if (!recentReadings?.readingDateUTC) return null;
+    return dayjs.utc(recentReadings.readingDateUTC).tz(selectedZone).format('MM/DD/YY');
+  }, [recentReadings?.readingDateUTC, selectedZone]);
+
+  const readingTime = useMemo(() => {
+    if (!recentReadings?.readingDateUTC) return null;
+    return dayjs.utc(recentReadings.readingDateUTC).tz(selectedZone).format('hh:mm A');
+  }, [recentReadings?.readingDateUTC, selectedZone]);
 
   return (
     <>
-      <div className="chillerAnalyticsDetailsWrap">
-        <h3>{chillerName || '-'}</h3>
-        <ul className="chillerAnalyticsDetails">
-          <Details
-            detailsIcon
-            detailsTitle={module && year ? `${module}(${year})` : '-'}
-            detailsDescription="Making Year and Module"
-          />
-          <Details
-            detailsIcon
-            detailsTitle={cost ? `$${cost} KW/hr` : '-'}
-            detailsDescription="Cost"
-          />
-          <Details detailsIcon detailsTitle={maker || '-'} detailsDescription="Maker" />
-          <Details detailsIcon detailsTitle={facilityName || '-'} detailsDescription="Facility" />
-          <Details
-            detailsIcon
-            detailsTitle={serialNumber || '-'}
-            detailsDescription="Serial Number"
-          />
-        </ul>
-      </div>
       <div className="analyticsGraph">
-        <ul className="timeLegends">
-          <li className="active">Week</li>
-          <li>Month</li>
-          <li>Year</li>
-        </ul>
-
         <div className="mainGraphWrap">
-          <Row gutter={[20, 20]}>
-            <Col xs={24} sm={24} md={24} lg={8}>
-              <div className="charityCard">
-                <h2 className="themeColor">Average Energy Loss</h2>
-                <div className="gaugeChart">
-                  <img src={toAbsoluteUrl('/icons/gaugeSVG.svg')} alt="guage" />
+          <div className="charityCard">
+            <div className="issueHeader">
+              <h2 className="themeColor">Recent Reading Analysis</h2>
+            </div>
+            <div className="scrollDiv">
+              <div className="consumptionChart">
+                <div className="labelWrap">
+                  <span>Date & Time</span>
+                  <span>Problem</span>
+                  <span>Eff Loss</span>
+                  <span>Projected Ann. Cost of Loss</span>
+                  <span>Eff. Loss at Average Load Profile</span>
+                  <span>Eff. Loss at Full Load</span>
                 </div>
-                <div className="gaugeDate">
-                  <h4>50KW</h4>
-                  <div className="avgPercentage">
-                    <FallOutlined style={{ color: '#F04924' }} />
-                    <span>4.8%</span>
-                    <span>{'<'}</span>
-                    <span>last Month</span>
+                {recentReadings && Object.keys(recentReadings)?.length ? (
+                  <div className="valueWrap">
+                    <div className="timeValueWrap">
+                      <span
+                        className="recentTimeWrap"
+                        onClick={() =>
+                          recentReadings?.logId &&
+                          navigate(ROUTES.VIEW_LOG_ENTRY(recentReadings?.logId))
+                        }
+                      >
+                        <span>{readingDate || '-'}</span>
+                        <span>{readingTime || '-'}</span>
+                      </span>
+                    </div>
+                    <div>
+                      {recentReadings?.problem?.length
+                        ? recentReadings?.problem?.map((problem) => {
+                            return (
+                              <span
+                                className="problemLink"
+                                onClick={() => {
+                                  setProblemData({
+                                    problem: problem?.problem,
+                                    solution: problem?.solution,
+                                    field: problem?.field
+                                  });
+                                  setIsModalOpen(true);
+                                }}
+                              >
+                                {problem?.field}
+                              </span>
+                            );
+                          })
+                        : '-'}
+                    </div>
+                    <div>
+                      {recentReadings?.problem?.length
+                        ? recentReadings?.problem?.map((problem) => {
+                            return (
+                              <span className="prob_eff_loss">
+                                {formatRunHr(problem?.prob_eff_loss)}
+                              </span>
+                            );
+                          })
+                        : '-'}
+                    </div>
+                    <div>
+                      {recentReadings?.problem?.length
+                        ? recentReadings?.problem?.map((problem) => {
+                            return (
+                              <span className="proj_cost_of_loss">
+                                {formatDollar(problem?.proj_cost_of_loss)}
+                              </span>
+                            );
+                          })
+                        : '-'}
+                    </div>
+                    {/* <div>{formatRunHr(recentReadings?.effLoss?.value)}</div>
+                  <div>{formatDollar(recentReadings?.projectedAnnualCostOfLoss)}</div> */}
+                    <div>{formatRunHr(recentReadings?.effLossAtAverageLoadProfile?.value)}</div>
+                    <div>{formatRunHr(recentReadings?.effLossAtFullLoad)}</div>
                   </div>
+                ) : (
+                  <div className="no-data">No Data Found</div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="charityCard">
+            <div className="issueHeader">
+              <h2 className="themeColor">Performance Summary</h2>
+            </div>
+            <div className="scrollDiv">
+              <div className="consumptionChart performanceSummaryChart">
+                <div className="labelWrap">
+                  <span></span>
+                  <span>Avg. Eff. Loss</span>
+                  <span>Total Target Cost at Average Load Profile </span>
+                  <span>Total Actual Cost at Average Load Profile </span>
+                  <span>Avg. Loss</span>
+                </div>
+                <div className="valueWrap">
+                  <div>This YTD</div>
+                  <div>{formatRunHr(performanceSummary?.['1']?.perfSummary?.avgLoss)}</div>
+                  <div>{formatDollar(performanceSummary?.['1']?.perfSummary?.targetCost)}</div>
+                  <div>{formatDollar(performanceSummary?.['1']?.perfSummary?.actualCost)}</div>
+                  <div>{formatDollar(performanceSummary?.['1']?.perfSummary?.lossCost)}</div>
+                </div>
+                <div className="valueWrap">
+                  <div>Last YTD</div>
+                  <div>{formatRunHr(performanceSummary?.['2']?.perfSummary?.avgLoss)}</div>
+                  <div>{formatDollar(performanceSummary?.['2']?.perfSummary?.targetCost)}</div>
+                  <div>{formatDollar(performanceSummary?.['2']?.perfSummary?.actualCost)}</div>
+                  <div>{formatDollar(performanceSummary?.['2']?.perfSummary?.lossCost)}</div>
+                </div>
+                <div className="valueWrap">
+                  <div>Last 12 Months</div>
+                  <div>{formatRunHr(performanceSummary?.['3']?.perfSummary?.avgLoss)}</div>
+                  <div>{formatDollar(performanceSummary?.['3']?.perfSummary?.targetCost)}</div>
+                  <div>{formatDollar(performanceSummary?.['3']?.perfSummary?.actualCost)}</div>
+                  <div>{formatDollar(performanceSummary?.['3']?.perfSummary?.lossCost)}</div>
                 </div>
               </div>
-            </Col>
-            <Col xs={24} sm={24} md={24} lg={8}>
-              <div className="charityCard">
-                <h2 className="themeColor">Efficient Rating</h2>
-                <div className="gaugeChart">
-                  <img src={toAbsoluteUrl('/icons/effChart.svg')} alt="guage" />
-                </div>
-                <div className="gaugeDate">
-                  <h4>0.5KW/Ton</h4>
-                  <div className="avgPercentage">
-                    <span>700 Tons</span>
-                  </div>
-                </div>
+            </div>
+          </div>
+
+          <div className="charityCard compressorPurgeCard">
+            <div className={`compresssorHeader ${!purgeData?.havePurge ? 'w-100-imp' : ''}`}>
+              <div className="issueHeader">
+                <h2 className="themeColor">Compressor Run Hours</h2>
               </div>
-            </Col>
-            <Col xs={24} sm={24} md={24} lg={8}>
-              <div className="charityCard">
-                <h2 className="themeColor">Cost At Load</h2>
-                <div className="gaugeChart">
-                  <img src={toAbsoluteUrl('/icons/costLoad.svg')} alt="guage" />
-                </div>
-                <div className="gaugeDate">
-                  <h4>52 Wats/Year</h4>
-                  <div className="avgPercentage">
-                    <FallOutlined style={{ color: '#F04924' }} />
-                    <span>4.8%</span>
-                    <span>{'<'}</span>
-                    <span>last Week</span>
-                  </div>
-                </div>
-              </div>
-            </Col>
-            <Col xs={24} sm={24} md={24}>
-              <div className="charityCard">
-                <h2 className="themeColor">Average Energy Consumption</h2>
+              <div className="scrollDiv">
                 <div className="consumptionChart">
-                  <Line data={data} options={options as any} height={70} />
+                  <div className="labelWrap">
+                    <span title="Run Hr. YTD">Run Hr. YTD</span>
+                    <span title="Run Hr. Last YTD">Run Hr. Last YTD</span>
+                    <span title="Run Hr. Last 12 Months">Run Hr. Last 12 Months</span>
+                    <span title="Est. Annual Run Hr.">Est. Annual Run Hr.</span>
+                  </div>
+                  <div className="valueWrap">
+                    <div>{compressorRunHours?.runHrYTD ?? '-'}</div>
+                    <div>{compressorRunHours?.runHrLastYTD ?? '-'}</div>
+                    <div>{compressorRunHours?.runHrLast12Months ?? '-'}</div>
+                    <div>{compressorRunHours?.estAnnualRunHr ?? '-'}</div>
+                  </div>
                 </div>
               </div>
-            </Col>
-            <Col span={24}>
-              <div className="charityCard">
+            </div>
+
+            {purgeData?.havePurge && (
+              <div className="purgeHeader">
                 <div className="issueHeader">
-                  <h2 className="themeColor">Issue Reported - Condenser</h2>
-                  <Link to={ROUTES.REPORT}>View All</Link>
+                  <h2 className="themeColor">Purge Total Pumpout Time</h2>
                 </div>
                 <div className="scrollDiv">
                   <div className="consumptionChart">
                     <div className="labelWrap">
-                      <span>Date & Time</span>
-                      <span>Inlet Temp</span>
-                      <span>Outlet Temp</span>
-                      <span>Refrig Temp</span>
-                      <span>Excess Approach</span>
-                      <span>Pressure</span>
-                      <span>Non Cond</span>
-                      <span>Pressure Drop</span>
+                      <span title="Most Recent 7-Day Avg.">Most Recent 7-Day Avg.</span>
+                      <span title="Most Recent 30-Day Avg.">Most Recent 30-Day Avg.</span>
                     </div>
                     <div className="valueWrap">
-                      <div className="timeValueWrap">
-                        <span>8-4-2024 5:30 PM</span>{' '}
-                        <span>
-                          <span className="loss">Loss: 12%</span> <span>Load: 10%</span>
-                        </span>
-                      </div>
-                      <div>86.0</div>
-                      <div>96.0</div>
-                      <div>95.4</div>
-                      <div>0.0</div>
-                      <div>183.0</div>
-                      <div className="legends">
-                        <span>7.8</span>
-                      </div>
-                      <div>N/A</div>
+                      <div>{purgeData?.display7DayAvg || '-'}</div>
+                      <div>{purgeData?.display30DayAvg || '-'}</div>
                     </div>
                   </div>
                 </div>
               </div>
-            </Col>
-          </Row>
+            )}
+          </div>
         </div>
       </div>
+
+      {isModalOpen && (
+        <CommonModal
+          open={isModalOpen}
+          closeIcon={true}
+          closable={true}
+          centered={true}
+          width={800}
+          className="problemSolutionModal"
+          title={
+            <div className="modalTitleWrapper">
+              <ExclamationCircleOutlined style={{ color: '#FEBE00', fontSize: '22px' }} />
+              <h2>{problemData?.field || '-'}</h2>
+            </div>
+          }
+          onCancel={() => {
+            setIsModalOpen(false);
+            setProblemData(null);
+          }}
+        >
+          <div className="problemSolutionModalContent">
+            <h3>Problem:</h3>
+            <p>Here are the things you can check</p>
+            <p
+              dangerouslySetInnerHTML={{
+                __html: problemData?.problem || ''
+              }}
+            />
+            <h3>Solution:</h3>
+            <p
+              dangerouslySetInnerHTML={{
+                __html: problemData?.solution || ''
+              }}
+            />
+          </div>
+        </CommonModal>
+      )}
     </>
   );
 };

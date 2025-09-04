@@ -364,6 +364,8 @@ const EditAccount: React.FC = () => {
                         id={userData?._id}
                         response={data?.alerts}
                         isDisabled={true}
+                        alertFacilities={data?.alertFacilities || []}
+                        alertOperators={data?.alertOperators || []}
                         role={data?.role}
                       />
                     </Tabs.TabPane>

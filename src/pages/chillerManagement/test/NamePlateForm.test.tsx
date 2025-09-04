@@ -19,9 +19,9 @@ describe('NamePlateForm', () => {
     expect(screen.getByText('Serial No.')).toBeInTheDocument();
     expect(screen.getAllByText('Year Manufactured')[0]).toBeInTheDocument();
     expect(screen.getAllByText('Refrigerant Type')[0]).toBeInTheDocument();
-    expect(screen.getByText('Tons/KWR')).toBeInTheDocument();
+    expect(screen.getByText('Tons/kWR')).toBeInTheDocument();
     expect(screen.getByText('Efficiency Rating')).toBeInTheDocument();
-    expect(screen.getByText('Energy Cost (kw. hr.)')).toBeInTheDocument();
+    expect(screen.getByText('Energy Cost $ (kW. hr.)')).toBeInTheDocument();
   });
 
   it('validates required fields on submit', async () => {
@@ -41,7 +41,7 @@ describe('NamePlateForm', () => {
 
   it('shows no validation error for valid energy cost input', async () => {
     renderWithForm(MEASUREMENT_UNITS[0].value);
-    const energyCostInput = screen.getByPlaceholderText('Energy Cost');
+    const energyCostInput = screen.getByPlaceholderText('Energy Cost $');
 
     fireEvent.change(energyCostInput, { target: { value: '0.12' } });
     fireEvent.blur(energyCostInput);

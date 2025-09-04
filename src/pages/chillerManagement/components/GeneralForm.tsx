@@ -37,6 +37,35 @@ const GeneralForm: React.FC<IProps> = ({
     <div className="chillerAddEfitForm">
       <Row gutter={[20, 25]}>
         <Col xs={24} sm={24} md={12} lg={8}>
+          <RenderTextInput
+            label="Chiller #"
+            required
+            formItemProps={{
+              name: 'ChillerNumber',
+              rules: [
+                {
+                  validator: (_: any, value: string) => {
+                    if (!value || value.trim() === '') {
+                      return Promise.reject(new Error(`Please enter chiller number.`));
+                    }
+                    if (!/^[1-9]\d*$/.test(value)) {
+                      return Promise.reject(new Error(`Please enter valid chiller number.`));
+                    }
+                    return Promise.resolve();
+                  }
+                }
+              ]
+            }}
+            inputProps={{
+              type: 'text',
+              maxLength: 10,
+              inputMode: 'numeric',
+              onKeyDown: allowHoursPerWeek,
+              placeholder: 'Chiller #'
+            }}
+          />
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={8}>
           <RenderSelect
             label="Company Name"
             colClassName="custom-select-col"

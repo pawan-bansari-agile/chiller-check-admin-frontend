@@ -15,7 +15,8 @@ const apiEndPoints = {
   addFacility: 'facility/createFacility',
   editFacility: 'facility',
   findAllFacility: 'facility/findAll',
-  findAllFacilityCompanyId: 'facility/findAll'
+  findAllFacilityCompanyId: 'facility/findAll',
+  activeFacilities: `facility/findAll/activeFacilities`
 };
 
 export const facilityQueryKeys = {
@@ -26,7 +27,8 @@ export const facilityQueryKeys = {
   facilityView: (id: string) => [...facilityQueryKeys.all, 'facilityView', id],
   activeInactive: ['activeInactive'],
   addFacility: ['addFacility'],
-  editFacility: ['editFacility']
+  editFacility: ['editFacility'],
+  activeFacilities: (id?: string) => ['facility', 'activeFacilities', id]
 };
 
 export const facilityApi = {
@@ -41,6 +43,14 @@ export const facilityApi = {
   async getFacilityAllList(): Promise<Types.IGetAllFacilityList[]> {
     return apiInstance
       .post(apiEndPoints.findAllFacility)
+      .then((response) => response?.data)
+      .catch((error) => {
+        throw error?.response?.data;
+      });
+  },
+  async getFacilityAllActiveList(companyId?: string): Promise<Types.IFacilityActiveList[]> {
+    return apiInstance
+      .post(apiEndPoints.activeFacilities, { companyId })
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
@@ -110,6 +120,13 @@ export const facilityHooks = {
       facilityQueryKeys.findAllCompany,
       () => facilityApi.getFacilityAllList(),
       defaultQueryOptions
+    );
+  },
+  AllFacilityActiveList: (companyId?: string) => {
+    return useApiQuery(
+      facilityQueryKeys.activeFacilities(companyId),
+      () => facilityApi.getFacilityAllActiveList(companyId),
+      { ...defaultQueryOptions, enabled: Boolean(companyId), retry: false }
     );
   },
   FacilityList: (args: ICommonPagination) => {

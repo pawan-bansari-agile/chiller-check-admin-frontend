@@ -1,3 +1,5 @@
+import { LatestLog } from '../chiller/types';
+
 export interface IGetFacilityListRes {
   facilityList: IFacilityListData[];
   totalRecords: number;
@@ -68,6 +70,7 @@ export interface ChillerData {
   UseEvapRefrigTemp: boolean;
   createdAt: string;
   updatedAt: string;
+  latestLog?: LatestLog;
 }
 export interface IAddChillerReq {
   _id?: string;
@@ -108,4 +111,27 @@ export interface IGetAllFacilityList {
   _id: string;
   companyId: string;
   name: string;
+}
+
+export interface IFacilityActiveList {
+  _id: string;
+  companyId: string;
+  facilityCode: number;
+  name: string;
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  country: string;
+  zipcode: string;
+  timezone: string;
+  isActive: boolean;
+  isDeleted: boolean;
+  totalChiller: number;
+  totalOperators: number;
+  altitude: number;
+  altitudeUnit: string;
+  chillers: string[];
+  createdAt: string;
+  updatedAt: string;
 }

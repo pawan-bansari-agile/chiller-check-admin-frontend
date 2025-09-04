@@ -6,6 +6,10 @@ export const Spacing = createGlobalStyle`
     width: 100%;
 }
 
+.w-100-imp {
+    width: 100% !important;
+}
+
 .max-w-100 {
     max-width: 100%;
 }

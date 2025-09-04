@@ -9,7 +9,11 @@ import { Button, Tabs } from 'antd';
 import { chillerHooks, chillerQueryKeys } from '@/services/chiller';
 import { IChillerViewRes } from '@/services/chiller/types';
 import { companyQueryKeys } from '@/services/company';
+import { dashboardQueryKey } from '@/services/dashboard';
 import { facilityQueryKeys } from '@/services/facility';
+import { logQueryKeys } from '@/services/log';
+import { maintenanceQueryKey } from '@/services/maintenance';
+import { reportQueryKey } from '@/services/report';
 import { userQueryKeys } from '@/services/user';
 
 import HeaderToolbar from '@/shared/components/common/HeaderToolbar';
@@ -55,6 +59,11 @@ const ViewChiller = () => {
         queryClient.invalidateQueries({ queryKey: companyQueryKeys.all });
         queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
         queryClient.invalidateQueries({ queryKey: chillerQueryKeys.all });
+        queryClient.invalidateQueries({ queryKey: logQueryKeys.all });
+        queryClient.invalidateQueries({ queryKey: maintenanceQueryKey.all });
+        queryClient.invalidateQueries({ queryKey: reportQueryKey.all });
+        queryClient.invalidateQueries({ queryKey: dashboardQueryKey.all });
+
         setIsModalOpen(false);
       },
       onError: (err) => {
@@ -88,38 +97,42 @@ const ViewChiller = () => {
               </Button>
             )}
             {hasPermission('log', 'view') && (
-              <Button className="title-btn" type="primary" icon={<FileIcon />}>
+              <Button
+                className="title-btn"
+                type="primary"
+                icon={<FileIcon />}
+                onClick={() => navigate(ROUTES.LOG_ENTRY)}
+              >
                 Log Entries
               </Button>
             )}
           </div>
         }
       />
-      <ShadowPaper>
-        <Tabs defaultActiveKey="1" destroyInactiveTabPane={false} className="userTab">
-          <Tabs.TabPane tab="Analytics" key="1" forceRender>
-            {chillerData && (
-              <AnalyticsTab
-                chillerName={chillerData?.ChillerNo || ''}
-                maker={chillerData?.make || ''}
-                year={chillerData?.manufacturedYear?.toString() || ''}
-                cost={chillerData?.energyCost?.toString() || ''}
-                module={chillerData?.refrigType || ''}
-                facilityName={chillerData?.facilityName || ''}
-                serialNumber={chillerData?.serialNumber || ''}
-              />
-            )}
-          </Tabs.TabPane>
+      <div className="shadowWrap">
+        <ShadowPaper>
+          <Tabs defaultActiveKey="1" destroyInactiveTabPane={false} className="userTab">
+            <Tabs.TabPane tab="Analytics" key="1" forceRender>
+              {chillerData && (
+                <AnalyticsTab
+                  recentReadings={chillerData?.recentReadingAnalysis}
+                  performanceSummary={chillerData?.performanceSummary}
+                  purgeData={chillerData?.purgeData}
+                  compressorRunHours={chillerData?.compressorRunHours}
+                  facilityTimezone={chillerData?.facilityTimezone}
+                />
+              )}
+            </Tabs.TabPane>
 
-          <Tabs.TabPane tab="Details" key="2" forceRender>
-            {chillerData && <DetailsTab chillerData={chillerData as IChillerViewRes} />}
-          </Tabs.TabPane>
+            <Tabs.TabPane tab="Details" key="2" forceRender>
+              {chillerData && <DetailsTab chillerData={chillerData as IChillerViewRes} />}
+            </Tabs.TabPane>
 
-          <Tabs.TabPane tab="Timeline" key="3" forceRender>
-            {id && <TimelineTab id={id} />}
-          </Tabs.TabPane>
-        </Tabs>
-
+            <Tabs.TabPane tab="Timeline" key="3" forceRender>
+              {id && <TimelineTab id={id} />}
+            </Tabs.TabPane>
+          </Tabs>
+        </ShadowPaper>
         <div className="viewButtonWrap extraActionButton">
           {hasPermission('chiller', 'toggleStatus') &&
             chillerData?.status !== chillerStatus.Pending && (
@@ -138,12 +151,17 @@ const ViewChiller = () => {
             </Button>
           )}
           {hasPermission('log', 'view') && (
-            <Button className="title-btn" type="primary" icon={<FileIcon />}>
+            <Button
+              className="title-btn"
+              type="primary"
+              icon={<FileIcon />}
+              onClick={() => navigate(ROUTES.LOG_ENTRY)}
+            >
               Log Entries
             </Button>
           )}
         </div>
-      </ShadowPaper>
+      </div>
 
       {isModalOpen && (
         <CommonModal

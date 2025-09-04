@@ -60,6 +60,8 @@ const AddLog = lazy(() => import('@/pages/Log/view/AddLog'));
 const EditLog = lazy(() => import('@/pages/Log/view/EditLog'));
 const ViewLog = lazy(() => import('@/pages/Log/view/ViewLog'));
 
+const SummaryRecord = lazy(() => import('@/pages/Summary'));
+
 const Routing = () => {
   const { userData } = authStore((state) => state);
   const { permissions = {} } = userData;
@@ -271,7 +273,7 @@ const Routing = () => {
           }
         />
         <Route
-          path={ROUTES.EDIT_REPORT}
+          path={ROUTES.EDIT_REPORT(':id')}
           element={
             <PermissionGuard permissionKey="report" action="edit" permissions={permissions}>
               <EditReport />
@@ -279,7 +281,7 @@ const Routing = () => {
           }
         />
         <Route
-          path={ROUTES.VIEW_REPORT}
+          path={ROUTES.VIEW_REPORT(':id')}
           element={
             <PermissionGuard permissionKey="report" action="view" permissions={permissions}>
               <ViewReport />
@@ -305,7 +307,7 @@ const Routing = () => {
           }
         />
         <Route
-          path={ROUTES.EDIT_MAINTENANCE}
+          path={ROUTES.EDIT_MAINTENANCE(':id')}
           element={
             <PermissionGuard permissionKey="maintenance" action="edit" permissions={permissions}>
               <EditMaintenance />
@@ -313,7 +315,7 @@ const Routing = () => {
           }
         />
         <Route
-          path={ROUTES.VIEW_MAINTENANCE}
+          path={ROUTES.VIEW_MAINTENANCE(':id')}
           element={
             <PermissionGuard permissionKey="maintenance" action="view" permissions={permissions}>
               <ViewMaintenance />
@@ -339,7 +341,7 @@ const Routing = () => {
           }
         />
         <Route
-          path={ROUTES.EDIT_LOG_ENTRY}
+          path={ROUTES.EDIT_LOG_ENTRY(':id')}
           element={
             <PermissionGuard permissionKey="log" action="edit" permissions={permissions}>
               <EditLog />
@@ -347,10 +349,20 @@ const Routing = () => {
           }
         />
         <Route
-          path={ROUTES.VIEW_LOG_ENTRY}
+          path={ROUTES.VIEW_LOG_ENTRY(':id')}
           element={
             <PermissionGuard permissionKey="log" action="view" permissions={permissions}>
               <ViewLog />
+            </PermissionGuard>
+          }
+        />
+
+        {/* Summary */}
+        <Route
+          path={ROUTES.SUMMARY}
+          element={
+            <PermissionGuard permissionKey="log" action="add" permissions={permissions}>
+              <SummaryRecord />
             </PermissionGuard>
           }
         />

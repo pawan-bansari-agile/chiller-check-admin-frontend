@@ -13,12 +13,17 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Button, Checkbox, Dropdown, Form, Input, Tag } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { FilterValue, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
+import dayjs from 'dayjs';
 
 import { chillerHooks, chillerQueryKeys } from '@/services/chiller';
 import { IChillerList } from '@/services/chiller/types';
 import { ICommonPagination } from '@/services/common/types';
 import { companyHooks, companyQueryKeys } from '@/services/company';
+import { dashboardQueryKey } from '@/services/dashboard';
 import { facilityHooks, facilityQueryKeys } from '@/services/facility';
+import { logQueryKeys } from '@/services/log';
+import { maintenanceQueryKey } from '@/services/maintenance';
+import { reportQueryKey } from '@/services/report';
 import { userQueryKeys } from '@/services/user';
 
 import { authStore } from '@/store/auth';
@@ -30,7 +35,7 @@ import CommonModal from '@/shared/components/common/Modal/components/CommonModal
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
 import { CommonTable } from '@/shared/components/common/Table';
 import EmptyState from '@/shared/components/common/Table/EmptyState';
-import { MEASUREMENT_UNITS, USER_ROLES } from '@/shared/constants';
+import { ALERT_TYPE, MEASUREMENT_UNITS, USER_ROLES } from '@/shared/constants';
 import { ROUTES } from '@/shared/constants/routes';
 import { EditIcon } from '@/shared/svg';
 import {
@@ -100,16 +105,18 @@ const ChillerManagement: React.FC = () => {
       'companyName',
       'facilityName',
       'chillerName',
+      'ChillerNumber',
       'serialNumber',
       'tons',
       'energyCost',
-      'efficiencyLoss',
-      'condLoss',
-      'evapLoss',
+      'emissionFactor',
+      'effLoss',
+      'condAppLoss',
+      'evapAppLoss',
       'nonCondLoss',
       'otherLoss',
       'status',
-      'lastEntry'
+      'updatedAt'
     ],
     []
   );
@@ -258,6 +265,11 @@ const ChillerManagement: React.FC = () => {
     queryClient.invalidateQueries({ queryKey: companyQueryKeys.all });
     queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
     queryClient.invalidateQueries({ queryKey: chillerQueryKeys.all });
+    queryClient.invalidateQueries({ queryKey: logQueryKeys.all });
+    queryClient.invalidateQueries({ queryKey: maintenanceQueryKey.all });
+    queryClient.invalidateQueries({ queryKey: reportQueryKey.all });
+    queryClient.invalidateQueries({ queryKey: dashboardQueryKey.all });
+
     setIsModalOpen(false);
     setChillerIds([]);
   };
@@ -293,7 +305,13 @@ const ChillerManagement: React.FC = () => {
         width: 220
       },
       {
-        title: 'Chiller Name',
+        title: 'Chiller #',
+        key: 'ChillerNumber',
+        dataIndex: 'ChillerNumber',
+        width: 120
+      },
+      {
+        title: 'Make / Model',
         key: 'chillerName',
         dataIndex: 'chillerName',
         sorter: true,
@@ -314,7 +332,7 @@ const ChillerManagement: React.FC = () => {
         // width: 220
       },
       {
-        title: 'Tons/KWR',
+        title: 'Tons or kWR',
         key: 'tons',
         dataIndex: 'tons',
         sorter: true,
@@ -325,7 +343,7 @@ const ChillerManagement: React.FC = () => {
             : (record?.kwr ?? '-')
       },
       {
-        title: 'Energy Cost',
+        title: 'Energy Cost $',
         key: 'energyCost',
         dataIndex: 'energyCost',
         sorter: true,
@@ -333,18 +351,22 @@ const ChillerManagement: React.FC = () => {
         sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'energyCost')
       },
       {
+        title: 'CO2e Emission Factor',
+        key: 'emissionFactor',
+        dataIndex: 'emissionFactor',
+        sorter: true,
+        render: (value) => value ?? '-',
+        // width: 175,
+        sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'emissionFactor')
+      },
+      {
         title: 'Efficiency Loss %',
-        key: 'efficiencyLoss',
+        key: 'effLoss',
+        dataIndex: 'effLoss',
         // width: 160,
-        // sorter: true
-        render: () => {
-          let className = '';
-          const record = { efficiencyLoss: 40 };
-          if (record.efficiencyLoss >= 50) className = 'bgRed';
-          else if (record.efficiencyLoss >= 44) className = 'bgYellow';
-
-          return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
-        }
+        sorter: true,
+        sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'effLoss'),
+        render: (_: any, record: IChillerList) => renderCell(record?.latestLog?.effLoss)
       },
       // {
       //   title: '12 Mon. Loss $',
@@ -356,33 +378,22 @@ const ChillerManagement: React.FC = () => {
       // },
       {
         title: 'Cond. App. Loss %',
-        key: 'condLoss',
-        dataIndex: 'condLoss',
+        key: 'condAppLoss',
+        dataIndex: 'condAppLoss',
         // width: 175,
-        // sorter: true
-        render: () => {
-          let className = '';
-          const record = { efficiencyLoss: 40 };
-          if (record.efficiencyLoss >= 50) className = 'bgRed';
-          else if (record.efficiencyLoss >= 44) className = 'bgYellow';
-
-          return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
-        }
+        sorter: true,
+        sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'condAppLoss'),
+        render: (_: any, record: IChillerList) => renderCell(record?.latestLog?.condAppLoss)
       },
       {
         title: 'Evap. App. Loss %',
-        key: 'evapLoss',
-        dataIndex: 'evapLoss',
+        key: 'evapAppLoss',
+        dataIndex: 'evapAppLoss',
         // width: 175,
         // sorter: true
-        render: () => {
-          const record = { efficiencyLoss: 40 };
-          let className = '';
-          if (record.efficiencyLoss >= 50) className = 'bgRed';
-          else if (record.efficiencyLoss >= 44) className = 'bgYellow';
-
-          return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
-        }
+        sorter: true,
+        sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'evapAppLoss'),
+        render: (_: any, record: IChillerList) => renderCell(record?.latestLog?.evapAppLoss)
       },
       {
         title: 'Non-Cond. App. Loss %',
@@ -390,14 +401,9 @@ const ChillerManagement: React.FC = () => {
         dataIndex: 'nonCondLoss',
         // width: 180,
         // sorter: true
-        render: () => {
-          const record = { efficiencyLoss: 40 };
-          let className = '';
-          if (record.efficiencyLoss >= 50) className = 'bgRed';
-          else if (record.efficiencyLoss >= 44) className = 'bgYellow';
-
-          return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
-        }
+        sorter: true,
+        sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'nonCondLoss'),
+        render: (_: any, record: IChillerList) => renderCell(record?.latestLog?.nonCondLoss)
       },
       {
         title: 'Other Losses %',
@@ -405,14 +411,9 @@ const ChillerManagement: React.FC = () => {
         dataIndex: 'otherLoss',
         // width: 175,
         // sorter: true
-        render: () => {
-          const record = { efficiencyLoss: 40 };
-          let className = '';
-          if (record.efficiencyLoss >= 50) className = 'bgRed';
-          else if (record.efficiencyLoss >= 44) className = 'bgYellow';
-
-          return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
-        }
+        sorter: true,
+        sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'otherLoss'),
+        render: (_: any, record: IChillerList) => renderCell(record?.latestLog?.otherLoss)
       },
       {
         title: 'Status',
@@ -430,21 +431,16 @@ const ChillerManagement: React.FC = () => {
         sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'status')
       },
       {
-        title: 'Last Entry',
-        key: 'lastEntry',
+        title: 'Last Log Entry',
+        key: 'updatedAt',
+        dataIndex: 'updatedAt',
         // width: 155,
-        // sorter: true
-        render: () => {
-          let className = '';
-          const record = { efficiencyLoss: 40, lastEntry: '12/11/24 17:30' };
-          if (record.efficiencyLoss >= 50) className = 'bgRed';
-          else if (record.efficiencyLoss >= 44) className = 'bgYellow';
-          return (
-            <div className={`last-entry-cell ${className}`}>
-              <div>{record.lastEntry}</div>
-            </div>
-          );
-        }
+        sorter: true,
+        sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'updatedAt'),
+        render: (_: any, record: IChillerList) =>
+          record?.latestLog?.updatedAt
+            ? dayjs(record?.latestLog?.updatedAt).format('MM/DD/YY HH:mm')
+            : '-'
       }
     ];
 
@@ -519,6 +515,22 @@ const ChillerManagement: React.FC = () => {
       })
     ];
   }, [columns, visibleColumns]);
+
+  const getAlertClassName = (type?: string): string => {
+    switch (type) {
+      case ALERT_TYPE.ALERT:
+        return 'bgRed';
+      case ALERT_TYPE.WARNING:
+        return 'bgYellow';
+      default:
+        return '';
+    }
+  };
+
+  const renderCell = useCallback((data?: { type?: string; value?: number }) => {
+    const className = getAlertClassName(data?.type);
+    return <div className={`loss-cell ${className}`}>{data?.value ?? '-'}</div>;
+  }, []);
 
   return (
     <Wrapper>
@@ -611,9 +623,10 @@ const ChillerManagement: React.FC = () => {
               ? {
                   selectedRowKeys: chillerIds,
                   columnWidth: 60,
-                  onChange: (selectedRowKeys: React.Key[]) => {
-                    setChillerIds(selectedRowKeys as string[]);
-                  }
+                  onChange: (selectedRowKeys: any) => {
+                    setChillerIds(selectedRowKeys);
+                  },
+                  preserveSelectedRowKeys: true // <-- Important!
                 }
               : undefined
           }

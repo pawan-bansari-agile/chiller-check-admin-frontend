@@ -3,6 +3,7 @@ import React from 'react';
 import { Col, Row } from 'antd';
 
 import { RenderRadioGroupInput, RenderTextInput } from '@/shared/components/common/FormField';
+import { PURGE_READING_UNIT } from '@/shared/constants';
 import { allowHoursPerWeek } from '@/shared/utils/functions';
 
 const ReadoutsForm: React.FC = () => {
@@ -49,10 +50,7 @@ const ReadoutsForm: React.FC = () => {
               ]
             }}
             inputProps={{
-              options: [
-                { label: 'Mins. Only', value: 'Mins. Only' },
-                { label: 'Hrs. & Min.', value: 'Hrs. & Min.' }
-              ]
+              options: PURGE_READING_UNIT
             }}
           />
         </Col>
@@ -77,7 +75,7 @@ const ReadoutsForm: React.FC = () => {
               type: 'text',
               inputMode: 'numeric',
               onKeyDown: allowHoursPerWeek,
-              maxLength: 10
+              maxLength: 7
             }}
           />
         </Col>

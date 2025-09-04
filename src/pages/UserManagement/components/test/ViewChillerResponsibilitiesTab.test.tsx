@@ -91,7 +91,7 @@ describe('ViewChillerResponsibilitiesTab', () => {
     expect(screen.getByTestId('col-energyCost')).toHaveTextContent('₹5000');
   });
 
-  it('renders Last Entry column with conditional color', () => {
+  it('renders Last Log Entry column with conditional color', () => {
     render(
       <ThemeProvider>
         <ViewChillerResponsibilitiesTab chillerList={sampleData} />

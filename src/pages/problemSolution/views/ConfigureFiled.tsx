@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -11,7 +11,7 @@ import { problemSolutionHooks, problemSolutionQueryKeys } from '@/services/probl
 
 import CardWithTitle from '@/shared/components/common/CardWithTitle';
 import Details from '@/shared/components/common/Details';
-import { RenderTextAreaInput } from '@/shared/components/common/FormField';
+import { CKEditorFormItem } from '@/shared/components/common/FormField';
 import HeaderToolbar from '@/shared/components/common/HeaderToolbar';
 import { Loader } from '@/shared/components/common/Loader';
 import Meta from '@/shared/components/common/Meta';
@@ -33,8 +33,17 @@ const ConfigureFiled: React.FC = () => {
   const { mutate: editProblemSolutionMutate, isPending } =
     problemSolutionHooks.useEditProblemSolution();
 
+  const [editorValues, setEditorValues] = useState({
+    problem: '',
+    solution: ''
+  });
+
   useEffect(() => {
     if (data) {
+      setEditorValues({
+        problem: data?.problem || '',
+        solution: data?.solution || ''
+      });
       form.setFieldsValue({
         WriteProblem: data?.problem ?? '',
         WriteSolution: data?.solution ?? ''
@@ -42,15 +51,28 @@ const ConfigureFiled: React.FC = () => {
     }
   }, [data, form]);
 
+  const handleEditorChange = (_: any, editor: any, field: string) => {
+    const content = editor.getData();
+
+    if (content.trim() === '') {
+      form.setFieldsValue({ [field]: null });
+    } else {
+      setEditorValues((prev) => ({
+        ...prev,
+        [field]: content
+      }));
+      form.setFieldsValue({ [field]: content });
+    }
+  };
+
   const handleSubmit = (value: any) => {
-    console.log(value);
     if (!id) {
       return;
     }
     const payload = {
       id,
-      WriteProblem: value?.WriteProblem?.trim(),
-      WriteSolution: value?.WriteSolution?.trim()
+      WriteProblem: value?.WriteProblem,
+      WriteSolution: value?.WriteSolution
     };
     editProblemSolutionMutate(payload, {
       onSuccess: (res) => {
@@ -125,55 +147,43 @@ const ConfigureFiled: React.FC = () => {
             <Row gutter={[20, 20]}>
               <Col xs={24} sm={24} md={12} lg={12}>
                 <CardWithTitle title="Problem" className="psCard">
-                  <RenderTextAreaInput
-                    label="Write problem"
-                    formItemProps={{
-                      name: 'WriteProblem',
-                      label: 'Write problem',
-                      rules: [
-                        { required: true, message: 'Please write the problem.' },
-                        {
-                          validator: (_, value) => {
-                            if (value && value.trim() === '') {
-                              return Promise.reject(new Error('Please write the valid problem.'));
-                            }
-                            return Promise.resolve();
-                          }
-                        }
-                      ]
-                    }}
-                    inputProps={{
-                      placeholder: 'Enter Problem',
-                      autoSize: { minRows: 9, maxRows: 6 }
-                    }}
+                  <CKEditorFormItem
+                    label="Write Problem"
+                    labelCol={{ span: 24 }}
+                    wrapperCol={{ span: 24 }}
+                    name={'WriteProblem'}
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Please write the problem.'
+                      }
+                    ]}
+                    data={editorValues?.problem}
+                    required={true}
+                    onChange={(e: any, editor: any) =>
+                      handleEditorChange(e, editor, 'WriteProblem')
+                    }
                   />
                 </CardWithTitle>
               </Col>
               <Col xs={24} sm={24} md={12} lg={12}>
                 <CardWithTitle title="Solution" className="psCard">
-                  <RenderTextAreaInput
+                  <CKEditorFormItem
                     label="Write Solution"
-                    formItemProps={{
-                      name: 'WriteSolution',
-                      label: 'Write Solution',
-                      rules: [
-                        { required: true, message: 'Please write a solution to the problem.' },
-                        {
-                          validator: (_, value) => {
-                            if (value && value.trim() === '') {
-                              return Promise.reject(
-                                new Error('Please write a valid solution to the problem.')
-                              );
-                            }
-                            return Promise.resolve();
-                          }
-                        }
-                      ]
-                    }}
-                    inputProps={{
-                      placeholder: 'Enter Solution',
-                      autoSize: { minRows: 9, maxRows: 6 }
-                    }}
+                    labelCol={{ span: 24 }}
+                    wrapperCol={{ span: 24 }}
+                    name={'WriteSolution'}
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Please write a solution to the problem.'
+                      }
+                    ]}
+                    data={editorValues?.solution}
+                    required={true}
+                    onChange={(e: any, editor: any) =>
+                      handleEditorChange(e, editor, 'WriteSolution')
+                    }
                   />
                 </CardWithTitle>
               </Col>

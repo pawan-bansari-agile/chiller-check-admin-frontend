@@ -4,12 +4,15 @@ import { Link } from 'react-router-dom';
 
 import { EyeOutlined } from '@ant-design/icons';
 import { Tag } from 'antd';
+import dayjs from 'dayjs';
+
+import { LatestLog } from '@/services/chiller/types';
 
 import { authStore } from '@/store/auth';
 
 import { CommonTable } from '@/shared/components/common/Table';
 import EmptyState from '@/shared/components/common/Table/EmptyState';
-import { USER_ROLES } from '@/shared/constants';
+import { ALERT_TYPE, USER_ROLES } from '@/shared/constants';
 import { ROUTES } from '@/shared/constants/routes';
 import { capitalizeFirstLetter, hasPermission } from '@/shared/utils/functions';
 
@@ -50,12 +53,18 @@ const ViewChillerResponsibilitiesTab: React.FC<IProps> = ({ chillerList, company
     },
     {
       title: 'Eff. Loss',
-      dataIndex: 'totalOperators',
-      key: 'totalOperators',
-      render: () => '-'
+      dataIndex: 'latestLog',
+      key: 'latestLog',
+      render: (data: LatestLog) => {
+        let className = '';
+        if (data?.effLoss?.type === ALERT_TYPE.ALERT) className = 'bgRed';
+        if (data?.effLoss?.type === ALERT_TYPE.WARNING) className = 'bgYellow';
+
+        return <div className={`loss-cell ${className}`}>{data?.effLoss?.value ?? '-'}</div>;
+      }
     },
     {
-      title: 'Energy Cost',
+      title: 'Energy Cost $',
       dataIndex: 'energyCost',
       key: 'energyCost'
     },
@@ -65,24 +74,16 @@ const ViewChillerResponsibilitiesTab: React.FC<IProps> = ({ chillerList, company
       key: 'totalOperators'
     },
     {
-      title: 'Last Entry',
-      dataIndex: 'totalOperators',
-      key: 'totalOperators',
-      render: () => {
-        const record = {
-          efficiencyLoss: 40,
-          lastEntry: {
-            name: 'Monica Geller',
-            datetime: '12/11/24 15:00'
-          }
-        };
-        let className = '';
-        if (record.efficiencyLoss >= 50) className = 'bgRed';
-        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
+      title: 'Last Log Entry',
+      dataIndex: 'latestLog',
+      key: 'latestLog',
+      render: (data: LatestLog) => {
         return (
-          <div className={`last-entry-cell ${className}`}>
-            <div>{record.lastEntry.name}</div>
-            <div>{record.lastEntry.datetime}</div>
+          <div className={`last-entry-cell`}>
+            <div>
+              {(data?.updatedByUser?.firstName || '') + ' ' + (data?.updatedByUser?.lastName || '')}
+            </div>
+            <div>{data?.updatedAt ? dayjs(data?.updatedAt).format('MM/DD/YY HH:mm') : '-'}</div>
           </div>
         );
       }

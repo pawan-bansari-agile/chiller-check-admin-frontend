@@ -14,7 +14,7 @@ import { ItemType, MenuItemType } from 'antd/es/menu/interface';
 
 import { authStore } from '@/store/auth';
 
-import { PRIVACY_LINK, TERMS_LINK, USER_ROLES } from '@/shared/constants';
+import { CONTACT_LINK, PRIVACY_LINK, TERMS_LINK, USER_ROLES } from '@/shared/constants';
 import { ROUTES } from '@/shared/constants/routes';
 import { User } from '@/shared/svg';
 
@@ -55,7 +55,7 @@ const items = [
 
   createMenuItem(
     '',
-    'Info In',
+    'Data In',
     '2',
     <ProfileOutlined />,
     [
@@ -77,7 +77,7 @@ const items = [
       ),
       createMenuItem(
         ROUTES.MAINTENANCE,
-        'Maintainance Entries',
+        'Maintenance Entries',
         '2-2',
         undefined,
         undefined,
@@ -109,9 +109,9 @@ const items = [
     <DashboardOutlined />,
     [
       createMenuItem(
-        ROUTES.REPORT,
-        'Saved Reports',
-        '3-1',
+        ROUTES.LOG_ENTRY,
+        'Recent Readings',
+        '3-3',
         undefined,
         undefined,
         'item',
@@ -122,7 +122,7 @@ const items = [
           USER_ROLES.FACILITY_MANAGER,
           USER_ROLES.OPERATOR
         ],
-        'report'
+        'log'
       ),
       createMenuItem(
         ROUTES.CHILLER_MANAGEMENT,
@@ -141,9 +141,9 @@ const items = [
         'chiller'
       ),
       createMenuItem(
-        ROUTES.LOG_ENTRY,
-        'Recent Readings',
-        '3-3',
+        ROUTES.REPORT,
+        'Reports',
+        '3-1',
         undefined,
         undefined,
         'item',
@@ -154,7 +154,7 @@ const items = [
           USER_ROLES.FACILITY_MANAGER,
           USER_ROLES.OPERATOR
         ],
-        'log'
+        'report'
       )
     ],
     'submenu',
@@ -169,29 +169,24 @@ const items = [
 
   createMenuItem(
     '',
-    'Where',
+    'Assets',
     '4',
     <AimOutlined />,
     [
       createMenuItem(
-        ROUTES.COMPANY_MANAGEMENT,
-        'Company',
-        '4-1',
+        ROUTES.USER_MANAGEMENT,
+        'Users',
+        '4-4',
         undefined,
         undefined,
         'item',
-        [USER_ROLES.ADMIN, USER_ROLES.SUB_ADMIN],
-        'company'
-      ),
-      createMenuItem(
-        ROUTES.FACILITY_MANAGEMENT,
-        'Facility',
-        '4-2',
-        undefined,
-        undefined,
-        'item',
-        [USER_ROLES.ADMIN, USER_ROLES.SUB_ADMIN, USER_ROLES.CORPORATE_MANAGER],
-        'facility'
+        [
+          USER_ROLES.ADMIN,
+          USER_ROLES.SUB_ADMIN,
+          USER_ROLES.CORPORATE_MANAGER,
+          USER_ROLES.FACILITY_MANAGER
+        ],
+        'users'
       ),
       createMenuItem(
         ROUTES.CHILLER_MANAGEMENT,
@@ -208,16 +203,30 @@ const items = [
           USER_ROLES.OPERATOR
         ],
         'chiller'
+      ),
+      createMenuItem(
+        ROUTES.FACILITY_MANAGEMENT,
+        'Facilities',
+        '4-2',
+        undefined,
+        undefined,
+        'item',
+        [USER_ROLES.ADMIN, USER_ROLES.SUB_ADMIN, USER_ROLES.CORPORATE_MANAGER],
+        'facility'
+      ),
+      createMenuItem(
+        ROUTES.COMPANY_MANAGEMENT,
+        'Companies',
+        '4-1',
+        undefined,
+        undefined,
+        'item',
+        [USER_ROLES.ADMIN, USER_ROLES.SUB_ADMIN],
+        'company'
       )
     ],
     'submenu',
-    [
-      USER_ROLES.ADMIN,
-      USER_ROLES.SUB_ADMIN,
-      USER_ROLES.CORPORATE_MANAGER,
-      USER_ROLES.FACILITY_MANAGER,
-      USER_ROLES.OPERATOR
-    ]
+    [USER_ROLES.CORPORATE_MANAGER, USER_ROLES.FACILITY_MANAGER, USER_ROLES.OPERATOR]
   ),
 
   createMenuItem(
@@ -229,24 +238,19 @@ const items = [
     </span>,
     [
       createMenuItem(
-        ROUTES.COMPANY_MANAGEMENT,
-        'Company Management',
-        '5-1',
+        ROUTES.USER_MANAGEMENT,
+        'User Management',
+        '5-4',
         undefined,
         undefined,
         'item',
-        [USER_ROLES.ADMIN, USER_ROLES.SUB_ADMIN],
-        'company'
-      ),
-      createMenuItem(
-        ROUTES.FACILITY_MANAGEMENT,
-        'Facility Management',
-        '5-2',
-        undefined,
-        undefined,
-        'item',
-        [USER_ROLES.ADMIN, USER_ROLES.SUB_ADMIN, USER_ROLES.CORPORATE_MANAGER],
-        'facility'
+        [
+          USER_ROLES.ADMIN,
+          USER_ROLES.SUB_ADMIN,
+          USER_ROLES.CORPORATE_MANAGER,
+          USER_ROLES.FACILITY_MANAGER
+        ],
+        'users'
       ),
       createMenuItem(
         ROUTES.CHILLER_MANAGEMENT,
@@ -264,28 +268,28 @@ const items = [
         'chiller'
       ),
       createMenuItem(
-        ROUTES.USER_MANAGEMENT,
-        'User Management',
-        '5-4',
+        ROUTES.FACILITY_MANAGEMENT,
+        'Facility Management',
+        '5-2',
         undefined,
         undefined,
         'item',
-        [
-          USER_ROLES.ADMIN,
-          USER_ROLES.SUB_ADMIN,
-          USER_ROLES.CORPORATE_MANAGER,
-          USER_ROLES.FACILITY_MANAGER
-        ],
-        'users'
+        [USER_ROLES.ADMIN, USER_ROLES.SUB_ADMIN, USER_ROLES.CORPORATE_MANAGER],
+        'facility'
+      ),
+      createMenuItem(
+        ROUTES.COMPANY_MANAGEMENT,
+        'Company Management',
+        '5-1',
+        undefined,
+        undefined,
+        'item',
+        [USER_ROLES.ADMIN, USER_ROLES.SUB_ADMIN],
+        'company'
       )
     ],
     'submenu',
-    [
-      USER_ROLES.ADMIN,
-      USER_ROLES.SUB_ADMIN,
-      USER_ROLES.CORPORATE_MANAGER,
-      USER_ROLES.FACILITY_MANAGER
-    ]
+    [USER_ROLES.ADMIN, USER_ROLES.SUB_ADMIN]
   ),
 
   createMenuItem(
@@ -294,6 +298,16 @@ const items = [
     '6',
     <SettingOutlined />,
     [
+      createMenuItem(
+        ROUTES.PROBLEM_SOLUTION,
+        'Problems & Solutions',
+        '6-3',
+        undefined,
+        undefined,
+        'item',
+        [USER_ROLES.ADMIN, USER_ROLES.SUB_ADMIN],
+        'setting'
+      ),
       createMenuItem(
         '',
         <a href={TERMS_LINK} target="_blank">
@@ -329,14 +343,21 @@ const items = [
         ]
       ),
       createMenuItem(
-        ROUTES.PROBLEM_SOLUTION,
-        'Problems & Solutions',
-        '6-3',
+        '',
+        <a href={CONTACT_LINK} target="_blank">
+          Contact Us
+        </a>,
+        '6-4',
         undefined,
         undefined,
         'item',
-        [USER_ROLES.ADMIN, USER_ROLES.SUB_ADMIN],
-        'setting'
+        [
+          USER_ROLES.ADMIN,
+          USER_ROLES.SUB_ADMIN,
+          USER_ROLES.CORPORATE_MANAGER,
+          USER_ROLES.FACILITY_MANAGER,
+          USER_ROLES.OPERATOR
+        ]
       )
     ],
     'submenu',
@@ -380,17 +401,50 @@ function filterItemsByRole(
     .filter(Boolean) as ItemProps[];
 }
 
+// function findActiveKeys(
+//   items: ItemProps[],
+//   currentPath: string,
+//   preferredKey?: string
+// ): { selectedKey: string; openKey?: string } {
+//   // Step 1: Look for preferredKey
+//   for (const item of items) {
+//     if (item.children?.length) {
+//       for (const child of item.children) {
+//         const isMatch = currentPath === child.link || currentPath.startsWith(child.link);
+//         if (isMatch && child.key === preferredKey) {
+//           return { selectedKey: child.key, openKey: item.key };
+//         }
+//       }
+//     } else if (item.link === currentPath && item.key === preferredKey) {
+//       return { selectedKey: item.key };
+//     }
+//   }
+
+//   // Step 2: Fallback to first match
+//   for (const item of items) {
+//     if (item.children?.length) {
+//       const childMatch = item.children.find(
+//         (child) => currentPath === child.link || currentPath.startsWith(child.link)
+//       );
+//       if (childMatch) return { selectedKey: childMatch.key, openKey: item.key };
+//     } else if (item.link === currentPath) {
+//       return { selectedKey: item.key };
+//     }
+//   }
+
+//   return { selectedKey: '1' }; // fallback
+// }
+
 function findActiveKeys(
   items: ItemProps[],
   currentPath: string,
   preferredKey?: string
 ): { selectedKey: string; openKey?: string } {
-  // Step 1: Look for preferredKey
+  // Step 1: Look for preferredKey (exact match only)
   for (const item of items) {
     if (item.children?.length) {
       for (const child of item.children) {
-        const isMatch = currentPath === child.link || currentPath.startsWith(child.link);
-        if (isMatch && child.key === preferredKey) {
+        if (child.link === currentPath && child.key === preferredKey) {
           return { selectedKey: child.key, openKey: item.key };
         }
       }
@@ -399,19 +453,26 @@ function findActiveKeys(
     }
   }
 
-  // Step 2: Fallback to first match
+  // Step 2: Fallback to match (exact > startsWith, ignore external links)
   for (const item of items) {
     if (item.children?.length) {
       const childMatch = item.children.find(
-        (child) => currentPath === child.link || currentPath.startsWith(child.link)
+        (child) =>
+          child.link &&
+          !child.link.startsWith('http') &&
+          (currentPath === child.link || currentPath.startsWith(child.link))
       );
       if (childMatch) return { selectedKey: childMatch.key, openKey: item.key };
-    } else if (item.link === currentPath) {
+    } else if (
+      item.link &&
+      !item.link.startsWith('http') &&
+      (currentPath === item.link || currentPath.startsWith(item.link))
+    ) {
       return { selectedKey: item.key };
     }
   }
 
-  return { selectedKey: '1' }; // fallback
+  return { selectedKey: localStorage.getItem('selectedSidebarKey') || '1' }; // fallback
 }
 
 const Sidebar = () => {
@@ -443,7 +504,7 @@ const Sidebar = () => {
     if (openKeys.length === 0) {
       const preferredKey = localStorage.getItem('selectedSidebarKey') || '';
       const { openKey } = findActiveKeys(filteredItems, location.pathname, preferredKey);
-      if (openKey) setOpenKeys([openKey]);
+      setOpenKeys([openKey || localStorage.getItem('selectedSidebarKey')?.[0] || '1']);
     }
   };
 

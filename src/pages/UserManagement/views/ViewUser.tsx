@@ -14,9 +14,14 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { Button, Form, Image, Tabs } from 'antd';
 
+import { authHooks } from '@/services/auth';
 import { chillerQueryKeys } from '@/services/chiller';
 import { companyQueryKeys } from '@/services/company';
+import { dashboardQueryKey } from '@/services/dashboard';
 import { facilityQueryKeys } from '@/services/facility';
+import { logQueryKeys } from '@/services/log';
+import { maintenanceQueryKey } from '@/services/maintenance';
+import { reportQueryKey } from '@/services/report';
 import { userHooks, userQueryKeys } from '@/services/user';
 
 import Details from '@/shared/components/common/Details';
@@ -26,7 +31,14 @@ import Meta from '@/shared/components/common/Meta';
 import CommonModal from '@/shared/components/common/Modal/components/CommonModal';
 // import CommonModal from '@/shared/components/common/Modal/components/CommonModal';
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
-import { IMAGE_MODULE_NAME, IMAGE_URL, Role, USER_ROLES } from '@/shared/constants';
+import {
+  APP_ENV,
+  ENVIRONMENT,
+  IMAGE_MODULE_NAME,
+  IMAGE_URL,
+  Role,
+  USER_ROLES
+} from '@/shared/constants';
 import { formatLoginTime } from '@/shared/constants/day';
 import { ROUTES } from '@/shared/constants/routes';
 import { EditIcon, EmailIcon, User, UserRole } from '@/shared/svg';
@@ -52,7 +64,12 @@ const ViewUser: React.FC = () => {
   const [form] = Form.useForm();
   const { data, isLoading } = userHooks.GetUserDetail(id ?? '');
   const { mutate: activeInactiveAction, isPending } = userHooks.useActiveInactiveUser();
+  const { mutate: forgotPasswordAction, isPending: isGeneratePending } =
+    authHooks.useForgotPassword();
+
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [emailHTML, setEmailHTML] = useState('');
 
   const activeInactiveUser = ({
     isActive,
@@ -73,12 +90,66 @@ const ViewUser: React.FC = () => {
         queryClient.invalidateQueries({ queryKey: companyQueryKeys.all });
         queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
         queryClient.invalidateQueries({ queryKey: chillerQueryKeys.all });
+        queryClient.invalidateQueries({ queryKey: logQueryKeys.all });
+        queryClient.invalidateQueries({ queryKey: maintenanceQueryKey.all });
+        queryClient.invalidateQueries({ queryKey: reportQueryKey.all });
+        queryClient.invalidateQueries({ queryKey: dashboardQueryKey.all });
+
         setIsModalOpen(false);
       },
       onError: (err) => {
         showToaster('error', err?.message || err?.message?.[0] || 'Something went wrong');
       }
     });
+  };
+
+  const generatePassword = () => {
+    const forgotPasswordPayload = {
+      email: data?.email
+    };
+    forgotPasswordAction(forgotPasswordPayload, {
+      onSuccess: (res) => {
+        const { data } = res || {};
+
+        if (data?.link && APP_ENV === ENVIRONMENT['LOCAL']) {
+          setEmailHTML(data?.link);
+          setIsEmailModalOpen(true);
+        } else {
+          showToaster('success', 'Password reset link sent to the registered email.');
+        }
+      },
+      onError: (err) => {
+        const errorMsg = err?.message || err?.message?.[0] || 'Something went wrong';
+        showToaster('error', errorMsg);
+      }
+    });
+  };
+
+  const fallbackCopy = (text: string) => {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed'; // Avoid scrolling to bottom
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+    } catch (err) {
+      console.error('Fallback: Oops, unable to copy', err);
+    }
+    document.body.removeChild(textArea);
+  };
+
+  const copyHtmlToClipboard = async () => {
+    if (!emailHTML) return;
+
+    try {
+      fallbackCopy(emailHTML);
+      showToaster('success', 'Link copied to clipboard');
+      setEmailHTML('');
+    } catch (err) {
+      console.error('Clipboard copy failed:', err);
+    }
   };
 
   return (
@@ -96,8 +167,16 @@ const ViewUser: React.FC = () => {
               </Button>
             )}
 
-            <Button type="primary" className="title-btn" shape="round" icon={<LockOutlined />}>
-              Change Password Link
+            <Button
+              type="primary"
+              className="title-btn"
+              shape="round"
+              icon={<LockOutlined />}
+              onClick={generatePassword}
+              loading={isGeneratePending}
+              disabled={isGeneratePending}
+            >
+              Generate Password Link
             </Button>
 
             {hasPermission('users', 'edit') && (
@@ -246,6 +325,8 @@ const ViewUser: React.FC = () => {
                                   ?.facilityIds || []
                               : []
                         }
+                        alertFacilities={data?.alertFacilities || []}
+                        alertOperators={data?.alertOperators || []}
                       />
                     </Tabs.TabPane>
                   </>
@@ -262,8 +343,16 @@ const ViewUser: React.FC = () => {
             </Button>
           )}
 
-          <Button type="primary" className="title-btn" shape="round" icon={<LockOutlined />}>
-            Change Password Link
+          <Button
+            type="primary"
+            className="title-btn"
+            shape="round"
+            icon={<LockOutlined />}
+            onClick={generatePassword}
+            loading={isGeneratePending}
+            disabled={isGeneratePending}
+          >
+            Generate Password Link
           </Button>
 
           {hasPermission('users', 'edit') && (
@@ -332,6 +421,41 @@ const ViewUser: React.FC = () => {
                   Unassign & Inactivate
                 </Button>
               )}
+          </div>
+        </CommonModal>
+      )}
+      {isEmailModalOpen && (
+        <CommonModal
+          open={isEmailModalOpen}
+          closeIcon={true}
+          closable={true}
+          centered={true}
+          maskClosable={false}
+          className="changePasswordModal"
+          title={
+            <div className="modalTitleWrapper">
+              <span className="main-title">Copy Reset Link</span>
+            </div>
+          }
+          onCancel={() => {
+            setIsEmailModalOpen(false);
+          }}
+        >
+          <p>
+            A password reset link has been generated. Please copy the link below and share it with
+            the user.
+          </p>
+          <div className="modalFooter">
+            <Button
+              type="primary"
+              className="footerBtn"
+              onClick={() => {
+                copyHtmlToClipboard();
+                setIsEmailModalOpen(false);
+              }}
+            >
+              Copy Link
+            </Button>
           </div>
         </CommonModal>
       )}

@@ -127,6 +127,12 @@ export const CommonStyle = createGlobalStyle`
         background: ${({ theme }) => theme.colors.primary} !important;
         color: ${({ theme }) => theme.colors.white} !important;
     }
+    &.download-btn{
+    border-radius: 30px;
+    background-color: #fff;
+    border-color: #000ABC;
+    padding: 5px 36px !important;
+    }
 }
 
 .bgRed{

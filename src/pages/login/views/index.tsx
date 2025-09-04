@@ -21,7 +21,8 @@ const Login: React.FC = () => {
     handleFieldsChange,
     onSubmit,
     isModalOpen,
-    setIsModalOpen
+    setIsModalOpen,
+    tokenInfo
   } = useSignInController();
 
   return (
@@ -95,8 +96,8 @@ const Login: React.FC = () => {
                 htmlType="submit"
                 block={true}
                 size="large"
-                disabled={isButtonDisabled || isPending}
-                loading={isPending}
+                disabled={tokenInfo.loading || isButtonDisabled || isPending}
+                loading={isPending || tokenInfo.loading}
               >
                 Login
               </Button>

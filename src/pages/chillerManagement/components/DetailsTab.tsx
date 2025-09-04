@@ -58,7 +58,9 @@ const DetailsTab: React.FC<IProps> = ({ chillerData }) => {
     userNote,
     numberOfCompressors,
     useRunHours,
-    kwr
+    kwr,
+    emissionFactor,
+    ChillerNumber
   } = chillerData || {};
   return (
     <Wrapper className="detailsTabWrap">
@@ -77,6 +79,7 @@ const DetailsTab: React.FC<IProps> = ({ chillerData }) => {
             detailsIcon
           />
           <Details detailsTitle="Facility" detailsDescription={facilityName || '-'} detailsIcon />
+          <Details detailsTitle="Chiller #" detailsDescription={ChillerNumber || '-'} detailsIcon />
           <Details
             detailsTitle="Chiller Name/No"
             detailsDescription={ChillerNo || '-'}
@@ -119,7 +122,7 @@ const DetailsTab: React.FC<IProps> = ({ chillerData }) => {
           />
           <Details detailsTitle="Refrigerant Type" detailsDescription={refrigType} detailsIcon />
           <Details
-            detailsTitle={unit === MEASUREMENT_UNITS?.[1]?.value ? 'KWR' : 'Tons'}
+            detailsTitle={unit === MEASUREMENT_UNITS?.[1]?.value ? 'kWR' : 'Tons'}
             detailsDescription={
               unit === MEASUREMENT_UNITS?.[1]?.value ? (kwr ?? '-') : (tons ?? '-')
             }
@@ -130,13 +133,18 @@ const DetailsTab: React.FC<IProps> = ({ chillerData }) => {
             detailsDescription={
               unit === MEASUREMENT_UNITS?.[1]?.value
                 ? `${efficiencyRating ?? '-'} COP`
-                : `${efficiencyRating ?? '-'} kw/ton`
+                : `${efficiencyRating ?? '-'} kW/ton`
             }
             detailsIcon
           />
           <Details
-            detailsTitle="Energy Cost (kw. hr.)"
+            detailsTitle="Energy Cost $ (kW. hr.)"
             detailsDescription={`${energyCost ?? '-'} USD`}
+            detailsIcon
+          />
+          <Details
+            detailsTitle="CO2e Emission Factor"
+            detailsDescription={`${emissionFactor ?? '-'} kg of CO2e per kWh`}
             detailsIcon
           />
         </ul>

@@ -50,7 +50,7 @@ export const AntTable = createGlobalStyle`
                 font-weight: 400;
                 line-height: 22px;
                 color: ${({ theme }) => hexToRGBA(theme.colors.black, 0.85)};
-                padding: 11px 5px !important;
+                padding: 13px !important;
                 /* vertical-align: top; */
 
                 &:first-of-type{

@@ -7,52 +7,80 @@ export const Wrapper = styled.div`
     gap: 15px;
     align-items: center;
   }
-  .selectDuration {
+
+  .dashboardEffList {
     display: flex;
-    border: 1px solid #d6d7fe;
-    background: ${({ theme }) => theme.colors.white};
-    border-radius: 30px;
-    padding: 5px;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
     margin-bottom: 0;
+
     li {
-      padding: 0 20px;
-      border-right: 1px solid #f0f0f0;
-
-      &:last-of-type {
-        border-right: 0;
-      }
-
-      &:hover {
-        span {
-          color: ${({ theme }) => theme.colors.primary};
-        }
-      }
-    }
-    span {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       font-size: 14px;
       font-weight: 400;
-      line-height: 22px;
-      color: #626c99;
-      cursor: pointer;
+      color: ${({ theme }) => theme.colors.inkBlue};
+      line-height: 150%;
 
-      &.active {
-        color: ${({ theme }) => theme.colors.primary};
-        font-weight: 500;
+      span.effLegends {
+        display: flex;
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        background-color: #fadb14;
+
+        &.effLossLegends {
+          background-color: #cf1322;
+        }
       }
     }
   }
 
-  .dashboardCard {
+  .analyticsGraph {
+    margin: 35px 0;
+    padding: 0 22px;
+  }
+  .charityCard {
     width: 100%;
     height: 100%;
     background: ${({ theme }) => theme.colors.white};
     border-radius: 16px;
     padding: 25px;
+    overflow: auto;
 
-    img {
-      width: 100%;
-      height: auto;
-      object-fit: cover;
+    .facilityHeader {
+      display: flex;
+      justify-content: center !important;
+      align-items: center;
+    }
+
+    .chiller-title {
+      margin: 25px 0;
+    }
+
+    .issueHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 25px;
+      border-bottom: 2px solid #f0f0f0;
+
+      h2 {
+        font-size: 16px;
+        line-height: 24px;
+        font-weight: 600;
+        color: ${({ theme }) => theme.colors.inkBlue};
+        margin: 0;
+        padding: 0;
+        border: none;
+      }
+
+      /* a {
+        color: #000abc;
+        font-weight: 600;
+      } */
     }
 
     h2 {
@@ -61,191 +89,209 @@ export const Wrapper = styled.div`
       font-weight: 600;
       color: ${({ theme }) => theme.colors.inkBlue};
       margin: 0;
+      padding-bottom: 25px;
+      border-bottom: 2px solid #f0f0f0;
     }
 
-    .avgContentWrap {
-      margin-top: 25px;
-      .avgList {
-        display: flex;
-        align-items: center;
-
-        canvas {
-          width: 120px !important;
-        }
-
-        &.avgTarget {
-          border-bottom: 2px solid #f0f0f0;
-          margin-bottom: 30px;
-          padding-bottom: 30px;
-        }
-
-        .avgContent {
-          margin-left: 27px;
-        }
-      }
+    .consumptionChart {
+      margin: 35px 0;
     }
+  }
 
-    .avgPercentage {
-      margin-top: 4px;
+  .shadowPaperWrap {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .locationPerformanceCheckbox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .scrollDiv {
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  .consumptionChart {
+    min-width: 1200px;
+    .labelWrap {
+      display: flex;
+      align-items: center;
 
       span {
-        font-size: 12px;
-        font-weight: 500;
-        line-height: 100%;
-        color: ${({ theme }) => theme.colors.danger};
-        margin-left: 4px;
-      }
-    }
-
-    .lossWrap {
-      .commonLoss {
-        display: flex;
-        align-items: center;
-
-        canvas {
-          width: 100px !important;
-        }
-
-        &.kwhLoss {
-          padding-bottom: 25px;
-          margin: 25px 0;
-          border-bottom: 2px solid #f0f0f0;
-
-          img {
-            width: 100px;
-          }
-        }
-
-        &.btuLoss {
-          margin: 25px 0 0;
-          img {
-            width: 100px;
-          }
-        }
-      }
-
-      .lossCountWrap {
-        margin-left: 25px;
-      }
-    }
-
-    .avgTitle {
-      font-size: 24px;
-      font-weight: 600;
-      line-height: 100%;
-      color: ${({ theme }) => theme.colors.inkBlue};
-      margin-bottom: 4px;
-    }
-
-    .avgDesc {
-      font-size: 12px;
-      font-weight: 400;
-      line-height: 100%;
-      color: ${({ theme }) => theme.colors.lightPurple};
-      margin-bottom: 4px;
-    }
-
-    .lossCount {
-      font-size: 20px;
-      font-weight: 600;
-      line-height: 100%;
-      color: #142150;
-      margin-bottom: 4px;
-    }
-
-    .gaugeChart {
-      margin-top: 25px;
-
-      img {
-        width: 100%;
-        height: 120px;
-        object-fit: contain;
-      }
-    }
-
-    .gaugeDate {
-      text-align: center;
-      margin-top: 25px;
-      h4 {
-        font-size: 18.75px;
+        width: 16.5%;
+        text-align: center;
+        font-size: 16px;
         font-weight: 600;
         line-height: 100%;
         color: ${({ theme }) => theme.colors.inkBlue};
-        margin-bottom: 0px;
+        margin-bottom: 25px;
+
+        .anticon {
+          margin: 0;
+        }
       }
     }
+    .valueWrap {
+      display: flex;
+      border: 2px solid #f0f0f0;
+      border-radius: 12px;
 
-    .circularEff {
-      width: 123px;
-      margin: 25px auto;
-    }
-
-    .pr-text {
-      font-size: 24px;
-      font-weight: 600;
-      line-height: 100%;
-      color: ${({ theme }) => theme.colors.inkBlue};
-      margin-bottom: 0px;
-    }
-
-    .estimatedChart {
-      margin-top: 25px;
-    }
-
-    &.logCard {
-      padding: 25px 0;
-      .logCount {
+      div {
+        padding: 18px 15px;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 100%;
+        color: ${({ theme }) => theme.colors.inkBlue};
+        width: 16.5%;
         display: flex;
+        justify-content: center;
         align-items: center;
-        margin-bottom: 0;
+        border-left: 2px solid #f0f0f0;
+        .chillerNavigate {
+          color: #000abc;
+        }
+        &:first-of-type {
+          border-left: none;
+        }
+        &.timeValueWrap {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
 
-        li {
-          border-right: 1px solid #f0f0f0;
-          padding: 44px 25px;
-          width: 33%;
-          text-align: center;
-          &:last-of-type {
-            border-right: 0;
+          span {
+            color: #000abc;
+            cursor: pointer;
           }
-
-          .logCountWrap {
-            margin-bottom: 30px;
-          }
-
-          .logCountTitle {
-            font-size: 16px;
-            font-weight: 600;
-            line-height: 100%;
-            color: ${({ theme }) => theme.colors.inkBlue};
-            margin-left: 10px;
-          }
-
-          h2 {
-            font-size: 40px;
-            font-weight: 600;
-            line-height: 100%;
-            color: ${({ theme }) => theme.colors.inkBlue};
-            margin-bottom: 0px;
-          }
+        }
+        &.legends span {
+          display: inline-block;
+          padding: 12px;
+          color: #fff;
+          border-radius: 5px;
+          background: #ee534f;
+        }
+        .loss {
+          color: #f04924;
         }
       }
     }
   }
-  .facilityDashboard {
-    margin: 25px 0;
-    .shadow-box {
-      padding: 40px 30px;
-    }
 
-    .dashboardCard {
-      border: 1px solid #c3c3c3;
+  .performaceSummaryChartDashboard {
+    .labelWrap {
+      span {
+        line-height: 24px;
+      }
     }
+    .valueWrap {
+      border-radius: 0;
+      border-bottom: 0;
+      border-top: 0;
 
-    .facilityDropdown {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 30px;
+      &:nth-of-type(2) {
+        border-top: 2px solid #f0f0f0 !important;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+      }
+
+      &:nth-of-type(6) {
+        border-bottom: 2px solid #f0f0f0 !important;
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+      }
+
+      div {
+        width: 20% !important;
+      }
     }
+  }
+
+  .mainBuildingDashboard {
+    .valueWrap {
+      border-radius: 0;
+      border-bottom: 0;
+      border-top: 0;
+
+      &:nth-of-type(2) {
+        border-top: 2px solid #f0f0f0 !important;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+      }
+
+      &:nth-of-type(4) {
+        border-bottom: 2px solid #f0f0f0 !important;
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+      }
+
+      .dashboardIcon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 5px;
+        background: #000abc;
+        svg {
+          color: #fff;
+        }
+      }
+    }
+  }
+
+  .facilityPerformanceChartDashboard {
+    .labelWrap {
+      span {
+        line-height: 24px;
+      }
+    }
+    .valueWrap {
+      border-radius: 0;
+      border-bottom: 0;
+      border-top: 0;
+
+      &:nth-of-type(2) {
+        border-top: 2px solid #f0f0f0 !important;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+      }
+
+      &:nth-of-type(6) {
+        border-bottom: 2px solid #f0f0f0 !important;
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+      }
+    }
+  }
+
+  .checkboxLocation {
+    font-size: 16px;
+    color: ${({ theme }) => theme.colors.inkBlue};
+  }
+
+  .legendWrap {
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 400;
+    color: #fff;
+    line-height: 22px;
+
+    &.effLossLegend {
+      background: #cf1322;
+    }
+    &.nonCondenseLegend {
+      background: #fadb14;
+    }
+  }
+
+  .no-data {
+    text-align: center;
+    padding: 10px 0px;
   }
 
   @media only screen and (max-width: ${({ theme }) => theme.device.lg}) {
@@ -273,7 +319,7 @@ export const Wrapper = styled.div`
           }
         }
         .logCountTitle {
-          font-size: 12px;
+          font-size: 14px;
           margin-left: 5px;
         }
         h2 {

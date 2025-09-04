@@ -60,6 +60,7 @@ export const Wrapper = styled.div`
       line-height: 18px;
       color: ${({ theme }) => hexToRGBA(theme.colors.black, 0.85)};
       margin-bottom: 0;
+      text-align: start;
     }
   }
 
@@ -69,6 +70,31 @@ export const Wrapper = styled.div`
     justify-content: flex-end;
     margin: 25px 0 0 !important;
     padding-bottom: 25px;
+  }
+
+  .reportAddEditMainForm {
+    padding: 0 32px;
+  }
+
+  .graph-dropdown {
+    justify-content: flex-end;
+    display: flex;
+    width: 100%;
+    padding-right: 32px;
+  }
+
+  .custome-range {
+    .ant-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      .ant-col {
+        text-align: start;
+      }
+    }
+    .ant-picker {
+      width: 100%;
+    }
   }
 
   .shadowPaperWrap {
@@ -104,8 +130,6 @@ export const Wrapper = styled.div`
   /* view */
   .headerFooterViewContent {
     text-align: center;
-    font-size: 14px;
-    font-weight: 600;
     line-height: 22px;
     color: ${({ theme }) => theme.colors.inkBlue};
     margin-bottom: 0;
@@ -139,7 +163,14 @@ export const Wrapper = styled.div`
     }
   }
 
+  .chartWrapper {
+    overflow-x: auto;
+    width: 100%;
+  }
+
   .reportLineChart {
+    min-width: 800px; /* chart will scroll if screen smaller */
+    height: 400px;
     padding: 20px 42px;
   }
 

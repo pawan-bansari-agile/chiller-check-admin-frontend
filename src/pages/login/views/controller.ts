@@ -9,7 +9,8 @@ import { authHooks } from '@/services/auth';
 
 import { authStore } from '@/store/auth';
 
-import { DEVICE_TYPE } from '@/shared/constants';
+import { APP_ENV, DEVICE_TYPE, ENVIRONMENT, LocalStorageKeys } from '@/shared/constants';
+import { fetchToken } from '@/shared/constants/firebase';
 import { ROUTES } from '@/shared/constants/routes';
 import { initializeDeviceId, showToaster } from '@/shared/utils/functions';
 
@@ -29,11 +30,31 @@ const useSignInController = () => {
     initializeDeviceId(deviceId, setDeviceId);
   }, [deviceId]);
 
+  const [tokenInfo, setTokenInfo] = useState({
+    value: '',
+    loading: false
+  });
+
+  // Fetch FCM token if not already stored
+  useEffect(() => {
+    if (APP_ENV !== ENVIRONMENT['LOCAL']) {
+      const existingToken = localStorage.getItem(LocalStorageKeys.FCM_TOKEN);
+      if (!existingToken) {
+        void fetchToken({
+          setFcmToken: (token) => setTokenInfo((prev) => ({ ...prev, value: token })),
+          setIsLoadingToken: (loading) => setTokenInfo((prev) => ({ ...prev, loading }))
+        });
+      } else {
+        setTokenInfo((prev) => ({ ...prev, value: existingToken }));
+      }
+    }
+  }, []);
+
   const onSubmit = (values: { email: string; password: string }) => {
     const signInPayload = {
       ...values,
       deviceId: deviceId,
-      fcmToken: '',
+      fcmToken: tokenInfo?.value || '',
       deviceType: DEVICE_TYPE.WEB
     };
 
@@ -77,7 +98,8 @@ const useSignInController = () => {
     handleFieldsChange,
     onSubmit,
     isModalOpen,
-    setIsModalOpen
+    setIsModalOpen,
+    tokenInfo
   };
 };
 

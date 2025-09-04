@@ -12,7 +12,7 @@ import { IFacilityListData } from '@/services/facility/types';
 
 import { CommonTable } from '@/shared/components/common/Table';
 import EmptyState from '@/shared/components/common/Table/EmptyState';
-import { USER_ROLES } from '@/shared/constants';
+import { USER_ROLES, getDefaultLogs } from '@/shared/constants';
 import { ROUTES } from '@/shared/constants/routes';
 import { getSortOrder } from '@/shared/utils/functions';
 
@@ -26,6 +26,7 @@ interface IProps {
   chillerIds: string[] | [];
   setChillerIds: React.Dispatch<React.SetStateAction<string[] | []>>;
   role?: string;
+  form: any;
 }
 
 const FacilityResponsibilitiesTab: React.FC<IProps> = ({
@@ -34,7 +35,8 @@ const FacilityResponsibilitiesTab: React.FC<IProps> = ({
   companySelect,
   role,
   chillerIds,
-  setChillerIds
+  setChillerIds,
+  form
 }) => {
   const [args, setArgs] = useState<ICommonPagination>({
     page: 1,
@@ -136,9 +138,14 @@ const FacilityResponsibilitiesTab: React.FC<IProps> = ({
         }}
         rowSelection={{
           selectedRowKeys: facilityIds,
-          onChange: (selectedRowKeys: React.Key[]) => {
-            setFacilityIds(selectedRowKeys as string[]);
-          }
+          onChange: (selectedRowKeys: any) => {
+            form.resetFields(['notifyBy', 'general', 'logs']);
+            form.setFieldValue('logs', getDefaultLogs());
+            form.setFieldValue('programFacility', null);
+            form.setFieldValue('programOperator', null);
+            setFacilityIds(selectedRowKeys);
+          },
+          preserveSelectedRowKeys: true // <-- Important!
         }}
         onChange={handleTableChange}
         loading={isLoading}
@@ -155,6 +162,7 @@ const FacilityResponsibilitiesTab: React.FC<IProps> = ({
           setChillerIds={setChillerIds}
           facilityIds={facilityIds}
           companyName={data?.facilityList?.[0]?.companyName}
+          form={form}
         />
       ) : null}
     </Wrapper>

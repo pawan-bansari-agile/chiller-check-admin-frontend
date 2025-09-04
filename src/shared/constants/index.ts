@@ -6,13 +6,25 @@ export const IMAGE_URL = import.meta.env.VITE_REACT_APP_IMAGE_URL;
 export const GOOGLE_KEY = import.meta.env.VITE_REACT_APP_GOGGLE_PLACE_KEY;
 export const TERMS_LINK = import.meta.env.VITE_REACT_APP_CMS_LINK_TERMS;
 export const PRIVACY_LINK = import.meta.env.VITE_REACT_APP_CMS_LINK_PRIVACY;
+export const CONTACT_LINK = import.meta.env.VITE_REACT_APP_CMS_LINK_CONTACT;
 export const APP_ENV = import.meta.env.VITE_REACT_APP_ENV;
+export const FIREBASE_API_KEY = import.meta.env.VITE_REACT_APP_FIREBASE_API_KEY;
+export const FIREBASE_APP_ID = import.meta.env.VITE_REACT_APP_FIREBASE_APP_ID;
+export const FIREBASE_AUTH_DOMAIN = import.meta.env.VITE_REACT_APP_FIREBASE_AUTH_DOMAIN;
+export const FIREBASE_PROJECT_ID = import.meta.env.VITE_REACT_APP_FIREBASE_PROJECT_ID;
+export const FIREBASE_SENDER_ID = import.meta.env.VITE_REACT_APP_FIREBASE_SENDER_ID;
+export const FIREBASE_STORAGE_BUCKET = import.meta.env.VITE_REACT_APP_FIREBASE_STORAGE_BUCKET;
+export const FIREBASE_VAPID_KEY = import.meta.env.VITE_REACT_APP_FIREBASE_VAPID_KEY;
+
 // Local Storage Variables
 export const LocalStorageKeys = {
   USER: `user${APP_NAME}`,
   AUTH_TOKEN: `authToken${APP_NAME}`,
   AUTH_SESSION: (id: string) => `authSession-${id}`,
-  DEVICE_ID: `deviceId`
+  DEVICE_ID: `deviceId`,
+  EXCEL_FILE: 'excelFile',
+  FILE_TYPE: 'fileType',
+  FCM_TOKEN: 'fcmToken'
 };
 
 export const ENVIRONMENT = {
@@ -47,7 +59,8 @@ export const defaultQueryOptions = {
 };
 
 export const IMAGE_MODULE_NAME = {
-  PROFILE_PIC: 'profilePic'
+  PROFILE_PIC: 'profilePic',
+  MAITENANCE: 'maintenanceFiles'
 };
 
 export const USER_ROLES = {
@@ -57,6 +70,61 @@ export const USER_ROLES = {
   FACILITY_MANAGER: 'facilityManager',
   OPERATOR: 'operator'
 };
+
+export enum ParameterType {
+  'Percentage Loss' = 'Percentage Loss',
+  'Loss Cost' = 'Loss Cost',
+  'kWh Loss' = 'kWh Loss',
+  'Avg. Excess Cond. Approach' = 'Avg. Excess Cond. Approach',
+  'Avg. Excess Evap. Approach' = 'Avg. Excess Evap. Approach',
+  'Avg. Other Losses' = 'Avg. Other Losses'
+}
+
+export enum ChartType {
+  'Line Chart' = 'Line Chart',
+  'Bar Chart' = 'Bar Chart'
+}
+
+export enum DateRange {
+  'This Week' = 'This week',
+  'This Month' = 'This month',
+  'Quarter' = 'Quarter',
+  '6 Months' = '6 months',
+  'This Year' = 'This year',
+  'Last Year' = 'Last year',
+  'Last 2 Years' = 'Last 2 years',
+  'Last 5 Years' = 'Last 5 years',
+  'Custom Range' = 'Custom Range'
+}
+
+export enum NotificationType {
+  WEB = 'Web',
+  EMAIL = 'Email',
+  BOTH = 'Both'
+}
+
+export const enumToDropdownOptions = <T extends Record<string, string>>(enumObj: T) =>
+  Object.values(enumObj).map((value) => ({
+    label: value,
+    value
+  }));
+
+// Usage
+export const parameterTypeOptions = enumToDropdownOptions(ParameterType);
+export const chartTypeOptions = enumToDropdownOptions(ChartType);
+export const dateRangeOptions = enumToDropdownOptions(DateRange);
+export const notificationOptions = enumToDropdownOptions(NotificationType);
+
+export const CHART_DROPDOWN = [
+  {
+    label: 'All Facility',
+    value: 'facility'
+  },
+  {
+    label: 'All Chillers',
+    value: 'chiller'
+  }
+];
 
 export const STATES = [
   { label: 'Alabama', value: 'Alabama' },
@@ -114,7 +182,78 @@ export const STATES = [
   { label: 'Guam', value: 'Guam' },
   { label: 'Northern Mariana Islands', value: 'Northern Mariana Islands' },
   { label: 'Puerto Rico', value: 'Puerto Rico' },
-  { label: 'U.S. Virgin Islands', value: 'U.S. Virgin Islands' }
+  { label: 'U.S. Virgin Islands', value: 'U.S. Virgin Islands' },
+  { label: 'Alberta', value: 'Alberta' },
+  { label: 'British Columbia', value: 'British Columbia' },
+  { label: 'Manitoba', value: 'Manitoba' },
+  { label: 'New Brunswick', value: 'New Brunswick' },
+  { label: 'Newfoundland and Labrador', value: 'Newfoundland and Labrador' },
+  { label: 'Northwest Territories', value: 'Northwest Territories' },
+  { label: 'Nova Scotia', value: 'Nova Scotia' },
+  { label: 'Nunavut', value: 'Nunavut' },
+  { label: 'Ontario', value: 'Ontario' },
+  { label: 'Prince Edward Island', value: 'Prince Edward Island' },
+  { label: 'Quebec', value: 'Quebec' },
+  { label: 'Saskatchewan', value: 'Saskatchewan' },
+  { label: 'Yukon', value: 'Yukon' }
+];
+
+export const COUNTRY = [
+  { label: 'USA', value: 'US' },
+  { label: 'Canada', value: 'CA' }
+];
+
+export const MAINTENANCE_CATEGORIES = [
+  {
+    id: 1,
+    name: 'Annual Maintenance',
+    types: ['Annual Maintenance Date']
+  },
+  {
+    id: 2,
+    name: 'Oil Maintenance',
+    types: ['Oil Change Date', 'Date Oil Added', 'Oil Filter Change Date', 'Oil Analysis Date']
+  },
+  {
+    id: 3,
+    name: 'Eddy Current Tests',
+    types: ['Eddy Current Test Date (Condenser)', 'Eddy Current Test Date (Evaporator)']
+  },
+  {
+    id: 4,
+    name: 'Major Stop Inspection (compressor teardown)',
+    types: ['Major Stop Inspection']
+  },
+  {
+    id: 5,
+    name: 'Refrigerant Maintenance',
+    types: ['Refrigerant Analysis Date', 'Date Refrigerant Added']
+  },
+  {
+    id: 6,
+    name: 'Tube Cleaning',
+    types: ['Condenser Tube Cleaning Date', 'Evaporator Tube Cleaning Date']
+  },
+  {
+    id: 7,
+    name: 'Purge Maintenance',
+    types: ['Purge Tank Reclaim Date', 'Purge Filter Dryer Change Date']
+  },
+  {
+    id: 8,
+    name: 'Major Repairs',
+    types: ['Major Repair']
+  },
+  {
+    id: 9,
+    name: 'Running Inspection',
+    types: ['Running Inspection']
+  },
+  {
+    id: 10,
+    name: 'Vibration Analysis',
+    types: ['Vibration Analysis']
+  }
 ];
 
 export const STATE_OPTIONS = Object.entries(STATES).map(([label]) => ({
@@ -129,14 +268,33 @@ export const statusType = {
   PROSPECT: 'prospect'
 };
 
+export enum ALERT_TYPE {
+  ALERT = 'alert',
+  WARNING = 'warning',
+  NORMAL = 'normal'
+}
+
 export const TIMEZONE_OPTIONS = [
   { value: 'EST', label: 'EST' },
-  { value: 'PST', label: 'PST' },
   { value: 'CST', label: 'CST' },
   { value: 'MST', label: 'MST' },
+  { value: 'PST', label: 'PST' },
   { value: 'AKST', label: 'AKST' },
-  { value: 'HAST', label: 'HAST' }
+  { value: 'HST', label: 'HST' }, // corrected (instead of HAST)
+  { value: 'AST', label: 'AST' }, // Atlantic (Canada + US Territories)
+  { value: 'NST', label: 'NST' } // Newfoundland (Canada only)
 ];
+
+export enum TimezoneEnum {
+  EST = 'America/New_York', // Eastern
+  CST = 'America/Chicago', // Central
+  MST = 'America/Denver', // Mountain
+  PST = 'America/Los_Angeles', // Pacific
+  AKST = 'America/Anchorage', // Alaska
+  HST = 'Pacific/Honolulu', // Hawaii
+  AST = 'America/Halifax', // Atlantic (Canada)
+  NST = 'America/St_Johns' // Newfoundland
+}
 
 export const ALTITUDE_OPTIONS = [
   { value: 'meter', label: 'Meter' },
@@ -222,6 +380,11 @@ export const NUMBER_OF_COMPRESSOR = [
   { label: '2', value: '2' }
 ];
 
+export const PURGE_READING_UNIT = [
+  { label: 'Mins. Only', value: 'Mins. Only' },
+  { label: 'Hrs. & Min.', value: 'Hrs. & Min.' }
+];
+
 const currentYear = new Date().getFullYear();
 
 export const yearOptions = Array.from({ length: currentYear - 1965 + 1 }, (_, i) => {
@@ -244,14 +407,14 @@ export const refrigerantOptions = [
 export const Role = [
   { label: 'Admin', value: 'admin' },
   { label: 'Sub Admin', value: 'subAdmin' },
-  { label: 'Corporate Manager', value: 'corporateManager' },
+  { label: 'Company Manager', value: 'corporateManager' },
   { label: 'Facility Manager', value: 'facilityManager' },
   { label: 'Operator', value: 'operator' }
 ];
 
 export const USER_ADD_ROLE = [
   { label: 'Sub Admin', value: 'subAdmin' },
-  { label: 'Corporate Manager', value: 'corporateManager' },
+  { label: 'Company Manager', value: 'corporateManager' },
   { label: 'Facility Manager', value: 'facilityManager' },
   { label: 'Operator', value: 'operator' }
 ];

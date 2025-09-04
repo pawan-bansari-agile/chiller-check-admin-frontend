@@ -8,6 +8,11 @@ export const Wrapper = styled.div`
     align-items: center;
   }
 
+  .no-data {
+    text-align: center;
+    padding: 10px 0px;
+  }
+
   .chillerContentHeader {
     display: flex;
     align-items: center;
@@ -245,7 +250,10 @@ export const Wrapper = styled.div`
     }
 
     .mainGraphWrap {
-      margin-top: 35px;
+      display: flex;
+      flex-direction: column;
+      gap: 35px;
+
       .charityCard {
         width: 100%;
         height: 100%;
@@ -272,10 +280,10 @@ export const Wrapper = styled.div`
             border: none;
           }
 
-          a {
+          /* a {
             color: #000abc;
             font-weight: 600;
-          }
+          } */
         }
 
         h2 {
@@ -292,7 +300,7 @@ export const Wrapper = styled.div`
           margin-top: 4px;
 
           span {
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 500;
             line-height: 100%;
             color: ${({ theme }) => theme.colors.danger};
@@ -325,6 +333,64 @@ export const Wrapper = styled.div`
 
         .consumptionChart {
           margin: 35px 0;
+        }
+      }
+
+      .compressorPurgeCard {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        gap: 25px;
+        .compresssorHeader {
+          width: 48%;
+          .scrollDiv {
+            .consumptionChart {
+              min-width: 100%;
+              .labelWrap {
+                span {
+                  width: 25%;
+                  max-width: 100%;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                  word-wrap: normal;
+                  padding-left: 10px;
+                  padding-right: 10px;
+                }
+              }
+              .valueWrap {
+                div {
+                  width: 25%;
+                }
+              }
+            }
+          }
+        }
+
+        .purgeHeader {
+          width: 48%;
+          .scrollDiv {
+            .consumptionChart {
+              min-width: 100%;
+              .labelWrap {
+                span {
+                  width: 50%;
+                  max-width: 100%;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                  word-wrap: normal;
+                  padding-left: 10px;
+                  padding-right: 10px;
+                }
+              }
+              .valueWrap {
+                div {
+                  width: 50%;
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -377,7 +443,7 @@ export const Wrapper = styled.div`
       align-items: center;
 
       span {
-        width: 12.5%;
+        width: 16.5%;
         text-align: center;
         font-size: 16px;
         font-weight: 600;
@@ -393,15 +459,27 @@ export const Wrapper = styled.div`
 
       div {
         padding: 18px 15px;
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 500;
         line-height: 100%;
         color: ${({ theme }) => theme.colors.inkBlue};
-        width: 12.5%;
-        display: flex;
+        width: 16.5%;
+        display: inline-grid;
+        gap: 2px;
         justify-content: center;
         align-items: center;
         border-left: 2px solid #f0f0f0;
+        .problemLink {
+          cursor: pointer;
+          color: #000abc;
+          margin-bottom: 7px;
+        }
+        .proj_cost_of_loss {
+          margin-bottom: 7px;
+        }
+        .prob_eff_loss {
+          margin-bottom: 7px;
+        }
         &:first-of-type {
           border-left: none;
         }
@@ -409,6 +487,14 @@ export const Wrapper = styled.div`
           display: flex;
           flex-direction: column;
           gap: 5px;
+          span.recentTimeWrap {
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            span {
+              color: #000abc;
+            }
+          }
         }
         &.legends span {
           display: inline-block;
@@ -424,10 +510,42 @@ export const Wrapper = styled.div`
     }
   }
 
+  .performanceSummaryChart {
+    .labelWrap {
+      span {
+        width: 20% !important;
+        padding: 0 50px;
+        line-height: 24px;
+      }
+    }
+    .valueWrap {
+      border-radius: 0;
+      border-bottom: 0;
+      border-top: 0;
+
+      &:nth-of-type(2) {
+        border-top: 2px solid #f0f0f0 !important;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+      }
+
+      &:nth-of-type(4) {
+        border-bottom: 2px solid #f0f0f0 !important;
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+      }
+
+      div {
+        width: 20% !important;
+      }
+    }
+  }
+
   .editButtonWrap {
     display: flex;
     gap: 10px;
   }
+
   .addEditHeader {
     padding: 36px 18px 5px 25px !important;
 
@@ -460,6 +578,25 @@ export const Wrapper = styled.div`
         width: 33%;
         &.extraDetails {
           display: none;
+        }
+      }
+    }
+
+    .analyticsGraph {
+      .mainGraphWrap {
+        .compressorPurgeCard {
+          .compresssorHeader {
+            width: 100%;
+            .scrollDiv .consumptionChart {
+              min-width: 1000px;
+            }
+          }
+          .purgeHeader {
+            width: 100%;
+            .scrollDiv .consumptionChart {
+              min-width: 1000px;
+            }
+          }
         }
       }
     }

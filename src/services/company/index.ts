@@ -15,7 +15,8 @@ const apiEndPoints = {
   addCompany: 'company/createCompany',
   editCompany: 'company',
   findAllCompany: 'company/findAll',
-  findAllCompanyUnAssigned: 'company/findAllNotAssigned'
+  findAllCompanyUnAssigned: 'company/findAllNotAssigned',
+  activeCompanies: `company/findAll/activeCompanies`
 };
 
 export const companyQueryKeys = {
@@ -30,7 +31,8 @@ export const companyQueryKeys = {
     ...companyQueryKeys.all,
     'companyListUnAssigned',
     args
-  ]
+  ],
+  activeCompanies: ['company', 'activeCompanies']
 };
 
 export const companyApi = {
@@ -38,6 +40,22 @@ export const companyApi = {
     return apiInstance
       .post(apiEndPoints.findAllCompany)
       .then((response) => response?.data)
+      .catch((error) => {
+        throw error?.response?.data;
+      });
+  },
+  async getActiveCompanyList(): Promise<{ label?: string; value?: string }[]> {
+    return apiInstance
+      .get(apiEndPoints.activeCompanies)
+      .then(
+        (response) =>
+          response?.data?.map((company: Types.ICompanyActiveList) => {
+            return {
+              label: company?.name || '',
+              value: company?._id
+            };
+          }) || []
+      )
       .catch((error) => {
         throw error?.response?.data;
       });
@@ -110,6 +128,13 @@ export const companyHooks = {
     return useApiQuery(
       companyQueryKeys.findAllCompany,
       () => companyApi.getCompanyAllList(),
+      defaultQueryOptions
+    );
+  },
+  AllActiveCompanyList: () => {
+    return useApiQuery(
+      companyQueryKeys.activeCompanies,
+      () => companyApi.getActiveCompanyList(),
       defaultQueryOptions
     );
   },

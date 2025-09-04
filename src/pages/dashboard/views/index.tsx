@@ -1,491 +1,343 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 
-import { DownOutlined, FallOutlined } from '@ant-design/icons';
-import { Button, Col, Dropdown, Row } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
+
+import { DashboardOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { Tooltip } from 'antd';
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+
+import { dashboardHooks } from '@/services/dashboard';
 import {
-  ArcElement,
-  CategoryScale,
-  Chart as ChartJS,
-  Legend,
-  LineElement,
-  LinearScale,
-  PointElement,
-  Tooltip
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
-import { CircularProgressbarWithChildren } from 'react-circular-progressbar';
+  EfficiencyAlert,
+  Metrics,
+  Performance,
+  PerformanceSummary
+} from '@/services/dashboard/types';
 
+import { RenderCheckboxInput } from '@/shared/components/common/FormField';
 import HeaderToolbar from '@/shared/components/common/HeaderToolbar';
+import { Loader } from '@/shared/components/common/Loader';
 import Meta from '@/shared/components/common/Meta';
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
-import { Alert, LogsIcon, WarningIcon } from '@/shared/svg';
-import { toAbsoluteUrl } from '@/shared/utils/functions';
+import { TimezoneEnum } from '@/shared/constants';
+import { ROUTES } from '@/shared/constants/routes';
 
 import CompanySelectorDropdown from '../component/CompanySelectorDropdown';
 import { Wrapper } from '../style';
 
-import 'react-circular-progressbar/dist/styles.css';
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
-ChartJS.register(
-  CategoryScale,
-  ArcElement,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Tooltip,
-  Legend
+interface ChillerLog extends EfficiencyAlert {
+  isGlobal?: boolean;
+}
+
+// ====== Constants & Helpers ======
+const labels: Record<string, string> = {
+  thisYTD: 'This YTD',
+  lastYTD: 'Last YTD',
+  last12Months: 'Last 12 Months'
+};
+
+const formatPercentage = (value?: number | null) => (value != null ? `${value} %` : '-');
+
+const formatDollar = (value?: number | null) =>
+  value != null ? `$ ${value?.toLocaleString('en-US')}` : '-';
+
+const getClassName = (value?: number | null) => {
+  if (value == null) return '';
+  if (value >= 10) return 'legendWrap effLossLegend';
+  if (value >= 2 && value < 10) return 'legendWrap nonCondenseLegend';
+  return '';
+};
+
+const convertUtcToTimezone = (
+  utcDate?: string | null,
+  targetZone: string = 'UTC',
+  formatType: 'Date' | 'Time' = 'Date'
+) => {
+  if (!utcDate) return '';
+  const tz = TimezoneEnum[targetZone as keyof typeof TimezoneEnum] || TimezoneEnum.EST;
+  const date = dayjs.utc(utcDate).tz(tz);
+  return date.format(formatType === 'Date' ? 'MM/DD/YY' : 'hh:mm A');
+};
+
+// ====== Reusable Components ======
+const PerformanceRow: React.FC<{ label: string; values?: Metrics }> = ({ label, values }) => (
+  <div className="valueWrap">
+    <div>{label}</div>
+    <div>{formatPercentage(values?.averageLoss)}</div>
+    <div>{formatDollar(values?.targetCost)}</div>
+    <div>{formatDollar(values?.actualCost)}</div>
+    <div>{formatDollar(values?.lossCost)}</div>
+    <div>{values?.kwhLoss?.toLocaleString('en-US') ?? '-'}</div>
+    <div>{values?.btuLoss?.toLocaleString('en-US') ?? '-'}</div>
+    <div>{values?.co2?.toLocaleString('en-US') ?? '-'}</div>
+  </div>
 );
 
-const Dashboard: React.FC = () => {
-  // const chartOptions = {
-  //   plugins: { legend: { display: false }, tooltip: { enabled: false } },
-  //   scales: { x: { display: false }, y: { display: false } },
-  //   elements: { point: { borderWidth: 0 } }
-  // };
-
-  // Shared chart options
-  const baseOptions = {
-    plugins: {
-      legend: { display: false },
-      tooltip: { enabled: false }
-    },
-    scales: {
-      x: { display: false },
-      y: { display: false }
-    },
-    elements: { line: { tension: 0.4 } }
-  };
-
-  // Target Chart Data
-  const targetData = {
-    labels: ['1', '2', '3', '4', '5'],
-    datasets: [
-      {
-        data: [10, 10.5, 10, 9.5, 10],
-        borderColor: '#00b894',
-        borderWidth: 2,
-        pointRadius: 0,
-        fill: false
-      }
-    ]
-  };
-
-  // Actual Chart Data
-  const actualData = {
-    labels: ['1', '2', '3', '4', '5'],
-    datasets: [
-      {
-        data: [18, 20, 21, 19.5, 20],
-        borderColor: '#d63031',
-        borderWidth: 2,
-        pointRadius: 0,
-        fill: false
-      }
-    ]
-  };
-
-  // Estimated Loss Chart
-  // const estimatedLossData = {
-  //   labels: ['1', '2', '3', '4', '5', '6', '7'],
-  //   datasets: [
-  //     {
-  //       data: [1, 1.5, 1.2, 2.5, 3, 2.2, 2.8],
-  //       borderColor: '#d63031',
-  //       backgroundColor: 'rgba(214, 48, 49, 0.1)',
-  //       borderWidth: 2,
-  //       pointRadius: 0,
-  //       fill: true,
-  //       tension: 0.4
-  //     }
-  //   ]
-  // };
-
-  // const estimatedLossOptions = {
-  //   responsive: true,
-  //   plugins: {
-  //     legend: { display: false },
-  //     tooltip: { enabled: false }
-  //   },
-  //   scales: {
-  //     x: { display: false },
-  //     y: { display: false }
-  //   },
-  //   elements: {
-  //     line: { tension: 0.4 }
-  //   }
-  // };
-
-  // KWH chart
-  // const kwhData = [10, 12, 11, 14, 13, 15, 20];
-
-  // const kwhLineData = {
-  //   labels: kwhData.map((_, i) => i.toString()),
-  //   datasets: [
-  //     {
-  //       data: kwhData,
-  //       borderColor: '#00b894',
-  //       backgroundColor: 'rgba(0, 184, 148, 0.1)',
-  //       borderWidth: 2,
-  //       fill: true,
-  //       tension: 0.4,
-  //       pointRadius: kwhData.map((_, i) => (i === kwhData.length - 1 ? 5 : 0)),
-  //       pointBackgroundColor: '#00b894'
-  //     }
-  //   ]
-  // };
-
-  // BTU chart
-  // const btuData = [15, 17, 16, 20, 22, 25, 30];
-
-  // const btuLineData = {
-  //   labels: btuData.map((_, i) => i.toString()),
-  //   datasets: [
-  //     {
-  //       data: btuData,
-  //       borderColor: '#d63031',
-  //       backgroundColor: 'rgba(214, 48, 49, 0.1)',
-  //       borderWidth: 2,
-  //       fill: true,
-  //       tension: 0.4,
-  //       pointRadius: btuData.map((_, i) => (i === btuData.length - 1 ? 5 : 0)),
-  //       pointBackgroundColor: '#d63031'
-  //     }
-  //   ]
-  // };
-
-  // facility dropdown
-  const menu = (
-    <div className="comapanyDashboardDropdown">
-      <ul className="company-list">
-        <li className={`company-item`}>Facility 1</li>
-        <li className={`company-item`}>Facility 1</li>
-        <li className={`company-item`}>Facility 1</li>
-        <li className={`company-item`}>Facility 1</li>
-        <li className={`company-item`}>Facility 1</li>
-      </ul>
+const ChillerLogRow: React.FC<ChillerLog> = ({
+  _id,
+  ChillerNo,
+  chillerId,
+  logId,
+  facilityTimezone,
+  readingDateUTC,
+  effLoss,
+  condAppLoss,
+  evapAppLoss,
+  nonCondLoss,
+  otherLoss,
+  isGlobal = false,
+  facilityName
+}) => {
+  const navigate = useNavigate();
+  return (
+    <div key={_id} className="valueWrap">
+      {isGlobal && <div>{facilityName || '-'}</div>}
+      {!isGlobal && (
+        <div>
+          <span
+            className="dashboardIcon"
+            onClick={() => navigate(ROUTES.View_CHILLER_MANAGEMENT(chillerId))}
+          >
+            <DashboardOutlined />
+          </span>
+        </div>
+      )}
+      <div>
+        <Link className="chillerNavigate" to={ROUTES.View_CHILLER_MANAGEMENT(chillerId)}>
+          {ChillerNo || '-'}
+        </Link>
+      </div>
+      <div className="timeValueWrap" onClick={() => navigate(ROUTES.VIEW_LOG_ENTRY(logId))}>
+        <span>{convertUtcToTimezone(readingDateUTC, facilityTimezone, 'Date')}</span>
+        <span>{convertUtcToTimezone(readingDateUTC, facilityTimezone, 'Time')}</span>
+      </div>
+      {[effLoss, condAppLoss, evapAppLoss, nonCondLoss, otherLoss].map((v, idx) => (
+        <div key={idx}>
+          <span
+            style={v >= 2 && v < 10 ? { color: 'black' } : undefined}
+            className={getClassName(v)}
+          >
+            {formatPercentage(v)}
+          </span>
+        </div>
+      ))}
     </div>
+  );
+};
+
+// ====== Dashboard Component ======
+const Dashboard: React.FC = () => {
+  const [hideFacility, setHideFacility] = useState(false);
+  const [companyId, setCompanyId] = useState('');
+  const { data, isLoading } = dashboardHooks.DashboardDetails(companyId);
+
+  const staticKeys: (keyof PerformanceSummary)[] = ['thisYTD', 'lastYTD', 'last12Months'];
+
+  const yearKeys = useMemo(
+    () => Object.keys(data?.performanceSummary || {}).filter((k) => !staticKeys.includes(k as any)),
+    [data?.performanceSummary]
   );
 
   return (
     <Wrapper>
+      {isLoading && <Loader />}
       <Meta title="Dashboard" />
       <HeaderToolbar
         title="dashboard"
-        button={
-          <div className="dashboardHeader">
-            <ul className="selectDuration">
-              <li>
-                <span className="active">Month</span>
-              </li>
-              <li>
-                <span>Quarter</span>
-              </li>
-              <li>
-                <span>Half Year</span>
-              </li>
-              <li>
-                <span>Year</span>
-              </li>
-            </ul>
-
-            {/* Dropdown */}
-            <CompanySelectorDropdown />
-          </div>
-        }
+        button={<CompanySelectorDropdown setCompanyId={setCompanyId} />}
       />
-      <Row gutter={[10, 10]}>
-        <Col xs={24} sm={24} md={12} xl={6} lg={12}>
-          <div className="dashboardCard">
-            <h2 className="themeColor">Cost at avg. Load Profile</h2>
-            <div className="avgContentWrap">
-              <div className="avgTarget avgList">
-                <Line data={targetData} options={baseOptions} height={40} />
-                <div className="avgContent">
-                  <h5 className="avgTitle">$10k</h5>
-                  <h6 className="avgDesc">Target</h6>
-                  <div className="avgPercentage">
-                    <FallOutlined style={{ color: '#F04924' }} />
-                    <span>20%</span>
-                  </div>
-                </div>
-              </div>
-              <div className="avgActual avgList">
-                <Line data={actualData} options={baseOptions} height={40} />
-                <div className="avgContent">
-                  <h5 className="avgTitle">$20k</h5>
-                  <h6 className="avgDesc">Actual</h6>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Col>
-
-        <Col xs={24} sm={24} md={12} xl={6} lg={12}>
-          <div className="dashboardCard">
-            <h2 className="themeColor">Avg. Efficiency Loss</h2>
-            <div className="circularEff">
-              <CircularProgressbarWithChildren
-                value={70}
-                counterClockwise={false}
-                circleRatio={0.9}
-                styles={{
-                  path: {
-                    stroke: '#00A86B'
-                  },
-                  root: {
-                    transform: 'rotate(0.55turn)',
-                    transformOrigin: 'center center'
-                  }
-                }}
-              >
-                <p className="pr-text">{80}%</p>
-              </CircularProgressbarWithChildren>
-            </div>
-            <div className="circularContent">
-              <h5 className="avgTitle">$32000 Loss</h5>
-              <div className="avgPercentage">
-                <FallOutlined style={{ color: '#F04924' }} />
-                <span>4.8%</span>
-                <span>{'<'}</span>
-                <span>last Month</span>
-              </div>
-            </div>
-          </div>
-        </Col>
-
-        <Col xs={24} sm={24} md={12} xl={6} lg={12}>
-          <div className="dashboardCard">
-            <h2 className="themeColor">KWh Loss</h2>
-            <div className="lossWrap">
-              <div className="kwhLoss commonLoss">
-                <img src={toAbsoluteUrl('/icons/kwhLoss.png')} alt="kwh" />
-                {/* <Line data={kwhLineData} options={chartOptions} height={62} /> */}
-                <div className="lossCountWrap">
-                  <h3 className="lossCount">20</h3>
-                  <h6 className="avgDesc">KWh Loss</h6>
-                </div>
-              </div>
-              <h2>BTU Loss</h2>
-              <div className="btuLoss commonLoss">
-                {/* <Line data={btuLineData} options={chartOptions} height={62} /> */}
-                <img src={toAbsoluteUrl('/icons/btuLoss.png')} alt="kwh" />
-                <div className="lossCountWrap">
-                  <h3 className="lossCount">20</h3>
-                  <h6 className="avgDesc">BTU Loss</h6>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Col>
-
-        <Col xs={24} sm={24} md={12} xl={6} lg={12}>
-          <div className="dashboardCard">
-            <h2 className="themeColor">Excess CO2</h2>
-            <div className="gaugeChart">
-              <img src={toAbsoluteUrl('/icons/gauge.png')} alt="guage" />
-            </div>
-            <div className="gaugeDate">
-              <h4>50KW</h4>
-              <div className="avgPercentage">
-                <FallOutlined style={{ color: '#F04924' }} />
-                <span>4.8%</span>
-                <span>{'<'}</span>
-                <span>last Month</span>
-              </div>
-            </div>
-          </div>
-        </Col>
-
-        <Col xs={24} sm={24} md={12} lg={12}>
-          <div className="dashboardCard">
-            <h2 className="themeColor">Estimated Loss</h2>
-            <div className="estimatedChart">
-              {/* <Line data={estimatedLossData} options={estimatedLossOptions} height={74} /> */}
-              <img src={toAbsoluteUrl('/icons/estimatedLoss.png')} alt="estimated" />
-            </div>
-          </div>
-        </Col>
-
-        <Col xs={24} sm={24} md={12} lg={12}>
-          <div className="dashboardCard logCard">
-            <ul className="logCount">
-              <li>
-                <div className="logCountWrap">
-                  <Alert />
-                  <span className="logCountTitle">Alerts</span>
-                </div>
-                <h2>200</h2>
-              </li>
-              <li>
-                <div className="logCountWrap">
-                  <WarningIcon />
-                  <span className="logCountTitle">Warnings</span>
-                </div>
-                <h2>200</h2>
-              </li>
-              <li>
-                <div className="logCountWrap">
-                  <LogsIcon />
-                  <span className="logCountTitle">Logs</span>
-                </div>
-                <h2>200</h2>
-              </li>
-            </ul>
-          </div>
-        </Col>
-      </Row>
-
-      <div className="facilityDashboard">
+      <div className="shadowPaperWrap">
+        {/* ===== Efficiency Alert Legend ===== */}
         <ShadowPaper>
-          <div className="facilityDropdown">
-            <Dropdown overlay={menu} trigger={['click']}>
-              <Button type="primary" className="title-btn">
-                Facility 1 <DownOutlined />
-              </Button>
-            </Dropdown>
-          </div>
-          <Row gutter={[10, 10]}>
-            <Col xs={24} sm={24} md={12} xl={6} lg={12}>
-              <div className="dashboardCard">
-                <h2 className="themeColor">Cost at avg. Load Profile</h2>
-                <div className="avgContentWrap">
-                  <div className="avgTarget avgList">
-                    <Line data={targetData} options={baseOptions} height={40} />
-                    <div className="avgContent">
-                      <h5 className="avgTitle">$10k</h5>
-                      <h6 className="avgDesc">Target</h6>
-                      <div className="avgPercentage">
-                        <FallOutlined style={{ color: '#F04924' }} />
-                        <span>20%</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="avgActual avgList">
-                    <Line data={actualData} options={baseOptions} height={40} />
-                    <div className="avgContent">
-                      <h5 className="avgTitle">$20k</h5>
-                      <h6 className="avgDesc">Actual</h6>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Col>
-
-            <Col xs={24} sm={24} md={12} xl={6} lg={12}>
-              <div className="dashboardCard">
-                <h2 className="themeColor">Avg. Efficiency Loss</h2>
-                <div className="circularEff">
-                  <CircularProgressbarWithChildren
-                    value={70}
-                    counterClockwise={false}
-                    circleRatio={0.9}
-                    styles={{
-                      path: {
-                        stroke: '#00A86B'
-                      },
-                      root: {
-                        transform: 'rotate(0.55turn)',
-                        transformOrigin: 'center center'
-                      }
-                    }}
-                  >
-                    <p className="pr-text">{80}%</p>
-                  </CircularProgressbarWithChildren>
-                </div>
-                <div className="circularContent">
-                  <h5 className="avgTitle">$32000 Loss</h5>
-                  <div className="avgPercentage">
-                    <FallOutlined style={{ color: '#F04924' }} />
-                    <span>4.8%</span>
-                    <span>{'<'}</span>
-                    <span>last Month</span>
-                  </div>
-                </div>
-              </div>
-            </Col>
-
-            <Col xs={24} sm={24} md={12} xl={6} lg={12}>
-              <div className="dashboardCard">
-                <h2 className="themeColor">KWh Loss</h2>
-                <div className="lossWrap">
-                  <div className="kwhLoss commonLoss">
-                    <img src={toAbsoluteUrl('/icons/kwhLoss.png')} alt="kwh" />
-                    {/* <Line data={kwhLineData} options={chartOptions} height={62} /> */}
-                    <div className="lossCountWrap">
-                      <h3 className="lossCount">20</h3>
-                      <h6 className="avgDesc">KWh Loss</h6>
-                    </div>
-                  </div>
-                  <h2>BTU Loss</h2>
-                  <div className="btuLoss commonLoss">
-                    {/* <Line data={btuLineData} options={chartOptions} height={62} /> */}
-                    <img src={toAbsoluteUrl('/icons/btuLoss.png')} alt="kwh" />
-                    <div className="lossCountWrap">
-                      <h3 className="lossCount">20</h3>
-                      <h6 className="avgDesc">BTU Loss</h6>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Col>
-
-            <Col xs={24} sm={24} md={12} xl={6} lg={12}>
-              <div className="dashboardCard">
-                <h2 className="themeColor">Excess CO2</h2>
-                <div className="gaugeChart">
-                  <img src={toAbsoluteUrl('/icons/gauge.png')} alt="guage" />
-                </div>
-                <div className="gaugeDate">
-                  <h4>50KW</h4>
-                  <div className="avgPercentage">
-                    <FallOutlined style={{ color: '#F04924' }} />
-                    <span>4.8%</span>
-                    <span>{'<'}</span>
-                    <span>last Month</span>
-                  </div>
-                </div>
-              </div>
-            </Col>
-
-            <Col xs={24} sm={24} md={12} lg={12}>
-              <div className="dashboardCard">
-                <h2 className="themeColor">Estimated Loss</h2>
-                <div className="estimatedChart">
-                  {/* <Line data={estimatedLossData} options={estimatedLossOptions} height={74} /> */}
-                  <img src={toAbsoluteUrl('/icons/estimatedLoss.png')} alt="estimated" />
-                </div>
-              </div>
-            </Col>
-
-            <Col xs={24} sm={24} md={12} lg={12}>
-              <div className="dashboardCard logCard">
-                <ul className="logCount">
-                  <li>
-                    <div className="logCountWrap">
-                      <Alert />
-                      <span className="logCountTitle">Alerts</span>
-                    </div>
-                    <h2>200</h2>
-                  </li>
-                  <li>
-                    <div className="logCountWrap">
-                      <WarningIcon />
-                      <span className="logCountTitle">Warnings</span>
-                    </div>
-                    <h2>200</h2>
-                  </li>
-                  <li>
-                    <div className="logCountWrap">
-                      <LogsIcon />
-                      <span className="logCountTitle">Logs</span>
-                    </div>
-                    <h2>200</h2>
-                  </li>
-                </ul>
-              </div>
-            </Col>
-          </Row>
+          <ul className="dashboardEffList">
+            <li>ALERT KEY: 2-9%</li>
+            <li>
+              EFFICIENCY LOSS: <span className="effLegends"></span>
+            </li>
+            <li>
+              10%+ EFFICIENCY LOSS: <span className="effLegends effLossLegends"></span>
+            </li>
+          </ul>
         </ShadowPaper>
+
+        {/* ===== Global Efficiency Alerts ===== */}
+        <div className="charityCard">
+          <div className="issueHeader">
+            <h2 className="themeColor">Efficiency Loss &gt; 10%</h2>
+          </div>
+          <div className="scrollDiv">
+            <div className="consumptionChart">
+              <div className="labelWrap">
+                <span>Facility</span>
+                <span>Chiller</span>
+                <span>View Log</span>
+                <span>Eff. Loss</span>
+                <span>Cond. App. Loss</span>
+                <span>Evap. App. Loss</span>
+                <span>Non- Cond. Loss</span>
+                <span>Other Losses</span>
+              </div>
+              {data?.efficiencyAlerts?.length ? (
+                data?.efficiencyAlerts?.map((log) => (
+                  <ChillerLogRow key={log._id} {...log} isGlobal />
+                ))
+              ) : (
+                <div className="no-data">No Data Found</div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ===== Company-wide Performance Summary ===== */}
+        <div className="charityCard">
+          <div className="issueHeader">
+            <h2 className="themeColor">Performance Summary for Your Company's Chillers</h2>
+          </div>
+          <div className="scrollDiv">
+            <div className="consumptionChart performaceSummaryChartDashboard">
+              <div className="labelWrap">
+                <span></span>
+                <span>Avg. Eff. Loss</span>
+                <span>Total Target Cost at Average Load Profile</span>
+                <span>Total Actual Cost at Average Load Profile</span>
+                <span>Estimated $ Loss</span>
+                <span>Estimated kWh Loss</span>
+                <span>Estimated BTU Loss</span>
+                <span>
+                  Estimated kg of CO2e Created
+                  <Tooltip
+                    placement="leftTop"
+                    title="CO2e is a standardized unit of measurement that combines the warming impact of all greenhouse gases, including: Carbon Dioxide (CO2), Methane (CH4), Nitrous Oxide (N2O) and Fluorinated gases (like HFCs, PFCs, and SF6). Each of these gases has a different Global Warming Potential (GWP), which is a measure of how much heat it traps in the atmosphere compared to a similar amount of CO2 over a specific period (usually 100 years). Using CO2e converts the emissions of these more potent gases into an equivalent amount of CO2. This allows for a single, uniform metric to compare the total climate impact from various sources. CO2e is used for calculating and reporting a total carbon footprint for a company, a product, or a country."
+                  >
+                    <InfoCircleOutlined style={{ marginLeft: 4, color: '#000ABC' }} />
+                  </Tooltip>
+                </span>
+              </div>
+              {staticKeys?.map((key) => (
+                <PerformanceRow
+                  key={key}
+                  label={labels[key]}
+                  values={data?.performanceSummary?.[key]}
+                />
+              ))}
+              {yearKeys
+                ?.sort((a, b) => Number(b) - Number(a))
+                ?.map((year) => (
+                  <PerformanceRow
+                    key={year}
+                    label={year}
+                    values={data?.performanceSummary?.[year]}
+                  />
+                ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ===== Toggle Facility Summaries ===== */}
+        {data?.facilityWisePerformance?.length ? (
+          <ShadowPaper>
+            <RenderCheckboxInput
+              inputProps={{ onChange: (e) => setHideFacility(e.target.checked) }}
+              colClassName="locationPerformanceCheckbox"
+            >
+              <span className="checkboxLocation">Hide Location Performance Summaries</span>
+            </RenderCheckboxInput>
+          </ShadowPaper>
+        ) : null}
+
+        {/* ===== Facility-wise Details ===== */}
+        {data?.facilityWiseChillerLogs?.map((facility) => {
+          const perfData = data?.facilityWisePerformance?.find(
+            (p) => p.facilityId === facility.facilityId
+          );
+          const facilitySummary = perfData?.performance;
+          const facilityStaticKeys: (keyof Performance)[] = ['thisYTD', 'lastYTD', 'last12Months'];
+          const facilityYearKeys = Object.keys(facilitySummary || {}).filter(
+            (k) => !facilityStaticKeys.includes(k as any)
+          );
+
+          return (
+            <div key={facility.facilityId} className="charityCard">
+              <div className="issueHeader facilityHeader">
+                <h2 className="themeColor">Facility - {facility.facilityName || '-'}</h2>
+              </div>
+
+              {/* Facility Chiller Logs */}
+              <div className="scrollDiv">
+                <h2 className="themeColor chiller-title">Chillers</h2>
+                <div className="consumptionChart mainBuildingDashboard">
+                  <div className="labelWrap">
+                    <span>Dashboard</span>
+                    <span>Chiller</span>
+                    <span>View Log</span>
+                    <span>Eff. Loss</span>
+                    <span>Cond. App. Loss</span>
+                    <span>Evap. App. Loss</span>
+                    <span>Non- Cond. Loss</span>
+                    <span>Other Losses</span>
+                  </div>
+                  {facility?.chillerLogs?.length ? (
+                    facility?.chillerLogs?.map((log) => <ChillerLogRow key={log._id} {...log} />)
+                  ) : (
+                    <div className="no-data">No Data Found</div>
+                  )}
+                </div>
+              </div>
+
+              {/* Facility Performance Summary */}
+              {perfData && !hideFacility && (
+                <>
+                  <div className="issueHeader">
+                    <h2 className="themeColor">Facility Performance</h2>
+                  </div>
+                  <div className="scrollDiv">
+                    <div className="consumptionChart facilityPerformanceChartDashboard">
+                      <div className="labelWrap">
+                        <span></span>
+                        <span>Avg. Eff. Loss</span>
+                        <span>Total Target Cost</span>
+                        <span>Total Actual Cost</span>
+                        <span>Estimated $ Loss</span>
+                        <span>Estimated kWh Loss</span>
+                        <span>Estimated BTU Loss</span>
+                        <span>
+                          Estimated kg of CO2e
+                          <Tooltip
+                            placement="leftTop"
+                            title="CO2e is a standardized unit of measurement that combines the warming impact of all greenhouse gases, including: Carbon Dioxide (CO2), Methane (CH4), Nitrous Oxide (N2O) and Fluorinated gases (like HFCs, PFCs, and SF6). Each of these gases has a different Global Warming Potential (GWP), which is a measure of how much heat it traps in the atmosphere compared to a similar amount of CO2 over a specific period (usually 100 years). Using CO2e converts the emissions of these more potent gases into an equivalent amount of CO2. This allows for a single, uniform metric to compare the total climate impact from various sources. CO2e is used for calculating and reporting a total carbon footprint for a company, a product, or a country."
+                          >
+                            <InfoCircleOutlined style={{ marginLeft: 4, color: '#000ABC' }} />
+                          </Tooltip>
+                        </span>
+                      </div>
+                      {facilityStaticKeys?.map((key) => (
+                        <PerformanceRow
+                          key={key}
+                          label={labels[key]}
+                          values={facilitySummary?.[key]}
+                        />
+                      ))}
+                      {facilityYearKeys
+                        ?.sort((a, b) => Number(b) - Number(a))
+                        ?.map((year) => (
+                          <PerformanceRow
+                            key={year}
+                            label={year}
+                            values={facilitySummary?.[year]}
+                          />
+                        ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        })}
       </div>
     </Wrapper>
   );

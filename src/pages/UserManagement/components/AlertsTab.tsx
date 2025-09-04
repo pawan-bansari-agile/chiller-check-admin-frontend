@@ -28,6 +28,8 @@ interface IProps {
   role?: string;
   companyId?: string;
   facilityIds?: string[];
+  alertFacilities?: any[];
+  alertOperators?: any[];
 }
 
 const alertMetrics = [
@@ -62,7 +64,9 @@ const AlertsTab: React.FC<IProps> = ({
   isDisabled,
   role,
   companyId,
-  facilityIds
+  facilityIds,
+  alertFacilities,
+  alertOperators
 }) => {
   const [programCompanyId, setProgramCompanyId] = useState<string>('');
   const [programFacilityIds, setProgramFacilityIds] = useState<string[] | []>([]);
@@ -146,7 +150,10 @@ const AlertsTab: React.FC<IProps> = ({
 
         if (matchedLog?.type === 'program') {
           form.setFieldValue('programFacility', matchedLog?.facilityIds?.[0] || null);
-          form.setFieldValue('programOperator', matchedLog?.operatorIds?.[0] || null);
+          form.setFieldValue(
+            'programOperator',
+            matchedLog?.operatorIds?.length ? matchedLog?.operatorIds : null
+          );
         } else {
           form.setFieldValue('programFacility', null);
           form.setFieldValue('programOperator', null);
@@ -622,17 +629,25 @@ const AlertsTab: React.FC<IProps> = ({
                                   const isDisabledPrivate = !value || String(value).trim() === '';
                                   return (
                                     <RenderSelectDropDown
-                                      colClassName="dropdownWithSearch"
+                                      colClassName="dropdownWithSearch operatorSelect"
                                       formItemProps={{
                                         name: 'programFacility'
                                       }}
                                       inputProps={{
-                                        placeholder: 'All Facilities',
+                                        placeholder: 'Select Facilities',
                                         onChange: (value) => {
                                           form.setFieldValue('programOperator', null);
                                           setProgramFacilityIds([value]);
                                         },
-                                        options: facilityOptions || [],
+                                        // options: facilityOptions || [],
+                                        options: isDisabled
+                                          ? [
+                                              {
+                                                label: alertFacilities?.[0]?.name,
+                                                value: alertFacilities?.[0]?._id
+                                              }
+                                            ]
+                                          : facilityOptions || [],
                                         disabled:
                                           isDisabled ||
                                           isLoading ||
@@ -658,18 +673,37 @@ const AlertsTab: React.FC<IProps> = ({
                                   const isDisabledPrivate = !value || String(value).trim() === '';
                                   return (
                                     <RenderSelectDropDown
-                                      colClassName="dropdownWithSearch"
+                                      colClassName="dropdownWithSearch operatorSelect"
                                       formItemProps={{
                                         name: 'programOperator'
                                       }}
                                       inputProps={{
-                                        placeholder: 'All Operators',
-                                        options: operatorList || [],
+                                        mode: 'multiple',
+                                        placeholder: 'Select Operators',
+                                        options: isDisabled
+                                          ? alertOperators?.map((operator) => {
+                                              return {
+                                                label:
+                                                  operator?.firstName + ' ' + operator?.lastName,
+                                                value: operator?._id
+                                              };
+                                            })
+                                          : operatorList || [],
                                         disabled:
                                           isDisabled ||
                                           isDisabledPrivate ||
                                           isOperatorLoading ||
-                                          !operatorList?.length
+                                          !operatorList?.length,
+                                        maxTagCount: 1,
+                                        maxTagPlaceholder: (omittedValues: any[]) => (
+                                          <span
+                                            title={omittedValues
+                                              ?.map((value) => value?.label)
+                                              ?.join(', ')}
+                                          >
+                                            +{omittedValues.length}
+                                          </span>
+                                        )
                                       }}
                                     />
                                   );

@@ -34,7 +34,6 @@ const columns = [
     title: 'Section',
     dataIndex: 'section',
     key: 'section',
-    width: 120,
     sorter: true,
     align: 'left' as any,
     render: (value: string) => <>{value ? value : '-'}</>
@@ -43,34 +42,14 @@ const columns = [
     title: 'Field',
     dataIndex: 'field',
     key: 'field',
-    width: 120,
     sorter: true,
     render: (value: string) => <>{value ? value : '-'}</>
-  },
-  {
-    title: 'Problem',
-    dataIndex: 'problem',
-    key: 'problem',
-    width: 340,
-    sorter: true,
-    render: (value: string) =>
-      value ? <>{value.length > 200 ? `${value.slice(0, 200)}...` : value}</> : '-'
-  },
-  {
-    title: 'Solution',
-    dataIndex: 'solution',
-    key: 'solution',
-    width: 340,
-    sorter: true,
-    render: (value: string) =>
-      value ? <>{value.length > 200 ? `${value.slice(0, 200)}...` : value}</> : '-'
   },
   {
     title: 'Updated At',
     dataIndex: 'updatedAt',
     key: 'updatedAt',
     sorter: true,
-    width: 200,
     render: (updatedAt: string) => {
       if (!updatedAt) return '-';
 
@@ -89,7 +68,6 @@ const columns = [
     title: 'Updated By',
     dataIndex: 'updated_by',
     key: 'updated_by',
-    width: 200,
     sorter: true,
     render: (value: string, record: IProblemSolution) => (
       <div className="updateUser">
@@ -215,6 +193,7 @@ const ProblemSolution: React.FC = () => {
           />
         </div>
         <CommonTable
+          scroll={{ x: 'max-content' }}
           columns={columns}
           dataSource={data?.problemSolutionList}
           pagination={{

@@ -8,7 +8,11 @@ import { Button, Form } from 'antd';
 
 import { chillerHooks, chillerQueryKeys } from '@/services/chiller';
 import { companyHooks, companyQueryKeys } from '@/services/company';
+import { dashboardQueryKey } from '@/services/dashboard';
 import { facilityHooks, facilityQueryKeys } from '@/services/facility';
+import { logQueryKeys } from '@/services/log';
+import { maintenanceQueryKey } from '@/services/maintenance';
+import { reportQueryKey } from '@/services/report';
 import { userQueryKeys } from '@/services/user';
 
 import { authStore } from '@/store/auth';
@@ -74,6 +78,8 @@ interface IFormValues {
   calculateEfficiencyUsing: string;
   noOfCompressors: string;
   userNotes?: string;
+  emissionFactor: string;
+  ChillerNumber: string;
 }
 
 const ChillerAddEditForm: React.FC = () => {
@@ -152,7 +158,9 @@ const ChillerAddEditForm: React.FC = () => {
       oilPressureDifferential: chillerData?.compOPIndicator,
       calculateEfficiencyUsing: chillerData?.useRunHours,
       noOfCompressors: chillerData?.numberOfCompressors?.toString(),
-      userNotes: chillerData?.userNote
+      userNotes: chillerData?.userNote,
+      emissionFactor: chillerData?.emissionFactor?.toString(),
+      ChillerNumber: chillerData?.ChillerNumber
     });
   }, [chillerData, form, id]);
 
@@ -180,6 +188,10 @@ const ChillerAddEditForm: React.FC = () => {
     queryClient.invalidateQueries({ queryKey: companyQueryKeys.all });
     queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
     queryClient.invalidateQueries({ queryKey: chillerQueryKeys.all });
+    queryClient.invalidateQueries({ queryKey: logQueryKeys.all });
+    queryClient.invalidateQueries({ queryKey: maintenanceQueryKey.all });
+    queryClient.invalidateQueries({ queryKey: reportQueryKey.all });
+    queryClient.invalidateQueries({ queryKey: dashboardQueryKey.all });
     navigate(-1);
   };
 
@@ -238,7 +250,9 @@ const ChillerAddEditForm: React.FC = () => {
         : null,
       evapDOWTemp: Number(values?.evaporatorDesignOutletWaterTemp),
       evapDesignDeltaT: Number(values?.evaporatorDesignT),
-      evapDesignFlow: Number(values?.designEvaporatorFlow)
+      evapDesignFlow: Number(values?.designEvaporatorFlow),
+      emissionFactor: Number(values?.emissionFactor),
+      ChillerNumber: values?.ChillerNumber || ''
     };
     if (id) {
       editChillerAction(

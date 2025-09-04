@@ -16,7 +16,8 @@ const apiEndPoints = {
   editChiller: 'chiller',
   activeInactive: 'chiller',
   chillerTimeLine: 'timeline/list',
-  getAllChillers: 'chiller/findAll'
+  getAllChillers: 'chiller/findAll',
+  activeChillers: 'chiller/findAll/activeChillers'
 };
 
 export const chillerQueryKeys = {
@@ -32,7 +33,8 @@ export const chillerQueryKeys = {
     'chillerTimeLineList',
     args
   ],
-  chillerView: (id: string) => [...chillerQueryKeys.all, 'chillerView', id]
+  chillerView: (id: string) => [...chillerQueryKeys.all, 'chillerView', id],
+  activeChillers: (id?: string) => ['chiller', 'activeChillers', id]
 };
 
 export const chillerApi = {
@@ -58,6 +60,14 @@ export const chillerApi = {
   async getChillerAllList(data: ICommonPagination): Promise<Types.IChillerAllListRes> {
     return apiInstance
       .post(apiEndPoints.getAllChillers, data)
+      .then((response) => response?.data)
+      .catch((error) => {
+        throw error?.response?.data;
+      });
+  },
+  async getChillerAllActiveList(facilityId?: string): Promise<Types.IChillerViewRes[]> {
+    return apiInstance
+      .post(apiEndPoints.activeChillers, { facilityId })
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
@@ -139,7 +149,13 @@ export const chillerHooks = {
       defaultQueryOptions
     );
   },
-
+  ActiveChillerList: (facilityId?: string) => {
+    return useApiQuery(
+      chillerQueryKeys.activeChillers(facilityId),
+      () => chillerApi.getChillerAllActiveList(facilityId),
+      { ...defaultQueryOptions, enabled: Boolean(facilityId) }
+    );
+  },
   ChillerAllList: (args: ICommonPagination) => {
     return useApiQuery(
       chillerQueryKeys.chillerAllList(args),

@@ -91,6 +91,7 @@ describe('ChillerResponsibilitiesTab', () => {
           chillerIds={[]}
           setChillerIds={mockSetChillerIds}
           companyName="CoolAir"
+          form={vi.fn()}
         />
       </ThemeProvider>
     );
@@ -105,6 +106,7 @@ describe('ChillerResponsibilitiesTab', () => {
           facilityIds={[]}
           chillerIds={[]}
           setChillerIds={mockSetChillerIds}
+          form={vi.fn()}
         />
       </ThemeProvider>
     );

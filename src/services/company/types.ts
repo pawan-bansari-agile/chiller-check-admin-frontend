@@ -1,3 +1,5 @@
+import { LatestLog } from '../chiller/types';
+
 export interface IGetCompanyListRes {
   companyList: ICompanyListData[];
   totalRecords: number;
@@ -64,6 +66,7 @@ export interface Chiller {
   createdAt: string;
   updatedAt: string;
   facility: Facility;
+  latestLog?: LatestLog;
 }
 
 export interface Facility {
@@ -153,4 +156,27 @@ export interface CompanyListUnAssigned {
   status: string;
   createdAt: string;
   totalOperators: number;
+}
+
+export interface ICompanyActiveList {
+  _id: string;
+  companyCode: number;
+  name: string;
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  country: string;
+  zipcode: string;
+  website: string;
+  totalFacilities: number;
+  facilities: string[];
+  totalChiller: number;
+  isAssign: boolean;
+  status: string;
+  isDeleted: boolean;
+  trialReminderSent: boolean;
+  createdAt: string;
+  updatedAt: string;
+  freeTrialStartDate: string;
 }

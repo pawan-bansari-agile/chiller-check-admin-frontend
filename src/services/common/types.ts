@@ -11,4 +11,7 @@ export interface ICommonPagination {
   endDate?: string;
   chillerId?: string;
   facilityIds?: string[] | [];
+  userId?: string;
+  peakLoad?: boolean;
+  parameter?: string;
 }

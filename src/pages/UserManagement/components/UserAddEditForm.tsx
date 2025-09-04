@@ -10,7 +10,11 @@ import { authApi } from '@/services/auth';
 import { chillerQueryKeys } from '@/services/chiller';
 import { commonApi } from '@/services/common';
 import { companyHooks, companyQueryKeys } from '@/services/company';
+import { dashboardQueryKey } from '@/services/dashboard';
 import { facilityQueryKeys } from '@/services/facility';
+import { logQueryKeys } from '@/services/log';
+import { maintenanceQueryKey } from '@/services/maintenance';
+import { reportQueryKey } from '@/services/report';
 import { userHooks, userQueryKeys } from '@/services/user';
 
 import { authStore } from '@/store/auth';
@@ -252,11 +256,14 @@ const UserAddEditForm: React.FC = () => {
     queryClient.invalidateQueries({ queryKey: companyQueryKeys.all });
     queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
     queryClient.invalidateQueries({ queryKey: chillerQueryKeys.all });
+    queryClient.invalidateQueries({ queryKey: logQueryKeys.all });
+    queryClient.invalidateQueries({ queryKey: maintenanceQueryKey.all });
+    queryClient.invalidateQueries({ queryKey: reportQueryKey.all });
+    queryClient.invalidateQueries({ queryKey: dashboardQueryKey.all });
 
-    if (APP_ENV === ENVIRONMENT.PROD && emailTemplateHtmlFromAPI && !id) {
+    if (APP_ENV === ENVIRONMENT['LOCAL'] && emailTemplateHtmlFromAPI && !id) {
       setEmailTemplateHtml(emailTemplateHtmlFromAPI);
       setIsModalOpen(true);
-      showToaster('success', message);
     } else {
       setEmailTemplateHtml('');
       setIsModalOpen(false);
@@ -265,28 +272,34 @@ const UserAddEditForm: React.FC = () => {
     }
   };
 
-  const openAndCopyHtml = async (htmlString: string) => {
+  const openAndCopyHtml = () => {
+    // Create a hidden container to render the HTML
+    const container = document.createElement('div');
+    container.innerHTML = emailTemplateHtml;
+    container.style.position = 'fixed';
+    container.style.left = '-9999px'; // keep it off-screen
+    document.body.appendChild(container);
+
+    // Select the rendered content
+    const range = document.createRange();
+    range.selectNodeContents(container);
+
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+
     try {
-      const blobHtml = new Blob([htmlString], { type: 'text/html' });
-      const blobPlain = new Blob([htmlString], { type: 'text/plain' });
-
-      const clipboardItem = new ClipboardItem({
-        'text/html': blobHtml,
-        'text/plain': blobPlain
-      });
-
-      await navigator.clipboard.write([clipboardItem]);
+      const success = document.execCommand('copy');
+      if (!success) throw new Error('Copy command failed');
     } catch (err) {
-      try {
-        await navigator.clipboard.writeText(htmlString);
-      } catch (fallbackErr) {
-        console.error('❌ Clipboard fallback also failed:', fallbackErr);
-      }
+      console.error('❌ Copy failed:', err);
     }
-    const blob = new Blob([htmlString], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
 
+    // Cleanup selection + hidden container
+    selection?.removeAllRanges();
+    document.body.removeChild(container);
+    showToaster('success', 'Link copied to clipboard');
+    setEmailTemplateHtml('');
     navigate(-1);
   };
 
@@ -369,11 +382,11 @@ const UserAddEditForm: React.FC = () => {
           type: entry?.type,
           facilityIds:
             entry?.type === 'program'
-              ? [form.getFieldValue('programFacility')].filter(Boolean)
+              ? [form.getFieldValue('programFacility')]?.filter(Boolean)
               : undefined,
           operatorIds:
             entry?.type === 'program'
-              ? [form.getFieldValue('programOperator')].filter(Boolean)
+              ? form.getFieldValue('programOperator')?.filter(Boolean)
               : undefined,
           daysSince: entry?.daysSince!.trim() ? Number(entry?.daysSince!.trim()) : undefined,
           ...(notifyBy !== undefined ? { notifyBy } : {})
@@ -474,7 +487,7 @@ const UserAddEditForm: React.FC = () => {
     } else {
       addUserAction(payload, {
         onSuccess: (res) => {
-          handleSuccess(res?.message || '', res?.data?.emailTemplate?.html || '');
+          handleSuccess(res?.message || '', res?.data?.htmlLocal || '');
           setIsModalOpen(true);
         },
         onError: handleError
@@ -489,6 +502,8 @@ const UserAddEditForm: React.FC = () => {
     setActiveTab('1');
     form.resetFields(['notifyBy', 'general', 'logs', 'permissions']);
     form.setFieldValue('logs', getDefaultLogs());
+    form.setFieldValue('programFacility', null);
+    form.setFieldValue('programOperator', null);
   };
   const handleRolesChange = () => {
     setCompanyId('');
@@ -498,6 +513,8 @@ const UserAddEditForm: React.FC = () => {
     setActiveTab('1');
     form.resetFields(['notifyBy', 'general', 'logs', 'permissions']);
     form.setFieldValue('logs', getDefaultLogs());
+    form.setFieldValue('programFacility', null);
+    form.setFieldValue('programOperator', null);
   };
 
   const onFinishFailed = ({ errorFields }: any) => {
@@ -724,7 +741,7 @@ const UserAddEditForm: React.FC = () => {
                         ]
                       }}
                       inputProps={{
-                        onChange: handlePhoneChange,
+                        onChange: APP_ENV !== ENVIRONMENT['LOCAL'] ? handlePhoneChange : undefined,
                         disabled: isEditPending || isPending || isLoading,
                         placeholder: 'Enter Phone Number',
                         addonBefore: '+1'
@@ -802,7 +819,11 @@ const UserAddEditForm: React.FC = () => {
                 <>
                   <Tabs.TabPane tab="Responsibilities" key="2" forceRender>
                     {selectRole === USER_ROLES.CORPORATE_MANAGER ? (
-                      <ResponsibilitiesTab companyId={companyId} setCompanyId={setCompanyId} />
+                      <ResponsibilitiesTab
+                        companyId={companyId}
+                        setCompanyId={setCompanyId}
+                        form={form}
+                      />
                     ) : (
                       companySelect && (
                         <FacilityResponsibilitiesTab
@@ -812,6 +833,7 @@ const UserAddEditForm: React.FC = () => {
                           role={selectRole}
                           chillerIds={chillerIds}
                           setChillerIds={setChillerIds}
+                          form={form}
                         />
                       )
                     )}
@@ -871,7 +893,7 @@ const UserAddEditForm: React.FC = () => {
           className="changePasswordModal"
           title={
             <div className="modalTitleWrapper">
-              <span className="main-title">Copy to Clipboard Action</span>
+              <span className="main-title">Password Setup Link</span>
             </div>
           }
           onCancel={() => {
@@ -879,13 +901,13 @@ const UserAddEditForm: React.FC = () => {
             navigate(-1);
           }}
         >
+          <p>
+            A password setup link has been generated. Please copy the link below and share it with
+            the user so they can create their password.
+          </p>
           <div className="modalFooter">
-            <Button
-              type="primary"
-              className="footerBtn"
-              onClick={() => openAndCopyHtml(emailTemplateHtml)}
-            >
-              Copy Clipboard
+            <Button type="primary" className="footerBtn" onClick={() => openAndCopyHtml()}>
+              Copy
             </Button>
           </div>
         </CommonModal>

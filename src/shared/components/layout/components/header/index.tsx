@@ -1,4 +1,6 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import {
   BellOutlined,
@@ -11,8 +13,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Avatar, Button, Dropdown, MenuProps } from 'antd';
 
 import { authApi } from '@/services/auth';
+import { notificationApi } from '@/services/notification';
 
 import { authStore } from '@/store/auth';
+import { useNotificationStore } from '@/store/notification';
 
 import ConfirmModal from '@/shared/components/common/Modal/components/ConfirmModal';
 import { IMAGE_MODULE_NAME, IMAGE_URL } from '@/shared/constants';
@@ -23,9 +27,22 @@ import { StyledLayout } from '../../style';
 
 const Header = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { logout } = authApi;
   const queryClient = useQueryClient();
   const { userData, actions } = authStore((state) => state);
+  const count = useNotificationStore((state) => state.count);
+
+  useEffect(() => {
+    notificationApi
+      .getCount()
+      .then((res) => {
+        useNotificationStore.getState().setCount(res?.totalUnReadNotification ?? 0);
+      })
+      .catch(() => {
+        return;
+      });
+  }, [location.pathname]);
 
   const logoutAction = (): Promise<void> => {
     return new Promise((resolve, reject) => {
@@ -124,7 +141,9 @@ const Header = () => {
         <div className="header-right-nav">
           <Link to={ROUTES.NOTIFICATION} className="notificationBellWithCount">
             <BellOutlined style={{ fontSize: '18px', color: '#040C2B' }} />
-            <span className="notificationCount">1</span>
+            <span className="notificationCount">
+              {count > 999 ? '999+' : count > 99 ? '99+' : count}
+            </span>
           </Link>
           <Dropdown
             menu={{ items }}

@@ -13,6 +13,7 @@ import {
 import {
   allowAverageLoad,
   allowEnergyCost,
+  allowNegativeDecimalOnly,
   allowTonsKwr,
   getUnitValidator,
   getUnitValidatorForEfficiency,
@@ -122,7 +123,7 @@ const NamePlateForm: React.FC<IProps> = ({ unit }) => {
         </Col>
         <Col xs={24} sm={24} md={12} lg={6}>
           <RenderTextInput
-            label="Tons/KWR"
+            label="Tons or kWR"
             required
             tooltip="Specify the chiller's capacity for the given unit."
             formItemProps={{
@@ -131,7 +132,7 @@ const NamePlateForm: React.FC<IProps> = ({ unit }) => {
                 ? [
                     {
                       required: true,
-                      message: `Please enter ${isMetric ? 'KWR' : 'tons'}.`
+                      message: `Please enter ${isMetric ? 'kWR' : 'tons'}.`
                     },
                     {
                       validator: getUnitValidator(isEnglish ? 'English' : 'SI Metric')
@@ -140,7 +141,7 @@ const NamePlateForm: React.FC<IProps> = ({ unit }) => {
                 : []
             }}
             inputProps={{
-              placeholder: 'Tons/KWR',
+              placeholder: 'Tons or kWR',
               type: 'text',
               maxLength: 10,
               inputMode: 'decimal',
@@ -154,7 +155,7 @@ const NamePlateForm: React.FC<IProps> = ({ unit }) => {
             label="Efficiency Rating"
             colClassName="addonAfterClass"
             required={true}
-            tooltip="kw/ton - Value Must be between 0.3 and 3,
+            tooltip="kW/ton - Value Must be between 0.3 and 3,
 COP - Value must be between 3 and 12"
             formItemProps={{
               name: 'efficiencyRating',
@@ -173,7 +174,7 @@ COP - Value must be between 3 and 12"
             inputProps={{
               disabled: !isUnitSelected,
               placeholder: 'Efficiency Rating',
-              addonAfterText: unit && unit === MEASUREMENT_UNITS?.[1]?.value ? 'COP' : 'kw/ton',
+              addonAfterText: unit && unit === MEASUREMENT_UNITS?.[1]?.value ? 'COP' : 'kW/ton',
               type: 'text', // use "text" for full control
               inputMode: 'decimal', // show numeric keypad with decimal on mobile
               onKeyDown: allowAverageLoad,
@@ -183,10 +184,10 @@ COP - Value must be between 3 and 12"
         </Col>
         <Col xs={24} sm={24} md={12} lg={6}>
           <RenderTextInput
-            label="Energy Cost (kw. hr.)"
+            label="Energy Cost $ (kW. hr.)"
             required
             colClassName="addonAfterClass"
-            tooltip="Enter the energy cost in USD for (kw/hr)."
+            tooltip="Enter the energy cost in USD for (kW/hr)."
             formItemProps={{
               name: 'energyCost',
               rules: [
@@ -196,12 +197,61 @@ COP - Value must be between 3 and 12"
               ]
             }}
             inputProps={{
-              placeholder: 'Energy Cost',
+              placeholder: 'Energy Cost $',
               addonAfterText: 'USD',
               maxLength: 10,
               type: 'text',
               inputMode: 'decimal',
               onKeyDown: allowEnergyCost
+            }}
+          />
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={6}>
+          <RenderTextInput
+            label="CO2e Emission Factor"
+            required
+            colClassName="addonAfterClass"
+            tooltip="CO2e is a standardized unit of measurement that combines the warming impact of all greenhouse gases, including:  Carbon Dioxide (CO2), Methane (CH4), Nitrous Oxide (N2O) and Fluorinated gases (like HFCs, PFCs, and SF6).  Each of these gases has a different Global Warming Potential (GWP), which is a measure of how much heat it traps in the atmosphere compared to a similar amount of CO2 over a specific period (usually 100 years).  Using CO2e converts the emissions of these more potent gases into an equivalent amount of CO2. This allows for a single, uniform metric to compare the total climate impact from various sources.  CO2e is used for calculating and reporting a total carbon footprint for a company, a product, or a country.  The CO2e emission factor for electricity generation is often expressed as kilograms of CO2 per kilowatt-hour (kg CO2/kWh). This number varies depending on the fuel source (e.g., coal, natural gas, or renewables)."
+            formItemProps={{
+              name: 'emissionFactor',
+              rules: [
+                {
+                  validator(_, value) {
+                    if (!value?.trim())
+                      return Promise.reject(new Error('Please enter CO2e emission factor.'));
+                    if (value === '-' || value === '.' || value === '-.') {
+                      return Promise.reject(
+                        new Error('Please enter a valid CO2e emission factor.')
+                      );
+                    }
+
+                    const validNumberRegex = /^-?\d+(\.\d+)?$/;
+
+                    if (!validNumberRegex.test(value)) {
+                      return Promise.reject(
+                        new Error('Please enter a valid CO2e emission factor.')
+                      );
+                    }
+
+                    const num = Number(value);
+
+                    if (isNaN(num)) {
+                      return Promise.reject(
+                        new Error('Please enter a valid CO2e emission factor.')
+                      );
+                    }
+
+                    return Promise.resolve();
+                  }
+                }
+              ]
+            }}
+            inputProps={{
+              placeholder: 'Enter Factor',
+              type: 'text',
+              maxLength: 10,
+              addonAfterText: 'kg of CO2e per kWh',
+              onKeyDown: allowNegativeDecimalOnly
             }}
           />
         </Col>

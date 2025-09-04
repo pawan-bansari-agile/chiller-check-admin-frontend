@@ -24,6 +24,8 @@ export interface IProfileRes {
   facilities?: any;
   alerts?: any;
   company?: any;
+  alertFacilities?: any[];
+  alertOperators?: any[];
 }
 
 export interface IUpdateProfile {

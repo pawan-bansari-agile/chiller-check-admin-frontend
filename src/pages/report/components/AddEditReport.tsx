@@ -1,196 +1,506 @@
-import React from 'react';
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import { DownOutlined, EyeOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Col, Dropdown, Form, Input, MenuProps, Row, Space, Tag } from 'antd';
+import { ExclamationCircleOutlined, EyeOutlined, SearchOutlined } from '@ant-design/icons';
+import { useQueryClient } from '@tanstack/react-query';
+import { Button, Col, DatePicker, Form, Input, Row, TablePaginationConfig, Tag } from 'antd';
+import { FilterValue, SorterResult } from 'antd/es/table/interface';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+
+import { chillerQueryKeys } from '@/services/chiller';
+import { ICommonPagination } from '@/services/common/types';
+import { companyHooks, companyQueryKeys } from '@/services/company';
+import { dashboardQueryKey } from '@/services/dashboard';
+import { facilityHooks, facilityQueryKeys } from '@/services/facility';
+import { logQueryKeys } from '@/services/log';
+import { maintenanceQueryKey } from '@/services/maintenance';
+import { UserList } from '@/services/report/types';
+import { userQueryKeys } from '@/services/user';
+
+import { authStore } from '@/store/auth';
 
 import {
   CKEditorFormItem,
   RenderSelect,
+  RenderSelectDropDown,
   RenderTextAreaInput,
   RenderTextInput
 } from '@/shared/components/common/FormField';
+import HeaderToolbar from '@/shared/components/common/HeaderToolbar';
+import { Loader } from '@/shared/components/common/Loader';
+import CommonModal from '@/shared/components/common/Modal/components/CommonModal';
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
 import { CommonTable } from '@/shared/components/common/Table';
-import { hasPermission, toAbsoluteUrl } from '@/shared/utils/functions';
+import EmptyState from '@/shared/components/common/Table/EmptyState';
+import {
+  DateRange,
+  IMAGE_MODULE_NAME,
+  IMAGE_URL,
+  PATTERNS,
+  Role,
+  USER_ADD_ROLE,
+  chartTypeOptions,
+  dateRangeOptions,
+  notificationOptions,
+  parameterTypeOptions
+} from '@/shared/constants';
+import { getStartEndDates } from '@/shared/constants/day';
+import { ROUTES } from '@/shared/constants/routes';
+import {
+  capitalizeFirstLetter,
+  capitalizeFirstLetterWhileTyping,
+  debounce,
+  formatPhoneNumberInUsFormat,
+  getSortOrder,
+  hasPermission,
+  showToaster,
+  toAbsoluteUrl
+} from '@/shared/utils/functions';
 
+import { reportHooks, reportQueryKey } from '../../../services/report/index';
 import { Wrapper } from '../style';
 
-const companyItems: MenuProps['items'] = [
-  {
-    label: <span>Petal Grove Academy</span>,
-    key: '0'
-  },
-  {
-    label: <span>Angel investor</span>,
-    key: '1'
-  }
-];
+dayjs.extend(utc);
 
-const facilityItems: MenuProps['items'] = [
-  {
-    label: <span>ChillTech ArcticCore V156</span>,
-    key: 'ChillTech ArcticCore V156'
-  },
-  {
-    label: <span>ChillTech ArcticCore V10</span>,
-    key: 'ChillTech ArcticCore V10'
-  }
-];
-
-const roleItems: MenuProps['items'] = [
-  {
-    label: <span>Admin</span>,
-    key: 'Admin'
-  },
-  {
-    label: <span>Corporate Manager</span>,
-    key: 'Corporate Manager'
-  },
-  {
-    label: <span>Facility Manager</span>,
-    key: 'Facility Manager'
-  },
-  {
-    label: <span>Operator</span>,
-    key: 'Operator'
-  }
-];
-
-const columns = [
-  {
-    title: () => <Checkbox />,
-    dataIndex: 'selectAll',
-    key: 'selectAll',
-    render: () => <Checkbox checked />
-  },
-  {
-    title: 'User',
-    dataIndex: 'user',
-    key: 'user',
-    width: 200,
-    render: () => (
-      <div className="updateUser">
-        <figure>
-          <img src={toAbsoluteUrl('/public/icons/header-logo.svg')} alt="user" />
-        </figure>
-        <h4>Joey Tribiyani</h4>
-      </div>
-    )
-  },
-  {
-    title: 'Role',
-    key: 'role',
-    dataIndex: 'role'
-  },
-  {
-    title: 'Email Address',
-    key: 'emailAddress',
-    dataIndex: 'emailAddress'
-  },
-  {
-    title: 'Phone Number',
-    key: 'phoneNumber',
-    dataIndex: 'phoneNumber'
-  },
-  {
-    title: 'Company Name',
-    key: 'companyName',
-    dataIndex: 'companyName'
-  },
-  {
-    title: 'Facilities',
-    key: 'facilities',
-    dataIndex: 'facilities'
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    key: 'status',
-    render: (status: any) => (
-      <Tag className="statusTag" color={statusColorMap[status] || 'default'}>
-        {status}
-      </Tag>
-    )
-  },
-  ...(hasPermission('users', 'view')
-    ? [
-        {
-          title: '',
-          key: '_id',
-          dataIndex: '_id',
-          render: () => (
-            <div className="actionIonWrap">
-              {hasPermission('users', 'view') && (
-                <Link className="actionIcon" to={''}>
-                  <EyeOutlined />
-                </Link>
-              )}
-            </div>
-          )
-        }
-      ]
-    : [])
-];
-
-const data: ReportRow[] = [
-  {
-    selectAll: '',
-    role: 'admin',
-    emailAddress: 'xyz@xyz.com',
-    phoneNumber: '+1 203 125 9988',
-    companyName: 'The Agile Info',
-    facilities: 'CryoSystems ArcticCore V10',
-    status: 'Active'
-  }
-];
-
-interface ReportRow {
-  selectAll: string;
-  role: string;
-  emailAddress: string;
-  phoneNumber: string;
-  companyName: string;
-  facilities: string;
-  status: string;
+interface IFormValues {
+  name: string;
+  dateRange: string;
+  automatedNotification: string;
+  parameter: string;
+  companyId: string;
+  facilityIds: string[];
+  chartType: string;
+  description: string;
+  header: string;
+  footer: string;
 }
 
-const statusColorMap: Record<string, string> = {
-  Active: '#00A86B',
-  Inactive: '#CF5439'
-};
-
 const AddEditReport: React.FC = () => {
+  const { id } = useParams();
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const { userData } = authStore((state) => state);
+  const queryClient = useQueryClient();
 
-  const onSubmit = () => {
-    console.log('submit');
+  const { RangePicker } = DatePicker;
+
+  const { data: reportData, isLoading: isReportViewLoading } = reportHooks.ReportView(id!);
+
+  const { data: companyOptions, isLoading: isCompanyLoading } = companyHooks.AllActiveCompanyList();
+  const companySelect = Form.useWatch('companyId', form);
+  const facilityIds = Form.useWatch('facilityIds', form);
+
+  const [args, setArgs] = useState<ICommonPagination>({
+    page: 1,
+    limit: 10,
+    search: '',
+    sort_by: '',
+    sort_order: '',
+    companyId: '',
+    facilityIds: [],
+    role: ''
+  });
+
+  const { data: facilityList, isLoading: isFacilityLoading } =
+    facilityHooks.AllFacilityActiveList(companySelect);
+  const { mutate: addReportAction, isPending } = reportHooks.useAddReport();
+  const { mutate: editReportAction, isPending: isEditPending } = reportHooks.useEditReport();
+
+  const { data: notifyUserList, isLoading: isNotifyUserLoading } = reportHooks.NotifyUserList(args);
+  const isEmpty = !notifyUserList?.userList?.length;
+  const [selectedRange, setSelectedRange] = useState<DateRange | null>(null);
+  const [dates, setDates] = useState<{ startDate: string; endDate: string }>({
+    startDate: '',
+    endDate: ''
+  });
+  const [sharedToIds, setSharedToIds] = useState<string[] | []>([]);
+  const [editorValues, setEditorValues] = useState({
+    header: '',
+    footer: ''
+  });
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!reportData) return;
+
+    if (reportData?.dateType === DateRange['Custom Range']) {
+      setSelectedRange(reportData?.dateType as DateRange);
+      if (reportData?.startDate && reportData?.endDate) {
+        form.setFieldsValue({
+          customRange: [dayjs.utc(reportData.startDate), dayjs.utc(reportData.endDate)]
+        });
+      }
+    }
+    setDates({
+      startDate: reportData?.startDate || '',
+      endDate: reportData?.endDate || ''
+    });
+
+    setSharedToIds(reportData?.sharedTo || []);
+
+    setArgs({
+      ...args,
+      companyId: reportData?.companyId,
+      facilityIds: reportData?.facilityIds
+    });
+
+    form.setFieldsValue({
+      name: reportData?.name,
+      dateRange: reportData?.dateType,
+      automatedNotification: reportData?.notification
+        ? capitalizeFirstLetter(reportData?.notification)
+        : null,
+      parameter: reportData?.parameter,
+      companyId: reportData?.companyId,
+      facilityIds: reportData?.facilityIds,
+      chartType: reportData?.chartType,
+      description: reportData?.description,
+      header: reportData?.header,
+      footer: reportData?.footer
+    });
+    setEditorValues({
+      header: reportData?.header || '',
+      footer: reportData?.footer || ''
+    });
+  }, [form, reportData]);
+
+  useEffect(() => {
+    if (userData?.companyId && !isCompanyLoading) {
+      form.setFieldValue('companyId', userData?.companyId);
+    }
+  }, [form, id, isCompanyLoading, userData?.companyId]);
+
+  const facilityOptions = useMemo(() => {
+    return (
+      facilityList?.map((facility) => ({
+        label: facility?.name,
+        value: facility?._id
+      })) || []
+    );
+  }, [facilityList]);
+
+  const companyOptionsWithFallback = useMemo(() => {
+    const baseOptions = companyOptions || [];
+    if (reportData?.companyId) {
+      const exists = baseOptions?.some((opt: any) => opt?.value === reportData.companyId);
+      if (!exists) {
+        const label = reportData?.companyName || reportData?.company?.name;
+        if (label) return [...baseOptions, { label, value: reportData.companyId }];
+      }
+    }
+    return baseOptions;
+  }, [companyOptions, reportData?.companyId, reportData?.companyName, reportData?.company?.name]);
+
+  const facilityOptionsWithFallback = useMemo(() => {
+    const baseOptions = facilityOptions || [];
+    const extras = (reportData?.facility || [])
+      ?.filter((fac: any) => !baseOptions?.some((opt: any) => opt?.value === fac?._id))
+      ?.map((fac: any) => ({ label: fac?.name, value: fac?._id }));
+    return [...baseOptions, ...(extras || [])];
+  }, [facilityOptions, reportData?.facility]);
+
+  const handleCapitalizedChange =
+    (fieldName: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const capitalized = capitalizeFirstLetterWhileTyping(e.target.value);
+      form.setFieldsValue({ [fieldName]: capitalized });
+    };
+
+  const handleRangeChange = (range: DateRange) => {
+    form.setFieldValue('customRange', null);
+    setSelectedRange(range);
+
+    if (range !== DateRange['Custom Range']) {
+      const result = getStartEndDates(range);
+      if (result) setDates(result);
+    } else {
+      setDates({
+        startDate: '',
+        endDate: ''
+      });
+    }
   };
+
+  const handleCustomRangeChange = (dates: any) => {
+    if (!dates || dates.length === 0) {
+      setDates({
+        startDate: '',
+        endDate: ''
+      });
+      return;
+    }
+
+    const [start, end] = dates;
+
+    setDates({
+      startDate: start.startOf('day').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      endDate: end.endOf('day').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+    });
+  };
+
+  const handleEditorChange = (_: any, editor: any, field: string) => {
+    const content = editor.getData();
+
+    if (content.trim() === '') {
+      form.setFieldsValue({ [field]: null });
+    } else {
+      setEditorValues((prev) => ({
+        ...prev,
+        [field]: content
+      }));
+      form.setFieldsValue({ [field]: content });
+    }
+  };
+
+  const onCompanyChange = (value: string) => {
+    form.setFieldValue('facilityIds', null);
+    setSharedToIds([]);
+    setArgs({
+      ...args,
+      companyId: value
+    });
+  };
+
+  const onFacilityChange = (values: string[]) => {
+    setSharedToIds([]);
+    setArgs({
+      ...args,
+      facilityIds: values
+    });
+  };
+
+  const handleTableChange = (
+    pagination: TablePaginationConfig,
+    _filters: Record<string, FilterValue | null>,
+    sorter: SorterResult<UserList> | SorterResult<UserList>[]
+  ) => {
+    if (!Array.isArray(sorter)) {
+      setArgs({
+        ...args,
+        page: pagination.current ?? 1,
+        limit: pagination.pageSize ?? 10,
+        sort_by: sorter.order ? String(sorter.field) : '',
+        sort_order: getSortOrder(sorter.order) || ''
+      });
+    }
+  };
+
+  const updateSearch = debounce((value: string) => {
+    setArgs((prevArgs) => ({ ...prevArgs, search: value, page: 1 }));
+  });
+
+  const handleSuccess = (message: string) => {
+    showToaster('success', message);
+    queryClient.invalidateQueries({ queryKey: facilityQueryKeys.all });
+    queryClient.invalidateQueries({ queryKey: companyQueryKeys.all });
+    queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
+    queryClient.invalidateQueries({ queryKey: chillerQueryKeys.all });
+    queryClient.invalidateQueries({ queryKey: logQueryKeys.all });
+    queryClient.invalidateQueries({ queryKey: maintenanceQueryKey.all });
+    queryClient.invalidateQueries({ queryKey: reportQueryKey.all });
+    queryClient.invalidateQueries({ queryKey: dashboardQueryKey.all });
+
+    navigate(-1);
+  };
+
+  const handleError = (err: any) => {
+    const errorMsg = err?.message || err?.message?.[0] || 'Something went wrong';
+    showToaster('error', errorMsg);
+  };
+
+  const onSubmit = (values: IFormValues) => {
+    const payload = {
+      name: values?.name,
+      startDate: dates?.startDate,
+      endDate: dates?.endDate,
+      dateType: values?.dateRange,
+      notification: values?.automatedNotification?.toLowerCase(),
+      parameter: values?.parameter,
+      chartType: values?.chartType,
+      companyId: companySelect,
+      facilityIds: facilityIds,
+      description: values?.description?.trim(),
+      header: values?.header,
+      footer: values?.footer,
+      sharedTo: sharedToIds || []
+    };
+    if (id && reportData?.createdBy === userData?._id) {
+      editReportAction(
+        { id, ...payload },
+        {
+          onSuccess: (res) => handleSuccess(res?.message || ''),
+          onError: handleError
+        }
+      );
+    } else {
+      addReportAction(payload, {
+        onSuccess: (res) => handleSuccess(res?.message || ''),
+        onError: handleError
+      });
+    }
+  };
+
+  const columns = [
+    {
+      title: 'User',
+      dataIndex: 'user',
+      key: 'user',
+      width: 200,
+      render: (_: any, record: UserList) => (
+        <div className="updateUser">
+          <figure>
+            <img
+              src={`${record?.profileImage ? `${IMAGE_URL}chiller-check/${IMAGE_MODULE_NAME.PROFILE_PIC}/${record?.profileImage}` : toAbsoluteUrl('/icons/placeHolder.jpg')}`}
+              alt="user"
+            />{' '}
+          </figure>
+          <h4>{record?.name || '-'}</h4>
+        </div>
+      )
+    },
+    {
+      title: 'Role',
+      key: 'role',
+      dataIndex: 'role',
+      render: (role: string) => Role?.find((val) => val?.value === role)?.label || '-'
+    },
+    {
+      title: 'Email Address',
+      key: 'email',
+      dataIndex: 'email'
+    },
+    {
+      title: 'Phone Number',
+      key: 'phoneNumber',
+      dataIndex: 'phoneNumber',
+      render: formatPhoneNumberInUsFormat
+    },
+    {
+      title: 'Company Name',
+      key: 'company',
+      dataIndex: 'company',
+      render: (data: { name: string }) => data?.name || '-'
+    },
+    {
+      title: 'Facilities',
+      key: 'facilities',
+      dataIndex: 'facilities',
+      render: (data: { name: string }[]) => {
+        return data?.map((fac) => fac?.name)?.join(', ') || '-';
+      }
+    },
+    {
+      title: 'Status',
+      dataIndex: 'isActive',
+      key: 'isActive',
+      render: (status: any) => (
+        <Tag className="statusTag" color={status ? '#00A86B' : '#CF5439'}>
+          {status ? 'Active' : 'Inactive'}
+        </Tag>
+      )
+    },
+    ...(hasPermission('users', 'view')
+      ? [
+          {
+            title: '',
+            key: '_id',
+            dataIndex: '_id',
+            render: (id: string) => (
+              <div className="actionIonWrap">
+                {hasPermission('users', 'view') && (
+                  <Link className="actionIcon" to={ROUTES.VIEW_USER_MANAGEMENT(id)}>
+                    <EyeOutlined />
+                  </Link>
+                )}
+              </div>
+            )
+          }
+        ]
+      : [])
+  ];
 
   return (
     <Wrapper>
-      <div className="shadowPaperWrap">
-        <ShadowPaper>
-          <Form className="add-report-form" form={form} onFinish={onSubmit}>
-            <Row gutter={[20, 25]}>
+      {isReportViewLoading && <Loader />}
+      <Form
+        form={form}
+        onFinish={onSubmit}
+        disabled={isPending || isReportViewLoading || isEditPending}
+      >
+        <HeaderToolbar
+          title={id ? 'Edit Report' : 'Build Report'}
+          backBtn={true}
+          button={
+            <div className="viewButtonWrap">
+              <Button
+                className="title-cancel-btn"
+                onClick={() => navigate(-1)}
+                disabled={isPending || isEditPending}
+              >
+                Cancel
+              </Button>
+              {!id && (
+                <Button
+                  type="primary"
+                  className="title-btn"
+                  size="small"
+                  htmlType="submit"
+                  disabled={isPending}
+                  loading={isPending}
+                >
+                  Generate Report
+                </Button>
+              )}
+              {id && reportData?.createdBy === userData?._id && (
+                <Button
+                  type="primary"
+                  className="title-btn"
+                  size="small"
+                  htmlType="submit"
+                  disabled={isReportViewLoading || isEditPending}
+                  loading={isReportViewLoading || isEditPending}
+                >
+                  Save Existing Report
+                </Button>
+              )}
+              {id && hasPermission('report', 'add') && reportData?.createdBy !== userData?._id && (
+                <Button
+                  onClick={() => setIsModalOpen(true)}
+                  type="primary"
+                  className="title-btn"
+                  size="small"
+                  htmlType="button"
+                >
+                  Generate New Report
+                </Button>
+              )}
+            </div>
+          }
+        />
+        <div className="shadowPaperWrap">
+          <ShadowPaper>
+            <Row gutter={[20, 25]} className="reportAddEditMainForm">
               <Col xs={24} sm={24} md={12} lg={8}>
                 <RenderTextInput
-                  label="Report name"
+                  label="Report Name"
                   required
-                  // tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
                   formItemProps={{
-                    name: 'reportName',
+                    name: 'name',
                     rules: [
                       {
                         required: true,
-                        message: 'Please enter report name'
+                        message: 'Please enter report name.'
+                      },
+                      {
+                        pattern: PATTERNS.BLANK_SPACE,
+                        message: 'Please enter valid report name.'
                       }
                     ]
                   }}
                   inputProps={{
-                    placeholder: 'Enter Report name'
+                    placeholder: 'Enter Report Name',
+                    onChange: handleCapitalizedChange('name')
                   }}
                 />
               </Col>
@@ -201,14 +511,39 @@ const AddEditReport: React.FC = () => {
                   colClassName="custom-select-col"
                   formItemProps={{
                     name: 'dateRange',
-                    rules: [{ required: true, message: 'Please select date range' }]
+                    rules: [{ required: true, message: 'Please select date range.' }]
                   }}
                   inputProps={{
+                    value: selectedRange || null,
+                    onChange: handleRangeChange,
                     placeholder: 'Select Date Range',
-                    options: [{ label: 'Last 6 Months', value: 'Last 6 Months' }]
+                    options: dateRangeOptions || []
                   }}
                 />
               </Col>
+
+              {selectedRange === DateRange['Custom Range'] && (
+                <Col xs={24} sm={24} md={12} lg={8}>
+                  <Form.Item
+                    label="Select Start Date And End Date"
+                    className="custome-range"
+                    name="customRange"
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Please select start date and end date.'
+                      }
+                    ]}
+                  >
+                    <RangePicker
+                      showTime={false}
+                      className="timelineRangePicker"
+                      format="MM-DD-YYYY"
+                      onChange={handleCustomRangeChange}
+                    />
+                  </Form.Item>
+                </Col>
+              )}
 
               <Col xs={24} sm={24} md={12} lg={8}>
                 <RenderSelect
@@ -216,11 +551,11 @@ const AddEditReport: React.FC = () => {
                   colClassName="custom-select-col"
                   formItemProps={{
                     name: 'automatedNotification',
-                    rules: [{ required: true, message: 'Please select automated notification' }]
+                    rules: [{ required: true, message: 'Please select automated notification.' }]
                   }}
                   inputProps={{
                     placeholder: 'Select Automated Notification',
-                    options: [{ label: 'Web', value: 'Web' }]
+                    options: notificationOptions || []
                   }}
                 />
               </Col>
@@ -231,11 +566,11 @@ const AddEditReport: React.FC = () => {
                   colClassName="custom-select-col"
                   formItemProps={{
                     name: 'parameter',
-                    rules: [{ required: true, message: 'Please select parameter' }]
+                    rules: [{ required: true, message: 'Please select parameter.' }]
                   }}
                   inputProps={{
                     placeholder: 'Select Parameter',
-                    options: [{ label: 'Con. Inlet Temp', value: 'Con. Inlet Temp' }]
+                    options: parameterTypeOptions || []
                   }}
                 />
               </Col>
@@ -245,12 +580,14 @@ const AddEditReport: React.FC = () => {
                   label="Company"
                   colClassName="custom-select-col"
                   formItemProps={{
-                    name: 'company',
-                    rules: [{ required: true, message: 'Please select company' }]
+                    name: 'companyId',
+                    rules: [{ required: true, message: 'Please select company.' }]
                   }}
                   inputProps={{
+                    disabled: isCompanyLoading || !!userData?.companyId,
                     placeholder: 'Select Company',
-                    options: [{ label: 'ABC Corp.', value: 'ABC Corp.' }]
+                    options: companyOptionsWithFallback,
+                    onChange: onCompanyChange
                   }}
                 />
               </Col>
@@ -260,27 +597,30 @@ const AddEditReport: React.FC = () => {
                   label="Facility"
                   colClassName="custom-select-col"
                   formItemProps={{
-                    name: 'facility',
-                    rules: [{ required: true, message: 'Please select facility' }]
+                    name: 'facilityIds',
+                    rules: [{ required: true, message: 'Please select facility.' }]
                   }}
                   inputProps={{
+                    mode: 'multiple',
+                    onChange: onFacilityChange,
+                    disabled: !companySelect || isFacilityLoading,
                     placeholder: 'Select Facility',
-                    options: [{ label: 'Bldg A', value: 'Bldg A' }]
+                    options: facilityOptionsWithFallback
                   }}
                 />
               </Col>
 
               <Col xs={24} sm={24} md={12} lg={8}>
                 <RenderSelect
-                  label="Chart type"
+                  label="Chart Type"
                   colClassName="custom-select-col"
                   formItemProps={{
                     name: 'chartType',
-                    rules: [{ required: true, message: 'Please select Chart type' }]
+                    rules: [{ required: true, message: 'Please select chart type.' }]
                   }}
                   inputProps={{
-                    placeholder: 'Select Chart type',
-                    options: [{ label: 'Line chart', value: 'Line chart' }]
+                    placeholder: 'Select Chart Type',
+                    options: chartTypeOptions || []
                   }}
                 />
               </Col>
@@ -289,11 +629,21 @@ const AddEditReport: React.FC = () => {
                 <RenderTextAreaInput
                   colProps={{ span: 24 }}
                   label="Add Description"
-                  // tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+                  required
                   formItemProps={{
-                    name: 'Add Description',
+                    name: 'description',
                     label: 'Add Description',
-                    rules: [{ required: true, message: 'Please enter description' }]
+                    rules: [
+                      {
+                        validator: (_, value) => {
+                          if (!value) return Promise.reject(new Error('Please enter description.'));
+                          if (value && value.trim() === '') {
+                            return Promise.reject(new Error('Please enter valid description.'));
+                          }
+                          return Promise.resolve();
+                        }
+                      }
+                    ]
                   }}
                   inputProps={{
                     placeholder: 'Enter Description',
@@ -302,96 +652,181 @@ const AddEditReport: React.FC = () => {
                 />
               </Col>
             </Row>
-          </Form>
-        </ShadowPaper>
+          </ShadowPaper>
 
-        <ShadowPaper>
-          <Row gutter={[20, 20]} className="editorWrap">
-            <Col xs={24} sm={24} md={12} lg={12}>
-              <CKEditorFormItem
-                label="Report Header Text"
-                // tooltip="This will appear at the top of the report"
-                labelCol={{ span: 24 }}
-                wrapperCol={{ span: 24 }}
-                name={'privacyPolicy'}
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please enter privacy policy.'
-                  }
-                ]}
-                required={true}
+          <ShadowPaper>
+            <Row gutter={[20, 20]} className="editorWrap">
+              <Col xs={24} sm={24} md={12} lg={12}>
+                <CKEditorFormItem
+                  label="Report Header Text"
+                  labelCol={{ span: 24 }}
+                  wrapperCol={{ span: 24 }}
+                  name={'header'}
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please enter header text.'
+                    }
+                  ]}
+                  data={editorValues?.header}
+                  required={true}
+                  onChange={(e: any, editor: any) => handleEditorChange(e, editor, 'header')}
+                />
+              </Col>
+
+              <Col xs={24} sm={24} md={12} lg={12}>
+                <CKEditorFormItem
+                  label="Report Footer Text"
+                  labelCol={{ span: 24 }}
+                  wrapperCol={{ span: 24 }}
+                  name={'footer'}
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please enter footer text.'
+                    }
+                  ]}
+                  required={true}
+                  data={editorValues?.footer}
+                  onChange={(e: any, editor: any) => handleEditorChange(e, editor, 'footer')}
+                />
+              </Col>
+            </Row>
+          </ShadowPaper>
+
+          {facilityIds?.length > 0 && (
+            <ShadowPaper>
+              <div className="reportContentHeader">
+                <div className="dropdownWrap">
+                  <h2 className="notifyUser themeColor">Notify Users [{sharedToIds?.length}]</h2>
+
+                  <RenderSelectDropDown
+                    colClassName="dropdownWithSearch"
+                    inputProps={{
+                      placeholder: 'Select Role',
+                      options: USER_ADD_ROLE.slice(1) || [],
+                      onChange: (value) => setArgs({ ...args, role: value, page: 1 })
+                    }}
+                  />
+                </div>
+                <Input
+                  className="searchReport"
+                  placeholder="Search for User"
+                  prefix={<SearchOutlined />}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => updateSearch(e.target.value)}
+                />
+              </div>
+              <CommonTable
+                columns={columns}
+                dataSource={notifyUserList?.userList || []}
+                pagination={{
+                  current: args?.page,
+                  pageSize: args?.limit,
+                  total: notifyUserList?.totalRecords || 0
+                }}
+                loading={isNotifyUserLoading}
+                onChange={handleTableChange}
+                rowSelection={{
+                  selectedRowKeys: sharedToIds,
+                  columnWidth: 60,
+                  onChange: (selectedRowKeys: any) => {
+                    setSharedToIds(selectedRowKeys);
+                  },
+                  preserveSelectedRowKeys: true // <-- Important!
+                }}
+                emptyText={
+                  <EmptyState
+                    isEmpty={isEmpty}
+                    search={args.search || args.role}
+                    searchDescription="No User Found"
+                  />
+                }
               />
-            </Col>
+            </ShadowPaper>
+          )}
+        </div>
 
-            <Col xs={24} sm={24} md={12} lg={12}>
-              <CKEditorFormItem
-                label="Report Footer Text"
-                // tooltip="This will appear at the top of the report"
-                labelCol={{ span: 24 }}
-                wrapperCol={{ span: 24 }}
-                name={'privacyPolicy'}
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please enter privacy policy.'
-                  }
-                ]}
-                required={true}
-              />
-            </Col>
-          </Row>
-        </ShadowPaper>
-
-        <ShadowPaper>
-          <div className="reportContentHeader">
-            <div className="dropdownWrap">
-              <h2 className="notifyUser themeColor">Notify Users [10]</h2>
-              <Dropdown menu={{ items: companyItems }} trigger={['click']}>
-                <a onClick={(e) => e.preventDefault()}>
-                  <Space>
-                    Select Company
-                    <DownOutlined />
-                  </Space>
-                </a>
-              </Dropdown>
-
-              <Dropdown menu={{ items: facilityItems }} trigger={['click']}>
-                <a onClick={(e) => e.preventDefault()}>
-                  <Space>
-                    Select Facility
-                    <DownOutlined />
-                  </Space>
-                </a>
-              </Dropdown>
-
-              <Dropdown menu={{ items: roleItems }} trigger={['click']}>
-                <a onClick={(e) => e.preventDefault()}>
-                  <Space>
-                    Select Role
-                    <DownOutlined />
-                  </Space>
-                </a>
-              </Dropdown>
+        <div className="viewButtonWrap extraActionButton">
+          <Button
+            className="title-cancel-btn"
+            onClick={() => navigate(-1)}
+            disabled={isPending || isEditPending}
+          >
+            Cancel
+          </Button>
+          {!id && (
+            <Button
+              type="primary"
+              className="title-btn"
+              size="small"
+              htmlType="submit"
+              disabled={isPending}
+              loading={isPending}
+            >
+              Generate Report
+            </Button>
+          )}
+          {id && reportData?.createdBy === userData?._id && (
+            <Button
+              type="primary"
+              className="title-btn"
+              size="small"
+              htmlType="submit"
+              disabled={isReportViewLoading || isEditPending}
+              loading={isReportViewLoading || isEditPending}
+            >
+              Save Existing Report
+            </Button>
+          )}
+          {id && hasPermission('report', 'add') && reportData?.createdBy !== userData?._id && (
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              type="primary"
+              className="title-btn"
+              size="small"
+              htmlType="button"
+            >
+              Generate New Report
+            </Button>
+          )}
+        </div>
+      </Form>
+      {isModalOpen && (
+        <CommonModal
+          open={isModalOpen}
+          closeIcon={true}
+          closable={true}
+          centered={true}
+          maskClosable={false}
+          className="InactiveModalWrap"
+          onCancel={() => setIsModalOpen(false)}
+          title={
+            <div className="modalTitleWrapper">
+              <i>
+                <ExclamationCircleOutlined style={{ color: 'yellow' }} />
+              </i>
+              <span className="main-title">Generate New Report</span>
             </div>
-            <Input
-              className="searchReport"
-              placeholder="Search for User"
-              prefix={<SearchOutlined />}
-            />
+          }
+        >
+          <p>
+            You don’t have edit access to this report. Would you like to save this as a new report?
+          </p>
+          <div className="modalFooter">
+            <Button onClick={() => setIsModalOpen(false)} disabled={isPending}>
+              No
+            </Button>
+            <Button
+              className="footerBtn"
+              onClick={form.submit}
+              loading={isPending}
+              disabled={isPending}
+            >
+              Yes
+            </Button>
           </div>
-          <CommonTable columns={columns} dataSource={data} pagination={{ current: 6 }} />
-        </ShadowPaper>
-      </div>
-
-      <div className="viewButtonWrap extraActionButton">
-        <Button className="title-cancel-btn" onClick={() => navigate(-1)}>
-          Cancel
-        </Button>
-        <Button type="primary" className="title-btn" size="small" icon={<PlusOutlined />}>
-          Add / Save
-        </Button>
-      </div>
+        </CommonModal>
+      )}
     </Wrapper>
   );
 };

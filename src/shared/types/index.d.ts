@@ -21,4 +21,8 @@ export interface SetParamOptions {
   sort_order?: string;
   facilityId?: string;
   role?: string;
+  userId?: string;
+  peakLoad?: boolean;
+  chillerId?: string;
+  parameter?: string;
 }

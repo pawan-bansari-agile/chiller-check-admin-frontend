@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
@@ -13,11 +13,17 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { Button, Tag } from 'antd';
 import { ColumnsType } from 'antd/es/table';
+import dayjs from 'dayjs';
 
 import { chillerQueryKeys } from '@/services/chiller';
+import { LatestLog } from '@/services/chiller/types';
 import { companyHooks, companyQueryKeys } from '@/services/company';
 import { Chiller, Facility } from '@/services/company/types';
+import { dashboardQueryKey } from '@/services/dashboard';
 import { facilityQueryKeys } from '@/services/facility';
+import { logQueryKeys } from '@/services/log';
+import { maintenanceQueryKey } from '@/services/maintenance';
+import { reportQueryKey } from '@/services/report';
 import { userQueryKeys } from '@/services/user';
 
 import { authStore } from '@/store/auth';
@@ -29,7 +35,7 @@ import CommonModal from '@/shared/components/common/Modal/components/CommonModal
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
 import { CommonTable } from '@/shared/components/common/Table';
 import EmptyState from '@/shared/components/common/Table/EmptyState';
-import { USER_ROLES, statusType } from '@/shared/constants';
+import { ALERT_TYPE, USER_ROLES, statusType } from '@/shared/constants';
 import { ROUTES } from '@/shared/constants/routes';
 import { ChillerIcon, EditIcon, FacilityIcon, OperatorIcon } from '@/shared/svg';
 import { capitalizeFirstLetter, hasPermission, showToaster } from '@/shared/utils/functions';
@@ -74,6 +80,11 @@ const ViewCompany: React.FC = () => {
         queryClient.invalidateQueries({ queryKey: companyQueryKeys.all });
         queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
         queryClient.invalidateQueries({ queryKey: chillerQueryKeys.all });
+        queryClient.invalidateQueries({ queryKey: logQueryKeys.all });
+        queryClient.invalidateQueries({ queryKey: maintenanceQueryKey.all });
+        queryClient.invalidateQueries({ queryKey: reportQueryKey.all });
+        queryClient.invalidateQueries({ queryKey: dashboardQueryKey.all });
+
         setIsModalOpen(false);
       },
       onError: (err) => {
@@ -188,7 +199,7 @@ const ViewCompany: React.FC = () => {
       render: (facility: Facility) => <b>{facility?.name || '-'}</b>
     },
     {
-      title: 'Chiller Name',
+      title: 'Make / Model',
       key: 'ChillerNo',
       dataIndex: 'ChillerNo',
       render: (value: string, record: Chiller) => (
@@ -199,14 +210,14 @@ const ViewCompany: React.FC = () => {
       )
     },
     {
-      title: 'Efficiency Rating (kw/ton)',
+      title: 'Efficiency Rating (kW/ton)',
       key: 'efficiencyRating',
       width: 180,
       dataIndex: 'efficiencyRating',
       render: (value: number) => value ?? '-'
     },
     {
-      title: 'Energy Cost',
+      title: 'Energy Cost $',
       key: 'energyCost',
       dataIndex: 'energyCost'
     },
@@ -227,82 +238,38 @@ const ViewCompany: React.FC = () => {
     },
     {
       title: 'Efficiency Loss %',
-      key: 'efficiencyLoss',
+      key: 'latestLog',
+      dataIndex: 'latestLog',
       width: 160,
-      render: () => {
-        const record = {
-          efficiencyLoss: 40
-        };
-        let className = '';
-        if (record.efficiencyLoss >= 50) className = 'bgRed';
-        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
-
-        return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
-      }
+      render: (data: LatestLog) => renderCell(data?.effLoss)
     },
     {
       title: 'Cond. App. Loss %',
-      key: 'condLoss',
-      dataIndex: 'condLoss',
+      key: 'latestLog',
+      dataIndex: 'latestLog',
       width: 170,
-      render: () => {
-        const record = {
-          efficiencyLoss: 40
-        };
-        let className = '';
-        if (record.efficiencyLoss >= 50) className = 'bgRed';
-        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
-
-        return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
-      }
+      render: (data: LatestLog) => renderCell(data?.condAppLoss)
     },
     {
       title: 'Evap. App. Loss %',
-      key: 'evapLoss',
+      key: 'latestLog',
+      dataIndex: 'latestLog',
       width: 170,
-      dataIndex: 'evapLoss',
-      render: () => {
-        const record = {
-          efficiencyLoss: 40
-        };
-        let className = '';
-        if (record.efficiencyLoss >= 50) className = 'bgRed';
-        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
-
-        return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
-      }
+      render: (data: LatestLog) => renderCell(data?.evapAppLoss)
     },
     {
       title: 'Non-Cond. App. Loss %',
-      key: 'nonCondLoss',
+      key: 'latestLog',
+      dataIndex: 'latestLog',
       width: 180,
-      dataIndex: 'nonCondLoss',
-      render: () => {
-        const record = {
-          efficiencyLoss: 40
-        };
-        let className = '';
-        if (record.efficiencyLoss >= 50) className = 'bgRed';
-        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
-
-        return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
-      }
+      render: (data: LatestLog) => renderCell(data?.nonCondLoss)
     },
     {
       title: 'Other Losses %',
-      key: 'otherLoss',
+      key: 'latestLog',
+      dataIndex: 'latestLog',
       width: 160,
-      dataIndex: 'otherLoss',
-      render: () => {
-        const record = {
-          efficiencyLoss: 40
-        };
-        let className = '';
-        if (record.efficiencyLoss >= 50) className = 'bgRed';
-        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
-
-        return <div className={`loss-cell ${className}`}>{record.efficiencyLoss}</div>;
-      }
+      render: (data: LatestLog) => renderCell(data?.otherLoss)
     },
     {
       title: 'Status',
@@ -318,24 +285,17 @@ const ViewCompany: React.FC = () => {
         )
     },
     {
-      title: 'Last Entry',
-      key: 'lastEntry',
+      title: 'Last Log Entry',
+      key: 'latestLog',
+      dataIndex: 'latestLog',
       width: 200,
-      render: () => {
-        const record = {
-          efficiencyLoss: 40,
-          lastEntry: {
-            name: 'Monica Geller',
-            datetime: '12/11/24 15:00'
-          }
-        };
-        let className = '';
-        if (record.efficiencyLoss >= 50) className = 'bgRed';
-        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
+      render: (data: LatestLog) => {
         return (
-          <div className={`last-entry-cell ${className}`}>
-            <div>{record.lastEntry.name}</div>
-            <div>{record.lastEntry.datetime}</div>
+          <div className={`last-entry-cell`}>
+            <div>
+              {(data?.updatedByUser?.firstName || '') + ' ' + (data?.updatedByUser?.lastName || '')}
+            </div>
+            <div>{data?.updatedAt ? dayjs(data?.updatedAt).format('MM/DD/YY HH:mm') : '-'}</div>
           </div>
         );
       }
@@ -357,6 +317,22 @@ const ViewCompany: React.FC = () => {
         ]
       : [])
   ];
+
+  const getAlertClassName = (type?: string): string => {
+    switch (type) {
+      case ALERT_TYPE.ALERT:
+        return 'bgRed';
+      case ALERT_TYPE.WARNING:
+        return 'bgYellow';
+      default:
+        return '';
+    }
+  };
+
+  const renderCell = useCallback((data?: { type?: string; value?: number }) => {
+    const className = getAlertClassName(data?.type);
+    return <div className={`loss-cell ${className}`}>{data?.value ?? '-'}</div>;
+  }, []);
 
   return (
     <Wrapper>
@@ -400,7 +376,7 @@ const ViewCompany: React.FC = () => {
             <li>
               <div className="info-item-wrap">
                 <AuditOutlined className="icon" />
-                <div className="label">Corporate Name</div>
+                <div className="label">Company Name</div>
               </div>
               <div className="value">{capitalizeFirstLetter(data?.name)}</div>
             </li>

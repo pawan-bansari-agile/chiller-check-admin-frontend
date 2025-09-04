@@ -5,12 +5,15 @@ import { Link } from 'react-router-dom';
 import { EyeOutlined } from '@ant-design/icons';
 import { TablePaginationConfig, Tag } from 'antd';
 import { FilterValue, SorterResult } from 'antd/es/table/interface';
+import dayjs from 'dayjs';
 
 import { chillerHooks } from '@/services/chiller';
+import { IChillerAllList } from '@/services/chiller/types';
 import { ICommonPagination } from '@/services/common/types';
 
 import { CommonTable } from '@/shared/components/common/Table';
 import EmptyState from '@/shared/components/common/Table/EmptyState';
+import { ALERT_TYPE, getDefaultLogs } from '@/shared/constants';
 import { ROUTES } from '@/shared/constants/routes';
 import { capitalizeFirstLetter, getSortOrder } from '@/shared/utils/functions';
 
@@ -21,6 +24,7 @@ interface IProps {
   chillerIds: string[] | [];
   setChillerIds: React.Dispatch<React.SetStateAction<string[] | []>>;
   companyName?: string;
+  form: any;
 }
 
 const statusColorMap: Record<string, string> = {
@@ -35,7 +39,8 @@ const ChillerResponsibilitiesTab: React.FC<IProps> = ({
   facilityIds,
   chillerIds,
   setChillerIds,
-  companyName
+  companyName,
+  form
 }) => {
   const [args, setArgs] = useState<ICommonPagination>({
     page: 1,
@@ -90,13 +95,21 @@ const ChillerResponsibilitiesTab: React.FC<IProps> = ({
     },
     {
       title: 'Eff. Loss',
-      dataIndex: 'energyCost',
-      key: 'energyCost',
+      dataIndex: 'effLoss',
+      key: 'effLoss',
       sorter: true,
-      render: () => '-'
+      render: (_: any, record: IChillerAllList) => {
+        let className = '';
+        if (record?.latestLog?.effLoss?.type === ALERT_TYPE.ALERT) className = 'bgRed';
+        if (record?.latestLog?.effLoss?.type === ALERT_TYPE.WARNING) className = 'bgYellow';
+
+        return (
+          <div className={`loss-cell ${className}`}>{record?.latestLog?.effLoss?.value ?? '-'}</div>
+        );
+      }
     },
     {
-      title: 'Energy Cost',
+      title: 'Energy Cost $',
       dataIndex: 'energyCost',
       key: 'energyCost',
       sorter: true
@@ -108,25 +121,23 @@ const ChillerResponsibilitiesTab: React.FC<IProps> = ({
       sorter: true
     },
     {
-      title: 'Last Entry',
-      dataIndex: 'totalOperators',
-      key: 'totalOperators',
+      title: 'Last Log Entry',
+      dataIndex: 'updatedAt',
+      key: 'updatedAt',
       sorter: true,
-      render: () => {
-        const record = {
-          efficiencyLoss: 40,
-          lastEntry: {
-            name: 'Monica Geller',
-            datetime: '12/11/24 15:00'
-          }
-        };
-        let className = '';
-        if (record.efficiencyLoss >= 50) className = 'bgRed';
-        else if (record.efficiencyLoss >= 44) className = 'bgYellow';
+      render: (_: any, record: IChillerAllList) => {
         return (
-          <div className={`last-entry-cell ${className}`}>
-            <div>{record.lastEntry.name}</div>
-            <div>{record.lastEntry.datetime}</div>
+          <div className={`last-entry-cell`}>
+            <div>
+              {(record?.latestLog?.updatedByUser?.firstName || '') +
+                ' ' +
+                (record?.latestLog?.updatedByUser?.lastName || '')}
+            </div>
+            <div>
+              {record?.latestLog?.updatedAt
+                ? dayjs(record?.latestLog?.updatedAt).format('MM/DD/YY HH:mm')
+                : '-'}
+            </div>
           </div>
         );
       }
@@ -189,9 +200,14 @@ const ChillerResponsibilitiesTab: React.FC<IProps> = ({
         }}
         rowSelection={{
           selectedRowKeys: chillerIds,
-          onChange: (selectedRowKeys: React.Key[]) => {
-            setChillerIds(selectedRowKeys as string[]);
-          }
+          onChange: (selectedRowKeys: any) => {
+            form.resetFields(['notifyBy', 'general', 'logs']);
+            form.setFieldValue('logs', getDefaultLogs());
+            form.setFieldValue('programFacility', null);
+            form.setFieldValue('programOperator', null);
+            setChillerIds(selectedRowKeys);
+          },
+          preserveSelectedRowKeys: true // <-- Important!
         }}
         loading={isLoading}
         onChange={handleTableChange}

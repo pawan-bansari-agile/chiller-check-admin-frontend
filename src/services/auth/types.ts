@@ -36,6 +36,7 @@ export interface IVerifyOtpReq {
 export interface IForgotPasswordRes {
   resetPasswordToken: string;
   _id: string;
+  link?: string;
   emailTemplate?: {
     html: string;
   };

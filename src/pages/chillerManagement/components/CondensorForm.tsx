@@ -25,7 +25,7 @@ const CondensorForm: React.FC<IProps> = ({ unit }) => {
     <div className="chillerAddEfitForm">
       <Row gutter={[20, 25]}>
         <Col xs={24} sm={24} md={12} lg={12} xl={24}>
-          <Row gutter={[20, 25]} className="doubleInputRow">
+          <Row gutter={[20, 25]}>
             <Col xs={24} sm={24} md={24} lg={16} xl={8}>
               <RenderTextInput
                 label="Design Condenser Water Pressure Drop"
@@ -74,6 +74,7 @@ const CondensorForm: React.FC<IProps> = ({ unit }) => {
             </Col>
             <Col xs={24} sm={24} md={12} lg={12} xl={8}>
               <RenderSelect
+                label="Design Condenser Water Pressure Drop Unit"
                 colClassName="custom-select-col"
                 formItemProps={{
                   name: 'condenserWaterPressureDropOption'

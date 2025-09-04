@@ -17,7 +17,6 @@ const useForgotPasswordController = () => {
   const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [emailHTML, setEmailHTML] = useState('');
 
   const handleFieldsChange = useCallback(() => {
     const hasErrors = form.getFieldsError().some(({ errors }) => errors.length > 0);
@@ -27,51 +26,26 @@ const useForgotPasswordController = () => {
   }, [form]);
 
   const onSubmit = (values: { email: string }) => {
+    if (APP_ENV === ENVIRONMENT['LOCAL']) {
+      setIsModalOpen(true);
+      return;
+    }
     const forgotPasswordPayload = {
       email: values?.email
     };
     forgotPasswordAction(forgotPasswordPayload, {
       onSuccess: (res) => {
         form.resetFields();
-        const { message, data } = res || {};
-        const html = data?.emailTemplate?.html;
+        const { message } = res || {};
 
-        if (APP_ENV === ENVIRONMENT.PROD && html) {
-          setEmailHTML(html);
-          setIsModalOpen(true);
-          showToaster('success', message);
-        } else {
-          showToaster('success', message);
-          navigate(ROUTES.LOGIN);
-        }
+        showToaster('success', message);
+        navigate(ROUTES.LOGIN);
       },
       onError: (err) => {
         const errorMsg = err?.message || err?.message?.[0] || 'Something went wrong';
         showToaster('error', errorMsg);
       }
     });
-  };
-
-  const openHtmlInNewWindow = (htmlString: string) => {
-    const blob = new Blob([htmlString], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
-  };
-
-  const copyHtmlToClipboard = async (htmlString: string) => {
-    try {
-      const blobHtml = new Blob([htmlString], { type: 'text/html' });
-      const blobPlain = new Blob([htmlString], { type: 'text/plain' });
-
-      const clipboardItem = new ClipboardItem({
-        'text/html': blobHtml,
-        'text/plain': blobPlain
-      });
-
-      await navigator.clipboard.write([clipboardItem]);
-    } catch (err) {
-      console.error('Failed to copy HTML:', err);
-    }
   };
 
   return {
@@ -81,11 +55,7 @@ const useForgotPasswordController = () => {
     onSubmit,
     handleFieldsChange,
     isModalOpen,
-    setIsModalOpen,
-    emailHTML,
-    navigate,
-    openHtmlInNewWindow,
-    copyHtmlToClipboard
+    setIsModalOpen
   };
 };
 

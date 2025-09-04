@@ -12,6 +12,7 @@ import { CompanyListUnAssigned } from '@/services/company/types';
 
 import { CommonTable } from '@/shared/components/common/Table';
 import EmptyState from '@/shared/components/common/Table/EmptyState';
+import { getDefaultLogs } from '@/shared/constants';
 import { ROUTES } from '@/shared/constants/routes';
 import { capitalizeFirstLetter, getSortOrder } from '@/shared/utils/functions';
 
@@ -20,6 +21,7 @@ import { Wrapper } from '../style';
 interface IProps {
   companyId?: string;
   setCompanyId: React.Dispatch<React.SetStateAction<string>>;
+  form: any;
 }
 
 const statusColorMap: Record<string, string> = {
@@ -29,7 +31,7 @@ const statusColorMap: Record<string, string> = {
   prospect: '#00077B'
 };
 
-const ResponsibilitiesTab: React.FC<IProps> = ({ companyId, setCompanyId }) => {
+const ResponsibilitiesTab: React.FC<IProps> = ({ companyId, setCompanyId, form }) => {
   const [args, setArgs] = useState<ICommonPagination>({
     page: 1,
     limit: 10,
@@ -45,7 +47,16 @@ const ResponsibilitiesTab: React.FC<IProps> = ({ companyId, setCompanyId }) => {
       dataIndex: '_id',
       key: '_id',
       render: (id: string) => (
-        <Radio checked={companyId === id} onChange={() => setCompanyId(id || '')} />
+        <Radio
+          checked={companyId === id}
+          onChange={() => {
+            setCompanyId(id || '');
+            form.resetFields(['notifyBy', 'general', 'logs']);
+            form.setFieldValue('logs', getDefaultLogs());
+            form.setFieldValue('programFacility', null);
+            form.setFieldValue('programOperator', null);
+          }}
+        />
       )
     },
     {

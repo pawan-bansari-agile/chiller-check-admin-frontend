@@ -197,7 +197,7 @@ const FacilityManagement: React.FC = () => {
       sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'totalOperators')
     },
     {
-      title: 'Facility Code',
+      title: 'Facility ID',
       dataIndex: 'facilityCode',
       key: 'facilityCode',
       sorter: true,

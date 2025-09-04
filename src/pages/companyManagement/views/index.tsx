@@ -118,7 +118,7 @@ const CompanyManagement: React.FC = () => {
 
   const columns: ColumnsType<ICompanyListData> = [
     {
-      title: 'Corporate Name',
+      title: 'Company Name',
       dataIndex: 'name',
       key: 'name',
       render: (value) => capitalizeFirstLetter(value),
@@ -156,7 +156,7 @@ const CompanyManagement: React.FC = () => {
       )
     },
     {
-      title: 'ID',
+      title: 'Company ID',
       dataIndex: 'companyCode',
       key: 'companyCode',
       sorter: true,

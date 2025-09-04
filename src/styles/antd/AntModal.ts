@@ -227,6 +227,150 @@ gap: 10px;
    }
 }
 
+  .csvModal{
+    .downloadTemplate{
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      background-color: #F2F3FC;
+      border-radius: 13px;
+      margin: 0 28px 35px;
+      padding: 8px 33px 12px 37px;
+
+      .download-icon{
+        svg{
+                width: 64px;
+    height: 40px;
+        }
+      }
+      .contentDownload{
+        h3{
+             font-size: 15px;
+            font-weight: 600;
+            line-height: 31px;
+            color: ${({ theme }) => theme.colors.inkBlue};
+        }
+        p{
+              font-size: 12px;
+            font-weight: 400;
+            line-height: 17px;
+            color: ${({ theme }) => theme.colors.lightPurple};
+        }
+      }
+    }
+
+    .csvUploadWrapper{
+        margin: 0 28px 35px;
+
+        .ant-upload-wrapper .ant-upload-drag{
+            border: 1px dashed rgba(178, 181, 235, 1);
+            background-color: transparent;
+
+            .ant-upload-btn{
+                padding: 90px 138px;
+            }
+        }
+
+        .cloudIcon{
+            font-size: 56px;
+            font-weight: 400;
+        }
+
+        .excel-icon{
+        svg{
+        width:26px;
+        height:38px;
+        }
+        }
+
+        .dragItem{
+            font-size: 17px;
+            font-weight: 500;
+            line-height: 100%;
+            color: ${({ theme }) => theme.colors.inkBlue};
+
+            .browseFile{
+                color: ${({ theme }) => theme.colors.primary};
+            }
+        }
+        .csvSupport{
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 100%;
+            color: ${({ theme }) => theme.colors.lightPurple};  
+        }
+        .csvViewWrapper{
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+        }
+        .csvName{
+            p{
+                margin-bottom: 0;
+                &.fileName{
+                    font-size: 17px;
+            font-weight: 600;
+            line-height: 20px;
+            color: #1B1B1B;
+            margin-bottom: 6px;
+                }
+                &.fileSize{
+                       font-size: 13px;
+            font-weight: 400;
+            line-height: 20px;
+            color: #38426F;
+                }
+            }
+        }
+    }
+
+    .modalFooter{
+        display: flex;
+        justify-content: flex-end;
+        margin: 0 28px;
+        padding-bottom: 20px;
+    }
+  }
+
+    .problemSolutionModal {
+        .modalTitleWrapper{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            h2{
+                margin-bottom: 0;
+            }
+        }
+    .problemSolutionModalContent {
+        padding: 0 28px 20px;
+      h3 {
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 22px;
+        color: #38426f;
+      }
+      p{
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 22px;
+        color: #38426f;
+        margin-bottom: 10px;
+      }
+      .problemSolutionList{
+        list-style-type: disc;
+        padding-left: 20px;
+        li {
+          font-size: 14px;
+          font-weight: 400;
+          line-height: 22px;
+          color: #38426f;
+        }
+      }
+    }
+  } 
+
   @media only screen and (max-width: ${({ theme }) => theme.device.sm}) {
 .active-inactive-user-modal{
     .modalFooter{
@@ -237,6 +381,20 @@ gap: 10px;
             width: 44%;
         }
     }
+    .csvModal{
+      .downloadTemplate{
+          flex-direction: column;
+      }
+    
+      .csvUploadWrapper{
+          .ant-upload-wrapper .ant-upload-drag{
+               .ant-upload-btn{
+                  padding: 30px;
+              }
+          }
+      }
+    }
 }}
+
 
 `;

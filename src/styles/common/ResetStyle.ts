@@ -151,4 +151,11 @@ input[type=number]::-webkit-outer-spin-button {
     outline: none !important;
     box-shadow: none !important;
 }
+
+.ant-picker-ok{
+    button{
+        width: 55px;
+        padding: 2px 0;
+        }
+}
 `;

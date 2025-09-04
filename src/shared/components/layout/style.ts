@@ -78,7 +78,7 @@ export const StyledLayout = styled(Layout)`
         transition: all 0.3s;
         position: absolute;
         left: 0;
-        z-index: 999;
+        z-index: 9999;
 
         &:hover {
           width: 238px !important;

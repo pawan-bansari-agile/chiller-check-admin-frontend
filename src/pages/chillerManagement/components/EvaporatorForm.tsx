@@ -23,7 +23,7 @@ const EvaporatorForm: React.FC<IProps> = ({ unit }) => {
     <div className="chillerAddEfitForm">
       <Row gutter={[20, 25]}>
         <Col xs={24} sm={24} md={12} lg={12} xl={8}>
-          <Row gutter={[5, 5]} className="doubleInputRow">
+          <Row gutter={[5, 5]}>
             <Col xs={24} sm={24} md={24} lg={16} xl={16}>
               <RenderTextInput
                 label="Design Chill Water Pressure Drop"
@@ -72,6 +72,8 @@ const EvaporatorForm: React.FC<IProps> = ({ unit }) => {
             </Col>
             <Col xs={24} sm={24} md={12} lg={12} xl={8}>
               <RenderSelect
+                label="Select Unit"
+                tooltip="Design Chill Water Pressure Drop Unit."
                 colClassName="custom-select-col"
                 formItemProps={{
                   name: 'chillWaterPressureDropOption'

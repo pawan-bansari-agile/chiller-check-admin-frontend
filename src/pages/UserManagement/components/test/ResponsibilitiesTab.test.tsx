@@ -87,7 +87,7 @@ describe('ResponsibilitiesTab Component', () => {
   it('renders data and handles selection and sorting', () => {
     render(
       <ThemeProvider>
-        <ResponsibilitiesTab companyId="c1" setCompanyId={setCompanyId} />
+        <ResponsibilitiesTab companyId="c1" setCompanyId={setCompanyId} form={vi.fn()} />
       </ThemeProvider>
     );
 

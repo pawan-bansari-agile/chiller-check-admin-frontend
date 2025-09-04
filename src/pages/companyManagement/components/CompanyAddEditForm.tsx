@@ -8,7 +8,11 @@ import { Button, Col, Form, Row } from 'antd';
 
 import { chillerQueryKeys } from '@/services/chiller';
 import { companyHooks, companyQueryKeys } from '@/services/company';
+import { dashboardQueryKey } from '@/services/dashboard';
 import { facilityQueryKeys } from '@/services/facility';
+import { logQueryKeys } from '@/services/log';
+import { maintenanceQueryKey } from '@/services/maintenance';
+import { reportQueryKey } from '@/services/report';
 import { userQueryKeys } from '@/services/user';
 
 import {
@@ -20,7 +24,15 @@ import HeaderToolbar from '@/shared/components/common/HeaderToolbar';
 import { Loader } from '@/shared/components/common/Loader';
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
 import { CommonTable } from '@/shared/components/common/Table';
-import { ALTITUDE_OPTIONS, PATTERNS, STATES, TIMEZONE_OPTIONS } from '@/shared/constants';
+import {
+  ALTITUDE_OPTIONS,
+  APP_ENV,
+  COUNTRY,
+  ENVIRONMENT,
+  PATTERNS,
+  STATES,
+  TIMEZONE_OPTIONS
+} from '@/shared/constants';
 import {
   allowNegativeDecimalOnly,
   allowOnlyNumbers,
@@ -77,7 +89,7 @@ const CompanyAddEditForm: React.FC = () => {
         facilityCity: facility?.city,
         facilityState: facility?.state,
         facilityZipcode: facility?.zipcode,
-        facilityCountry: 'USA',
+        facilityCountry: facility?.country,
         altitude: facility?.altitude?.toString(),
         altitudeUnit: facility?.altitudeUnit,
         timeZone: facility?.timezone
@@ -91,6 +103,7 @@ const CompanyAddEditForm: React.FC = () => {
       address2: data?.address2,
       city: data?.city,
       state: data?.state,
+      country: data?.country,
       zipcode: data?.zipcode,
       website: data?.website,
       facilities: mappedFacilities
@@ -136,11 +149,14 @@ const CompanyAddEditForm: React.FC = () => {
     const city = getComponent('locality');
     const state = getComponent('administrative_area_level_1');
     const zipcode = getComponent('postal_code');
+    const country = place?.address_components?.find((comp: any) =>
+      comp.types.includes('country')
+    )?.short_name;
 
-    form.setFieldsValue({ address1: place?.name, city, state, zipcode });
+    form.setFieldsValue({ address1: place?.name, city, state, zipcode, country });
 
     clearFieldErrors(
-      ['city', 'state', 'zipcode', 'address1']
+      ['city', 'state', 'zipcode', 'address1', 'country']
         .filter((field) => !!form.getFieldValue(field))
         .map((field) => ({ name: field, errors: [] }))
     );
@@ -156,13 +172,16 @@ const CompanyAddEditForm: React.FC = () => {
           address: place?.name,
           facilityCity: getComponent('locality'),
           facilityState: getComponent('administrative_area_level_1'),
-          facilityZipcode: getComponent('postal_code')
+          facilityZipcode: getComponent('postal_code'),
+          facilityCountry: place?.address_components?.find((comp: any) =>
+            comp.types.includes('country')
+          )?.short_name
         }
       }
     });
 
     clearFieldErrors(
-      ['facilityCity', 'facilityState', 'facilityZipcode', 'address']
+      ['facilityCity', 'facilityState', 'facilityZipcode', 'address', 'facilityCountry']
         .filter((field) => !!form.getFieldValue(['facilities', index, field]))
         .map((field) => ({ name: ['facilities', index, field], errors: [] }))
     );
@@ -191,6 +210,11 @@ const CompanyAddEditForm: React.FC = () => {
     queryClient.invalidateQueries({ queryKey: facilityQueryKeys.all });
     queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
     queryClient.invalidateQueries({ queryKey: chillerQueryKeys.all });
+    queryClient.invalidateQueries({ queryKey: logQueryKeys.all });
+    queryClient.invalidateQueries({ queryKey: maintenanceQueryKey.all });
+    queryClient.invalidateQueries({ queryKey: reportQueryKey.all });
+    queryClient.invalidateQueries({ queryKey: dashboardQueryKey.all });
+
     navigate(-1);
   };
 
@@ -291,36 +315,61 @@ const CompanyAddEditForm: React.FC = () => {
                 />
               </Col>
               <Col xs={24} sm={24} md={12} lg={8}>
-                <RenderGoogleAutocompleteInput
-                  formItemProps={{
-                    name: 'address1',
-                    label: 'Address Line 1',
-                    required: true,
-                    rules: [
-                      {
-                        required: true,
-                        message: 'Please enter address line1.'
-                      },
-                      {
-                        pattern: PATTERNS.BLANK_SPACE,
-                        message: 'Please enter valid address line1.'
+                {APP_ENV !== ENVIRONMENT['LOCAL'] ? (
+                  <RenderGoogleAutocompleteInput
+                    formItemProps={{
+                      name: 'address1',
+                      label: 'Address Line 1',
+                      required: true,
+                      rules: [
+                        {
+                          required: true,
+                          message: 'Please enter address line1.'
+                        },
+                        {
+                          pattern: PATTERNS.BLANK_SPACE,
+                          message: 'Please enter valid address line1.'
+                        }
+                      ]
+                    }}
+                    inputProps={{
+                      disabled: isPending || isLoading || isEditPending,
+                      placeholder: 'Address Line 1',
+                      onChange: handleCapitalizedChange('address1')
+                    }}
+                    googleAutocompleteProps={{
+                      onPlaceSelected,
+                      options: {
+                        fields: ['ALL'],
+                        types: ['geocode'], // Restrict to geocode type (addresses).
+                        componentRestrictions: { country: ['us', 'ca'] }
                       }
-                    ]
-                  }}
-                  inputProps={{
-                    disabled: isPending || isLoading || isEditPending,
-                    placeholder: 'Address Line 1',
-                    onChange: handleCapitalizedChange('address1')
-                  }}
-                  googleAutocompleteProps={{
-                    onPlaceSelected,
-                    options: {
-                      fields: ['ALL'],
-                      types: ['geocode'], // Restrict to geocode type (addresses).
-                      componentRestrictions: { country: 'us' } // Restrict to USA.
-                    }
-                  }}
-                />
+                    }}
+                  />
+                ) : (
+                  <RenderTextInput
+                    label="Address Line 1"
+                    required
+                    formItemProps={{
+                      name: 'address1',
+                      rules: [
+                        {
+                          required: true,
+                          message: 'Please enter address line1.'
+                        },
+                        {
+                          pattern: PATTERNS.BLANK_SPACE,
+                          message: 'Please enter valid address line1.'
+                        }
+                      ]
+                    }}
+                    inputProps={{
+                      disabled: isPending || isLoading || isEditPending,
+                      placeholder: 'Address Line 1',
+                      onChange: handleCapitalizedChange('address1')
+                    }}
+                  />
+                )}
               </Col>
 
               <Col xs={24} sm={24} md={12} lg={8}>
@@ -409,22 +458,21 @@ const CompanyAddEditForm: React.FC = () => {
               </Col>
 
               <Col xs={24} sm={24} md={12} lg={8}>
-                <RenderTextInput
+                <RenderSelect
                   label="Country"
-                  required
+                  colClassName="custom-select-col"
                   formItemProps={{
-                    initialValue: 'USA',
                     name: 'country',
                     rules: [
                       {
                         required: true,
-                        message: 'Please enter country'
+                        message: 'Please select country'
                       }
                     ]
                   }}
                   inputProps={{
-                    disabled: true,
-                    placeholder: 'Enter Country'
+                    placeholder: 'Select Country',
+                    options: COUNTRY
                   }}
                 />
               </Col>
@@ -520,39 +568,63 @@ const CompanyAddEditForm: React.FC = () => {
                           ),
                           key: 'address',
                           width: 250,
-                          render: (_: any, __: any, index: number) => (
-                            <RenderGoogleAutocompleteInput
-                              formItemProps={{
-                                name: [index, 'address'],
-                                required: true,
-                                rules: [
-                                  {
-                                    required: true,
-                                    message: 'Please enter address.'
-                                  },
-                                  {
-                                    pattern: PATTERNS.BLANK_SPACE,
-                                    message: 'Please enter valid address.'
+                          render: (_: any, __: any, index: number) =>
+                            APP_ENV !== ENVIRONMENT['LOCAL'] ? (
+                              <RenderGoogleAutocompleteInput
+                                formItemProps={{
+                                  name: [index, 'address'],
+                                  required: true,
+                                  rules: [
+                                    {
+                                      required: true,
+                                      message: 'Please enter address.'
+                                    },
+                                    {
+                                      pattern: PATTERNS.BLANK_SPACE,
+                                      message: 'Please enter valid address.'
+                                    }
+                                  ]
+                                }}
+                                inputProps={{
+                                  placeholder: 'Address',
+                                  disabled:
+                                    isPending || isLoading || shouldDisable(index) || isEditPending,
+                                  onChange: handleIndexedCapitalizedChange(index, 'address')
+                                }}
+                                googleAutocompleteProps={{
+                                  onPlaceSelected: (place: any) =>
+                                    onPlaceSelectedIndexWise(place, index),
+                                  options: {
+                                    fields: ['ALL'],
+                                    types: ['geocode'], // Restrict to geocode type (addresses).
+                                    componentRestrictions: { country: ['us', 'ca'] }
                                   }
-                                ]
-                              }}
-                              inputProps={{
-                                placeholder: 'Address',
-                                disabled:
-                                  isPending || isLoading || shouldDisable(index) || isEditPending,
-                                onChange: handleIndexedCapitalizedChange(index, 'address')
-                              }}
-                              googleAutocompleteProps={{
-                                onPlaceSelected: (place: any) =>
-                                  onPlaceSelectedIndexWise(place, index),
-                                options: {
-                                  fields: ['ALL'],
-                                  types: ['geocode'], // Restrict to geocode type (addresses).
-                                  componentRestrictions: { country: 'us' } // Restrict to USA.
-                                }
-                              }}
-                            />
-                          )
+                                }}
+                              />
+                            ) : (
+                              <RenderTextInput
+                                required
+                                formItemProps={{
+                                  name: [index, 'address'],
+                                  rules: [
+                                    {
+                                      required: true,
+                                      message: 'Please enter address.'
+                                    },
+                                    {
+                                      pattern: PATTERNS.BLANK_SPACE,
+                                      message: 'Please enter valid address.'
+                                    }
+                                  ]
+                                }}
+                                inputProps={{
+                                  placeholder: 'Address',
+                                  disabled:
+                                    isPending || isLoading || shouldDisable(index) || isEditPending,
+                                  onChange: handleIndexedCapitalizedChange(index, 'address')
+                                }}
+                              />
+                            )
                         },
                         {
                           title: 'Address Line 2',
@@ -629,21 +701,21 @@ const CompanyAddEditForm: React.FC = () => {
                           key: 'country',
                           width: 200,
                           render: (_: any, __: any, index: number) => (
-                            <RenderTextInput
-                              required={false}
+                            <RenderSelect
+                              colClassName="custom-select-col"
                               formItemProps={{
-                                initialValue: 'USA',
                                 name: [index, 'facilityCountry'],
                                 rules: [
                                   {
                                     required: true,
-                                    message: 'Please enter country'
+                                    message: 'Please select country'
                                   }
                                 ]
                               }}
                               inputProps={{
-                                disabled: true,
-                                placeholder: 'Enter Country'
+                                disabled: shouldDisable(index),
+                                placeholder: 'Select Country',
+                                options: COUNTRY
                               }}
                             />
                           )

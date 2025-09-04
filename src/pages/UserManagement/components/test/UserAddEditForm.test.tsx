@@ -64,7 +64,7 @@ vi.mock('@/shared/constants', async (importOriginal) => {
     },
     USER_ADD_ROLE: [
       { label: 'Sub Admin', value: 'subAdmin' },
-      { label: 'Corporate Manager', value: 'corporateManager' }
+      { label: 'Company Manager', value: 'corporateManager' }
     ],
     USER_ROLES: {
       SUB_ADMIN: 'subAdmin',

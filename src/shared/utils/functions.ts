@@ -207,6 +207,11 @@ export const buildSearchParams = (options: SetParamOptions): URLSearchParams => 
   if (options.sort_order) params.set('sort_order', options.sort_order);
   if (options.facilityId) params.set('facilityId', options.facilityId);
   if (options.role) params.set('role', options.role);
+  if (options.userId) params.set('userId', options.userId);
+  if (options.chillerId) params.set('chillerId', options.chillerId);
+  if (options.parameter) params.set('parameter', options.parameter);
+
+  if (options.peakLoad) params.set('peakLoad', options.peakLoad ? 'true' : 'false');
 
   return params;
 };
@@ -483,7 +488,7 @@ export const getUnitValidator = (unitType: 'English' | 'SI Metric') => {
 
     if (!/^\d+(\.\d+)?$/.test(value)) {
       return Promise.reject(
-        unitType === 'English' ? 'Please enter valid tons.' : 'Please enter valid kwr.'
+        unitType === 'English' ? 'Please enter valid tons.' : 'Please enter valid kWR.'
       );
     }
 
@@ -491,11 +496,12 @@ export const getUnitValidator = (unitType: 'English' | 'SI Metric') => {
       if (num < 10 || num > 8000 || /^0\d+/.test(value)) {
         return Promise.reject('Tons must be between 10 and 8000.');
       }
-    } else if (unitType === 'SI Metric') {
-      if (num < 28.128 || num > 35 || /^0\d+/.test(value)) {
-        return Promise.reject('KWR must be between 28.128 and 35.');
-      }
     }
+    // else if (unitType === 'SI Metric') {
+    //   if (num < 28.128 || num > 35 || /^0\d+/.test(value)) {
+    //     return Promise.reject('kWR must be between 28.128 and 35.');
+    //   }
+    // }
 
     return Promise.resolve();
   };
@@ -515,7 +521,7 @@ export const getUnitValidatorForEfficiency = (unitType: 'English' | 'SI Metric')
 
     if (unitType === 'English') {
       if (num < 0.3 || num > 3 || /^0\d+/.test(value)) {
-        return Promise.reject('kw/ton - Value Must be between 0.3 and 3.');
+        return Promise.reject('kW/ton - Value Must be between 0.3 and 3.');
       }
     } else if (unitType === 'SI Metric') {
       if (num < 3 || num > 12 || /^0\d+/.test(value)) {
@@ -615,4 +621,103 @@ export const hasPermission = (
   const { role = '', permissions = {} } = userData;
   if (role && role === USER_ROLES.ADMIN) return true;
   return !!permissions?.[module]?.[action];
+};
+
+export const validateLogFieldWithMinMax = (fieldName: string = '', min = 0, max = Infinity) => {
+  console.log('max: ', max);
+  console.log('min: ', min);
+  return (_: any, value: string) => {
+    if (!value || !value?.trim()) return Promise.reject(new Error(`Please enter ${fieldName}.`));
+    if (value === '-' || value === '.' || value === '-.') {
+      return Promise.reject(new Error(`Please enter valid ${fieldName}.`));
+    }
+    const num = parseFloat(value);
+
+    if (isNaN(num)) {
+      return Promise.reject(new Error(`Please enter valid ${fieldName}.`));
+    }
+
+    const decimalRegex = /^-?\d+(\.\d+)?$/; // allows 0, 0.1, 10.25, etc.
+
+    if (!decimalRegex.test(value)) {
+      return Promise.reject(new Error(`Please enter valid ${fieldName}.`));
+    }
+
+    // if (isNaN(num) || num < min || num > max) {
+    //   return Promise.reject(
+    //     new Error(
+    //       `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be between ${min} and ${max}.`
+    //     )
+    //   );
+    // }
+
+    return Promise.resolve();
+  };
+};
+
+export const validateCommonLogFields = (fieldLabel: string) => {
+  return (_: any, value: string) => {
+    if (!value || !value.trim()) return Promise.reject(new Error(`Please enter ${fieldLabel}.`));
+
+    if (value === '-' || value === '.' || value === '-.') {
+      return Promise.reject(new Error(`Please enter valid ${fieldLabel}.`));
+    }
+
+    const validNumberRegex = /^-?\d+(\.\d+)?$/;
+    if (!validNumberRegex.test(value)) {
+      return Promise.reject(new Error(`Please enter valid ${fieldLabel}.`));
+    }
+
+    const num = Number(value);
+    if (isNaN(num)) {
+      return Promise.reject(new Error(`Please enter valid ${fieldLabel}.`));
+    }
+
+    return Promise.resolve();
+  };
+};
+
+export const allowOnlyNonNegativeInteger = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const allowedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete', 'Tab'];
+
+  if (
+    allowedKeys.includes(e.key) ||
+    (e.ctrlKey && (e.key === 'a' || e.key === 'c' || e.key === 'v' || e.key === 'x'))
+  ) {
+    return;
+  }
+
+  // Block if key is not a digit
+  if (!/^\d$/.test(e.key)) {
+    e.preventDefault();
+  }
+};
+
+export const validateNonNegativeInteger = (fieldLabel: string) => {
+  return (_: any, value: string) => {
+    if (!value || !value?.trim()) return Promise.reject(new Error(`Please enter ${fieldLabel}.`));
+
+    const intValue = Number(value);
+
+    if (!/^\d+$/.test(value)) {
+      return Promise.reject(new Error(`Please enter valid ${fieldLabel}.`));
+    }
+
+    if (isNaN(intValue) || intValue < 0) {
+      return Promise.reject(new Error(`${fieldLabel} must be 0 or a positive integer.`));
+    }
+
+    return Promise.resolve();
+  };
+};
+
+export const generateColors = (count: number) => {
+  const colors = [];
+  for (let i = 0; i < count; i++) {
+    const hue = Math.floor((360 / count) * i); // evenly spaced hues
+    const border = `hsl(${hue}, 85%, 50%)`; // bright color
+    const bg = `hsla(${hue}, 85%, 50%, 0.1)`; // transparent background
+    colors.push({ bg, border });
+  }
+  return colors;
 };

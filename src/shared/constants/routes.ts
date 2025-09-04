@@ -53,18 +53,21 @@ export const ROUTES = {
   // reports
   REPORT: `/report`,
   ADD_REPORT: `/report/add`,
-  EDIT_REPORT: `/report/edit`,
-  VIEW_REPORT: `/report/view`,
+  EDIT_REPORT: (id: string) => `/report/edit/${id}`,
+  VIEW_REPORT: (id: string) => `/report/view/${id}`,
 
   // maintenance
   MAINTENANCE: `/maintenance-records`,
-  ADD_MAINTENANCE: `/maintenance/add`,
-  EDIT_MAINTENANCE: `/maintenance/edit`,
-  VIEW_MAINTENANCE: `/maintenance-records/view`,
+  ADD_MAINTENANCE: `/maintenance-records/add`,
+  EDIT_MAINTENANCE: (id: string) => `/maintenance-records/edit/${id}`,
+  VIEW_MAINTENANCE: (id: string) => `/maintenance-records/view/${id}`,
 
   // log
   LOG_ENTRY: `/log-entries`,
   ADD_LOG_ENTRY: `/log-entries/add`,
-  EDIT_LOG_ENTRY: `/log-entries/edit`,
-  VIEW_LOG_ENTRY: `/log-entries/view`
+  EDIT_LOG_ENTRY: (id: string) => `/log-entries/edit/${id}`,
+  VIEW_LOG_ENTRY: (id: string) => `/log-entries/view/${id}`,
+
+  //Import summary
+  SUMMARY: '/import-summary'
 };

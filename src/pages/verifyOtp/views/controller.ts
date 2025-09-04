@@ -9,7 +9,7 @@ import { authHooks } from '@/services/auth';
 
 import { authStore } from '@/store/auth';
 
-import { DEVICE_TYPE } from '@/shared/constants';
+import { DEVICE_TYPE, LocalStorageKeys } from '@/shared/constants';
 import { ROUTES } from '@/shared/constants/routes';
 import { initializeDeviceId, showToaster } from '@/shared/utils/functions';
 
@@ -37,7 +37,7 @@ const useVerifyOtpController = () => {
       otp: otp,
       userId: userId,
       deviceId: deviceId,
-      fcmToken: '',
+      fcmToken: localStorage.getItem(LocalStorageKeys.FCM_TOKEN) || '',
       deviceType: DEVICE_TYPE.WEB
     };
 

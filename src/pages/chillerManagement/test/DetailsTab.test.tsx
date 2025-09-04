@@ -10,7 +10,7 @@ import DetailsTab from '../components/DetailsTab';
 
 import ThemeProvider from '@/styles/config';
 
-const mockChillerData: IChillerViewRes = {
+const mockChillerData: any = {
   type: 'Screw',
   unit: MEASUREMENT_UNITS[0].value, // English
   companyName: 'ABC Corp',
@@ -30,6 +30,7 @@ const mockChillerData: IChillerViewRes = {
   efficiencyRating: 0.6,
   energyCost: 0.12,
   condDPDrop: 5,
+  emissionFactor: 12,
   condDPDropUnit: 'psi',
   condAPDropUnit: 'kPa',
   condPressureUnit: 'psi',
@@ -65,7 +66,12 @@ const mockChillerData: IChillerViewRes = {
   oilPresHighUnit: '',
   oilPresLowUnit: '',
   oilPresDifUnit: '',
-  useLoad: false
+  useLoad: false,
+  ChillerNumber: '',
+  recentReadingAnalysis: undefined,
+  performanceSummary: undefined,
+  compressorRunHours: undefined,
+  purgeData: undefined
 };
 
 describe('DetailsTab', () => {
@@ -98,7 +104,7 @@ describe('DetailsTab', () => {
     expect(screen.getByText('70 %')).toBeInTheDocument();
     expect(screen.getByText('45°F')).toBeInTheDocument();
     expect(screen.getByText('100')).toBeInTheDocument();
-    expect(screen.getByText('0.6 kw/ton')).toBeInTheDocument();
+    expect(screen.getByText('0.6 kW/ton')).toBeInTheDocument();
   });
 
   it('shows correct boolean values', () => {

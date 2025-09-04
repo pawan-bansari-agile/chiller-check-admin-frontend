@@ -239,9 +239,25 @@ export const AntdFormInput = createGlobalStyle`
     }
   }
 
+      .ant-form-item-control-input{
+      min-height: auto !important;
+}
+
   /* dropdown with search listing */
   .dropdownWithSearch{
     width: 175px;
+     &.operatorSelect{
+      width: 260px;
+      &+&{
+        margin-left: 10px;
+      }
+      .ant-select-selector{
+        .ant-select-selection-item,
+        .ant-select-selection-placeholder{
+          max-width: 140px;  
+        }
+      }
+    }
     .ant-form-item-control-input{
       min-height: auto !important;
 

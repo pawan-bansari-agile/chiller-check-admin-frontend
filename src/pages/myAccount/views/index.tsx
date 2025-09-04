@@ -173,6 +173,8 @@ const MyAccount: React.FC = () => {
                         response={data?.alerts}
                         isDisabled={true}
                         role={data?.role}
+                        alertFacilities={data?.alertFacilities || []}
+                        alertOperators={data?.alertOperators || []}
                       />
                     </Tabs.TabPane>
                   </>

@@ -63,6 +63,9 @@ export const Wrapper = styled.div`
         border-radius: 100%;
       }
     }
+    div {
+      text-align: start;
+    }
     h4 {
       font-size: 14px;
       font-weight: 600;
@@ -94,6 +97,22 @@ export const Wrapper = styled.div`
     justify-content: flex-end;
     margin: 25px 0 0 !important;
     padding-bottom: 25px;
+  }
+
+  .logAddEditMainForm {
+    padding: 0 32px;
+  }
+
+  .editButtonWrap {
+    display: flex;
+    gap: 10px;
+  }
+  .addEditHeader {
+    padding: 36px 18px 5px 25px !important;
+
+    &.userAddEditHeader {
+      padding: 36px 18px 25px 25px !important;
+    }
   }
 
   .addMainForm {
@@ -132,7 +151,7 @@ export const Wrapper = styled.div`
       justify-content: space-between;
       margin-bottom: 20px;
       .mainlabel {
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 600;
         line-height: 28px;
         color: ${({ theme }) => theme.colors.inkBlue};
@@ -140,13 +159,8 @@ export const Wrapper = styled.div`
     }
   }
 
-  .doubleInputRow {
-    align-items: flex-end;
-  }
-
   .timeWrap {
     display: flex;
-    height: 40px;
 
     .timezone {
       background: #fafafa;
@@ -161,6 +175,8 @@ export const Wrapper = styled.div`
       display: flex;
       align-items: center;
       justify-content: center;
+      height: 39px;
+      width: 70px !important;
     }
   }
 
@@ -185,6 +201,19 @@ export const Wrapper = styled.div`
 
   /* view */
 
+  .maintenanceTime {
+    color: #040c2b;
+    font-size: 14px;
+    line-height: 22px;
+    font-weight: 400;
+    display: inline-block;
+    padding-bottom: 4px;
+    span {
+      display: inline-block;
+      color: #f2654d;
+      margin-right: 4px;
+    }
+  }
   .viewLogMainDetails {
     display: flex;
     flex-wrap: wrap;
@@ -249,6 +278,44 @@ export const Wrapper = styled.div`
       svg {
         path {
           fill: ${({ theme }) => theme.colors.inkBlue};
+        }
+      }
+    }
+  }
+
+  .rowsWrap {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .generalLogContentWrap {
+    height: 100%;
+
+    .CardWithTitleWrap {
+      height: 100%;
+    }
+  }
+
+  .otherLogFormShadow {
+    height: 100%;
+  }
+
+  .paginationWrap {
+    display: flex;
+    gap: 10px;
+    .paginationButton {
+      width: 34px;
+      height: 34px;
+      border: 1px solid #000abc;
+      border-radius: 50%;
+
+      &:disabled {
+        border: 1px solid #d6d7fe;
+        cursor: not-allowed;
+
+        svg {
+          cursor: not-allowed;
         }
       }
     }
@@ -335,6 +402,13 @@ export const Wrapper = styled.div`
 
     .otherLogForm {
       flex-wrap: wrap;
+    }
+  }
+
+  @media only screen and (max-width: ${({ theme }) => theme.device.xl}) {
+    .maintenanceTime {
+      display: inline-block;
+      padding-top: 10px;
     }
   }
 

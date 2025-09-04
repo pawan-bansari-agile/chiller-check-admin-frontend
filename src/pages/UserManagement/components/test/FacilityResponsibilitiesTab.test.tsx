@@ -114,6 +114,7 @@ describe('FacilityResponsibilitiesTab Component', () => {
           companySelect="company1"
           chillerIds={['f1']}
           setChillerIds={setChillerIds}
+          form={vi.fn()}
         />
       </ThemeProvider>
     );

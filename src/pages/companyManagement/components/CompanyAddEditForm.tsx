@@ -35,7 +35,6 @@ import {
 } from '@/shared/constants';
 import {
   allowNegativeDecimalOnly,
-  allowOnlyNumbers,
   capitalizeFirstLetterWhileTyping,
   showToaster,
   uniqueFieldValidator
@@ -196,7 +195,7 @@ const CompanyAddEditForm: React.FC = () => {
           city: facility?.facilityCity,
           state: facility?.facilityState,
           country: facility?.facilityCountry,
-          zipcode: facility?.facilityZipcode,
+          zipcode: facility?.facilityZipcode?.trim()?.toUpperCase(),
           timezone: facility?.timeZone,
           altitude: Number(facility?.altitude),
           altitudeUnit: facility?.altitudeUnit
@@ -226,6 +225,7 @@ const CompanyAddEditForm: React.FC = () => {
   const onSubmit = (values: IFormValues) => {
     const payload = {
       ...values,
+      zipcode: values?.zipcode?.trim()?.toUpperCase(),
       facilities: buildFacilityPayload(values?.facilities || [])
     };
 
@@ -442,17 +442,17 @@ const CompanyAddEditForm: React.FC = () => {
                         message: 'Please enter zipcode.'
                       },
                       {
-                        pattern: PATTERNS.ZIP_CODE,
-                        message: 'Please enter a valid 5-digit zipcode.'
+                        pattern: PATTERNS.BLANK_SPACE,
+                        message: 'Please enter a valid zipcode.'
                       }
                     ]
                   }}
                   inputProps={{
                     placeholder: 'Enter Zipcode',
-                    maxLength: 5,
-                    inputMode: 'numeric', // shows numeric keyboard on mobile
-                    pattern: '[0-9]*', // prevents character input on some browsers
-                    onKeyDown: allowOnlyNumbers
+                    // maxLength: 7,
+                    inputMode: 'text' // shows numeric keyboard on mobile
+                    // pattern: '[0-9]*', // prevents character input on some browsers
+                    // onKeyDown: allowOnlyNumbers
                   }}
                 />
               </Col>
@@ -735,18 +735,18 @@ const CompanyAddEditForm: React.FC = () => {
                                     message: 'Please enter zipcode.'
                                   },
                                   {
-                                    pattern: PATTERNS.ZIP_CODE,
-                                    message: 'Please enter a valid 5-digit zipcode.'
+                                    pattern: PATTERNS.BLANK_SPACE,
+                                    message: 'Please enter a valid zipcode.'
                                   }
                                 ]
                               }}
                               inputProps={{
                                 disabled: shouldDisable(index),
                                 placeholder: 'Zipcode',
-                                maxLength: 5,
-                                inputMode: 'numeric', // shows numeric keyboard on mobile
-                                pattern: '[0-9]*', // prevents character input on some browsers
-                                onKeyDown: allowOnlyNumbers
+                                // maxLength: 7,
+                                inputMode: 'text' // shows numeric keyboard on mobile
+                                // pattern: '[0-9]*', // prevents character input on some browsers
+                                // onKeyDown: allowOnlyNumbers
                               }}
                             />
                           )

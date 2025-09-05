@@ -292,7 +292,7 @@ const Dashboard: React.FC = () => {
               {/* Facility Performance Summary */}
               {perfData && !hideFacility && (
                 <>
-                  <div className="issueHeader">
+                  <div className="facilityIssueHeader">
                     <h2 className="themeColor">Facility Performance</h2>
                   </div>
                   <div className="scrollDiv">

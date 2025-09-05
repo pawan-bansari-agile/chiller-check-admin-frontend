@@ -44,7 +44,6 @@ import {
   allowEnergyCost,
   allowHoursPerWeek,
   allowNegativeDecimalOnly,
-  allowOnlyNumbers,
   allowTonsKwr,
   capitalizeFirstLetter,
   capitalizeFirstLetterWhileTyping,
@@ -241,6 +240,7 @@ const FacilityAddEditForm: React.FC = () => {
     const payload = {
       ...values,
       altitude: Number(values?.altitude),
+      zipcode: values?.zipcode?.trim()?.toUpperCase(),
       chillers: buildChillerPayload(values?.chillers || [])
     };
 
@@ -480,17 +480,17 @@ const FacilityAddEditForm: React.FC = () => {
                           message: 'Please enter zipcode.'
                         },
                         {
-                          pattern: PATTERNS.ZIP_CODE,
-                          message: 'Please enter a valid 5-digit zipcode.'
+                          pattern: PATTERNS.BLANK_SPACE,
+                          message: 'Please enter a valid ipcode.'
                         }
                       ]
                     }}
                     inputProps={{
                       placeholder: 'Enter Zipcode',
-                      maxLength: 5,
-                      inputMode: 'numeric', // shows numeric keyboard on mobile
-                      pattern: '[0-9]*', // prevents character input on some browsers
-                      onKeyDown: allowOnlyNumbers
+                      // maxLength: 7,
+                      inputMode: 'text' // shows numeric keyboard on mobile
+                      // pattern: '[0-9]*', // prevents character input on some browsers
+                      // onKeyDown: allowOnlyNumbers
                     }}
                   />
                 </Col>

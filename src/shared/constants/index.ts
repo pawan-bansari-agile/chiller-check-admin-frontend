@@ -50,7 +50,7 @@ export const PATTERNS = {
   STRONG_PASSWORD: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[^\s]{8,64}$/,
   VALID_NAMES: /^[A-Za-z]+$/,
   BLANK_SPACE: /^(?!\s)(?!.*\s$)(?!\s+$).+/,
-  ZIP_CODE: /^[0-9]{5}$/
+  ZIP_CODE: /^(?! )(?:\d{5}(?:-\d{4})?|[A-Za-z]\d[A-Za-z](?: ?\d[A-Za-z]\d))(?! )$/
 };
 
 export const defaultQueryOptions = {

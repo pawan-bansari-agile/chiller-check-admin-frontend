@@ -62,6 +62,29 @@ export const Wrapper = styled.div`
 
     .issueHeader {
       display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-bottom: 25px;
+      border-bottom: 2px solid #f0f0f0;
+
+      h2 {
+        font-size: 16px;
+        line-height: 24px;
+        font-weight: 600;
+        color: ${({ theme }) => theme.colors.inkBlue};
+        margin: 0;
+        padding: 0;
+        border: none;
+      }
+
+      /* a {
+        color: #000abc;
+        font-weight: 600;
+      } */
+    }
+
+    .facilityIssueHeader {
+      display: flex;
       justify-content: space-between;
       align-items: center;
       padding-bottom: 25px;

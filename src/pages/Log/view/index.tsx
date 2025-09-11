@@ -600,7 +600,7 @@ const LogEntry: React.FC = () => {
 
   const downloadFile = () => {
     try {
-      const excelPath = `${IMAGE_URL}chiller-check/bulkImportLogs.xlsx`;
+      const excelPath = `${IMAGE_URL}chiller-check/bulkImportLogs.xlsx?uuid=${Date.now()}`;
       const a = document.createElement('a');
       a.href = excelPath;
       const fileName = `bulkImportLogs_${Date.now()}.xlsx`;

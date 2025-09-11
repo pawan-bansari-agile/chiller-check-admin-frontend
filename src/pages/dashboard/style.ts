@@ -227,6 +227,12 @@ export const Wrapper = styled.div`
         border-bottom-right-radius: 12px;
       }
 
+      &:last-of-type {
+        border-bottom: 2px solid #f0f0f0 !important;
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+      }
+
       div {
         width: 20% !important;
       }
@@ -246,6 +252,12 @@ export const Wrapper = styled.div`
       }
 
       &:nth-of-type(4) {
+        border-bottom: 2px solid #f0f0f0 !important;
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+      }
+
+      &:last-of-type {
         border-bottom: 2px solid #f0f0f0 !important;
         border-bottom-left-radius: 12px;
         border-bottom-right-radius: 12px;
@@ -284,6 +296,12 @@ export const Wrapper = styled.div`
       }
 
       &:nth-of-type(6) {
+        border-bottom: 2px solid #f0f0f0 !important;
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+      }
+
+      &:last-of-type {
         border-bottom: 2px solid #f0f0f0 !important;
         border-bottom-left-radius: 12px;
         border-bottom-right-radius: 12px;

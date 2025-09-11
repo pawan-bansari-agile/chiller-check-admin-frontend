@@ -136,9 +136,6 @@ export const Wrapper = styled.div`
   @media only screen and (max-width: ${({ theme }) => theme.device.sm}) {
     .cardWrap {
       flex-wrap: wrap;
-      div {
-        width: 100%;
-      }
     }
   }
 

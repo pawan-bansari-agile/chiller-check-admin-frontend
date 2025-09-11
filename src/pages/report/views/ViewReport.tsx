@@ -361,9 +361,12 @@ const ViewReport: React.FC = () => {
 
       <div className="shadowPaperWrap" id="capture-area">
         <ShadowPaper>
-          <p className="headerFooterViewContent">
-            <p dangerouslySetInnerHTML={{ __html: reportData?.header || '' }} />
-          </p>
+          {/* <p className="headerFooterViewContent"> */}
+          <p
+            dangerouslySetInnerHTML={{ __html: reportData?.header || '' }}
+            className="headerFooterViewContent"
+          />
+          {/* </p> */}
         </ShadowPaper>
 
         <ShadowPaper>
@@ -468,9 +471,12 @@ const ViewReport: React.FC = () => {
         </ShadowPaper>
 
         <ShadowPaper>
-          <p className="headerFooterViewContent">
-            <p dangerouslySetInnerHTML={{ __html: reportData?.footer || '' }} />
-          </p>
+          {/* <p className="headerFooterViewContent"> */}
+          <p
+            dangerouslySetInnerHTML={{ __html: reportData?.footer || '' }}
+            className="headerFooterViewContent"
+          />
+          {/* </p> */}
         </ShadowPaper>
       </div>
 

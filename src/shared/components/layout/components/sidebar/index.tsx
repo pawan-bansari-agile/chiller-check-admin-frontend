@@ -108,22 +108,22 @@ const items = [
     '3',
     <DashboardOutlined />,
     [
-      createMenuItem(
-        ROUTES.LOG_ENTRY,
-        'Recent Readings',
-        '3-3',
-        undefined,
-        undefined,
-        'item',
-        [
-          USER_ROLES.ADMIN,
-          USER_ROLES.SUB_ADMIN,
-          USER_ROLES.CORPORATE_MANAGER,
-          USER_ROLES.FACILITY_MANAGER,
-          USER_ROLES.OPERATOR
-        ],
-        'log'
-      ),
+      // createMenuItem(
+      //   ROUTES.LOG_ENTRY,
+      //   'Recent Readings',
+      //   '3-3',
+      //   undefined,
+      //   undefined,
+      //   'item',
+      //   [
+      //     USER_ROLES.ADMIN,
+      //     USER_ROLES.SUB_ADMIN,
+      //     USER_ROLES.CORPORATE_MANAGER,
+      //     USER_ROLES.FACILITY_MANAGER,
+      //     USER_ROLES.OPERATOR
+      //   ],
+      //   'log'
+      // ),
       createMenuItem(
         ROUTES.CHILLER_MANAGEMENT,
         'Chillers',

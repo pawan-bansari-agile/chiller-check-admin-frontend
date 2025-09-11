@@ -473,7 +473,7 @@ const AddEditLog: React.FC = () => {
                         rules: [{ required: true, message: 'Please select date.' }]
                       }}
                       inputProps={{
-                        placeholder: 'Select Reading Date & Time',
+                        placeholder: 'Select Reading Date',
                         onChange: () => form.validateFields(['readingTime']),
                         disabledDate: (current) => current && current > dayjs().endOf('day')
                       }}

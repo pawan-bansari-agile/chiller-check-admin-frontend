@@ -262,9 +262,9 @@ const Dashboard: React.FC = () => {
           );
 
           return (
-            <div key={facility.facilityId} className="charityCard">
+            <div key={facility?.facilityId} className="charityCard">
               <div className="issueHeader facilityHeader">
-                <h2 className="themeColor">Facility - {facility.facilityName || '-'}</h2>
+                <h2 className="themeColor">Facility - {facility?.facilityName || '-'}</h2>
               </div>
 
               {/* Facility Chiller Logs */}
@@ -282,7 +282,13 @@ const Dashboard: React.FC = () => {
                     <span>Other Losses</span>
                   </div>
                   {facility?.chillerLogs?.length ? (
-                    facility?.chillerLogs?.map((log) => <ChillerLogRow key={log._id} {...log} />)
+                    facility?.chillerLogs?.map((log) => (
+                      <ChillerLogRow
+                        key={log._id}
+                        facilityTimezone={facility?.facilityTimezone}
+                        {...log}
+                      />
+                    ))
                   ) : (
                     <div className="no-data">No Data Found</div>
                   )}

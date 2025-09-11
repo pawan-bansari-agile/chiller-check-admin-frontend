@@ -134,6 +134,9 @@ export const Wrapper = styled.div`
     color: ${({ theme }) => theme.colors.inkBlue};
     margin-bottom: 0;
     padding: 2px 20px;
+    p {
+      margin: 0 !important;
+    }
   }
 
   .reportDetailsList {

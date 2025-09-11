@@ -158,4 +158,27 @@ input[type=number]::-webkit-outer-spin-button {
         padding: 2px 0;
         }
 }
+
+.ck-editor__editable_inline {
+  min-height: 200px; /* or your preferred */
+}
+
+.ck.ck-editor {
+  width: 100%;
+  max-width: 100%;
+}
+
+.ck.ck-toolbar {
+  flex-wrap: wrap !important; /* allows toolbar buttons to wrap */
+}
+
+.ck.ck-toolbar .ck-toolbar__items {
+  flex-wrap: wrap !important; /* wrap toolbar items */
+}
+
+.ck.ck-editor__main {
+  width: 100%;
+  max-width: 100%;
+}
+
 `;

@@ -281,6 +281,7 @@ export const RenderDatePickerInput: React.FC<PropType.IRenderDatePickerInputProp
       >
         <DatePicker
           {...inputProps}
+          popupStyle={{ zIndex: 9999 }}
           format="MM-DD-YYYY"
           disabledDate={inputProps?.disabledDate ?? undefined}
           size={inputProps?.size ?? 'middle'}

@@ -44,6 +44,7 @@ export interface Metrics {
 export interface FacilityWiseChillerLog {
   facilityId: string;
   facilityName: string;
+  facilityTimezone?: string;
   chillerLogs: ChillerLog[];
 }
 

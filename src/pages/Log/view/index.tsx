@@ -31,6 +31,7 @@ import { authStore } from '@/store/auth';
 
 import { RenderSelectDropDown } from '@/shared/components/common/FormField';
 import HeaderToolbar from '@/shared/components/common/HeaderToolbar';
+import { Loader } from '@/shared/components/common/Loader';
 import Meta from '@/shared/components/common/Meta';
 import CommonModal from '@/shared/components/common/Modal/components/CommonModal';
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
@@ -64,6 +65,7 @@ const LogEntry: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const latestSearchParamsRef = useRef(searchParams);
+  const [loading, setLoading] = useState<boolean>(false);
   const [args, setArgs] = useState<ICommonPagination>({
     page: Number(searchParams.get('page')) || 1,
     limit: Number(searchParams.get('limit')) || 10,
@@ -575,6 +577,7 @@ const LogEntry: React.FC = () => {
       message.error('Invalid file format!');
       return;
     }
+    setLoading(true); // start loader
     const reader = new FileReader();
     reader.onload = () => {
       const base64String = reader.result as string;
@@ -583,7 +586,13 @@ const LogEntry: React.FC = () => {
         LocalStorageKeys.FILE_TYPE,
         fileObj?.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       );
+      setLoading(false);
       navigate(ROUTES.SUMMARY);
+    };
+
+    reader.onerror = () => {
+      setLoading(false); // also stop loader on error
+      message.error('Failed to read the file.');
     };
 
     reader.readAsDataURL(fileObj); // ✅ No deprecation
@@ -606,6 +615,7 @@ const LogEntry: React.FC = () => {
 
   return (
     <Wrapper>
+      {loading && <Loader />}
       <Meta title="Log Entries" />
       <HeaderToolbar
         title="Log Entries"

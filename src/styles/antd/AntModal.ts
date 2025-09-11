@@ -1,6 +1,11 @@
 import { createGlobalStyle } from 'styled-components';
 
 export const AntModal = createGlobalStyle`
+
+.ant-modal-root .ant-modal-wrap{
+        z-index: 9999
+}
+
     .ant-modal-content{
         padding: 0 !important;
     .ant-modal-header{
@@ -371,7 +376,7 @@ gap: 10px;
     }
   } 
 
-  @media only screen and (max-width: ${({ theme }) => theme.device.sm}) {
+  @media only screen and (max-width: ${({ theme }) => theme.device.sm}){
 .active-inactive-user-modal{
     .modalFooter{
         .unassignBtn{
@@ -380,7 +385,7 @@ gap: 10px;
         button:not(.unassignBtn){
             width: 44%;
         }
-    }
+}}
     .csvModal{
       .downloadTemplate{
           flex-direction: column;

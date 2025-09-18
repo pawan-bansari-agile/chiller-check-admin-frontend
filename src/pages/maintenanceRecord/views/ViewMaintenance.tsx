@@ -7,6 +7,7 @@ import {
   ClockCircleOutlined,
   DeleteOutlined,
   ExclamationCircleOutlined,
+  EyeOutlined,
   FileOutlined
 } from '@ant-design/icons';
 import { useQueryClient } from '@tanstack/react-query';
@@ -241,17 +242,28 @@ const ViewMaintenance: React.FC = () => {
             </Col>
           </Row>
         </Col>
+
         <Col xs={24} sm={24} md={12} lg={16} className="generalCol">
-          <CardWithTitle title="Files">
+          <CardWithTitle title="Files" className="maintenanceCardRow">
             {data?.fileName ? (
-              <div className="viewPDFWrap">
-                <iframe
-                  src={`${IMAGE_URL}chiller-check/${IMAGE_MODULE_NAME.MAITENANCE}/${data?.fileName || ''}`}
-                  title="PDF Viewer"
-                  width="100%"
-                  height="600px"
-                  style={{ border: 'none' }}
-                />
+              <div className="viewMediaWrap">
+                <span>
+                  <FileOutlined style={{ fontSize: '40px' }} />
+                </span>
+                <div>
+                  <h4>{data?.fileName || 'Name not available'}</h4>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      window.open(
+                        `${IMAGE_URL}chiller-check/${IMAGE_MODULE_NAME.MAITENANCE}/${data?.fileName || ''}`,
+                        '_blank'
+                      )
+                    }
+                  >
+                    <EyeOutlined color="#000ABC" /> View
+                  </button>
+                </div>
               </div>
             ) : (
               '-'

@@ -49,9 +49,10 @@ import {
   allowOnlyNonNegativeInteger,
   capitalizeFirstLetter,
   showToaster,
-  // showToaster,
   validateCommonLogFields,
   validateLogFieldWithMinMax,
+  validateLogFieldWithMinMaxNonRequired,
+  validateLogFieldWithMinMaxNonRequiredAmp,
   validateNonNegativeInteger
 } from '@/shared/utils/functions';
 
@@ -61,45 +62,45 @@ dayjs.extend(customParseFormat);
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-interface IFormValues {
-  companyId: string;
-  facilityId: string;
-  chillerId: string;
-  readingDate: any;
-  readingTime: any;
-  airTemp: string;
-  runHours: string;
-  notes: string;
-  recordingRunHours: boolean;
-  condInletTemp: string;
-  condOutletTemp: string;
-  condRefrigTemp?: string;
-  condPressure: string;
-  condAPDrop: string;
-  evapInletTemp: string;
-  evapOutletTemp: string;
-  evapRefrigTemp?: string;
-  evapPressure: string;
-  evapAPDrop: string;
-  oilPresHigh?: string;
-  oilPresLow?: string;
-  oilPresDif?: string;
-  oilSumpTemp?: string;
-  oilLevel?: string;
-  bearingTemp?: string;
-  purgeTimeHr?: string;
-  purgeTimeMin?: string;
-  ampsPhase1?: string;
-  ampsPhase2?: string;
-  ampsPhase3?: string;
-  voltsPhase1?: string;
-  voltsPhase2?: string;
-  voltsPhase3?: string;
-  comp1RunHours: string;
-  comp2RunHours?: string;
-  comp1RunHourStart: string;
-  comp2RunHourStart?: string;
-}
+// interface IFormValues {
+//   companyId: string;
+//   facilityId: string;
+//   chillerId: string;
+//   readingDate: any;
+//   readingTime: any;
+//   airTemp: string;
+//   runHours: string;
+//   notes: string;
+//   recordingRunHours: boolean;
+//   condInletTemp: string;
+//   condOutletTemp: string;
+//   condRefrigTemp?: string;
+//   condPressure: string;
+//   condAPDrop: string;
+//   evapInletTemp: string;
+//   evapOutletTemp: string;
+//   evapRefrigTemp?: string;
+//   evapPressure: string;
+//   evapAPDrop: string;
+//   oilPresHigh?: string;
+//   oilPresLow?: string;
+//   oilPresDif?: string;
+//   oilSumpTemp?: string;
+//   oilLevel?: string;
+//   bearingTemp?: string;
+//   purgeTimeHr?: string;
+//   purgeTimeMin?: string;
+//   ampsPhase1?: string;
+//   ampsPhase2?: string;
+//   ampsPhase3?: string;
+//   voltsPhase1?: string;
+//   voltsPhase2?: string;
+//   voltsPhase3?: string;
+//   comp1RunHours: string;
+//   comp2RunHours?: string;
+//   comp1RunHourStart: string;
+//   comp2RunHourStart?: string;
+// }
 
 const AddEditLog: React.FC = () => {
   const { id } = useParams();
@@ -156,27 +157,27 @@ const AddEditLog: React.FC = () => {
       : null;
 
     form.setFieldsValue({
-      companyId: logData?.companyId,
-      facilityId: logData?.facilityId,
-      chillerId: logData?.chillerId,
-      airTemp: logData?.airTemp?.toString(),
-      readingDate: readingDateTime,
-      readingTime: readingDateTime,
-      runHours: logData?.runHours?.toString(),
-      recordingRunHours: logData?.runHourStart,
-      notes: logData?.userNote,
-      condInletTemp: logData?.condInletTemp?.toString(),
-      condOutletTemp: logData?.condOutletTemp?.toString(),
-      condRefrigTemp: logData?.condRefrigTemp?.toString(),
-      condPressure: logData?.condPressure?.toString(),
-      condAPDrop: logData?.condAPDrop?.toString(),
-      evapInletTemp: logData?.evapInletTemp?.toString(),
-      evapOutletTemp: logData?.evapOutletTemp?.toString(),
-      evapRefrigTemp: logData?.evapRefrigTemp?.toString(),
-      evapPressure: logData?.evapPressure?.toString(),
-      evapAPDrop: logData?.evapAPDrop?.toString(),
-      comp1RunHours: logData?.comp1RunHours?.toString(),
-      comp2RunHours: logData?.comp2RunHours?.toString(),
+      companyId: logData?.companyId ?? null,
+      facilityId: logData?.facilityId ?? null,
+      chillerId: logData?.chillerId ?? null,
+      airTemp: logData?.airTemp?.toString() ?? null,
+      readingDate: readingDateTime ?? null,
+      readingTime: readingDateTime ?? null,
+      runHours: logData?.runHours?.toString() ?? null,
+      recordingRunHours: logData?.runHourStart ?? null,
+      notes: logData?.userNote || null,
+      condInletTemp: logData?.condInletTemp?.toString() ?? null,
+      condOutletTemp: logData?.condOutletTemp?.toString() ?? null,
+      condRefrigTemp: logData?.condRefrigTemp?.toString() ?? null,
+      condPressure: logData?.condPressure?.toString() ?? null,
+      condAPDrop: logData?.condAPDrop?.toString() ?? null,
+      evapInletTemp: logData?.evapInletTemp?.toString() ?? null,
+      evapOutletTemp: logData?.evapOutletTemp?.toString() ?? null,
+      evapRefrigTemp: logData?.evapRefrigTemp?.toString() ?? null,
+      evapPressure: logData?.evapPressure?.toString() ?? null,
+      evapAPDrop: logData?.evapAPDrop?.toString() ?? null,
+      comp1RunHours: logData?.comp1RunHours?.toString() ?? null,
+      comp2RunHours: logData?.comp2RunHours?.toString() ?? null,
       comp1RunHourStart:
         logData?.comp1RunHourStart === true
           ? 'Yes'
@@ -189,20 +190,20 @@ const AddEditLog: React.FC = () => {
           : logData?.comp2RunHourStart === false
             ? 'No'
             : null,
-      oilPresHigh: logData?.oilPresHigh?.toString(),
-      oilPresLow: logData?.oilPresLow?.toString(),
-      oilPresDif: logData?.oilPresDif?.toString(),
-      oilSumpTemp: logData?.oilSumpTemp?.toString(),
-      oilLevel: logData?.oilLevel?.toString(),
-      bearingTemp: logData?.bearingTemp?.toString(),
-      purgeTimeHr: logData?.purgeTimeHr?.toString(),
-      purgeTimeMin: logData?.purgeTimeMin?.toString(),
-      ampsPhase1: logData?.ampsPhase1?.toString(),
-      ampsPhase2: logData?.ampsPhase2?.toString(),
-      ampsPhase3: logData?.ampsPhase3?.toString(),
-      voltsPhase1: logData?.voltsPhase1?.toString(),
-      voltsPhase2: logData?.voltsPhase2?.toString(),
-      voltsPhase3: logData?.voltsPhase3?.toString()
+      oilPresHigh: logData?.oilPresHigh?.toString() ?? null,
+      oilPresLow: logData?.oilPresLow?.toString() ?? null,
+      oilPresDif: logData?.oilPresDif?.toString() ?? null,
+      oilSumpTemp: logData?.oilSumpTemp?.toString() ?? null,
+      oilLevel: logData?.oilLevel?.toString() ?? null,
+      bearingTemp: logData?.bearingTemp?.toString() ?? null,
+      purgeTimeHr: logData?.purgeTimeHr?.toString() ?? null,
+      purgeTimeMin: logData?.purgeTimeMin?.toString() ?? null,
+      ampsPhase1: logData?.ampsPhase1?.toString() ?? null,
+      ampsPhase2: logData?.ampsPhase2?.toString() ?? null,
+      ampsPhase3: logData?.ampsPhase3?.toString() ?? null,
+      voltsPhase1: logData?.voltsPhase1?.toString() ?? null,
+      voltsPhase2: logData?.voltsPhase2?.toString() ?? null,
+      voltsPhase3: logData?.voltsPhase3?.toString() ?? null
     });
   }, [chillerList, facilityList, form, logData]);
 
@@ -283,85 +284,120 @@ const AddEditLog: React.FC = () => {
   };
 
   const parseNumber = (value: string | undefined) =>
-    value !== undefined && value !== '' ? Number(value) : undefined;
+    value !== undefined && value !== '' && value !== null ? Number(value) : null;
   const parseBoolean = (value: string | undefined) =>
-    value === 'Yes' ? true : value === 'No' ? false : undefined;
+    value === 'Yes' ? true : value === 'No' ? false : null;
 
-  const onSubmit = (values: IFormValues) => {
-    const payload = {
-      companyId: values?.companyId,
-      facilityId: values?.facilityId,
-      userId: userData?._id,
-      chillerId: values?.chillerId,
-      readingDate: values?.readingDate ? dayjs(values.readingDate).format('MM-DD-YYYY') : undefined,
-      readingTime: values?.readingTime ? dayjs(values.readingTime).format('hh:mm A') : undefined,
-      readingTimeZone: selectedTimeZone || undefined,
+  const onSubmit = async () => {
+    try {
+      await form.validateFields([
+        'companyId',
+        'facilityId',
+        'chillerId',
+        'readingDate',
+        'readingTime',
+        'airTemp',
+        'runHours',
+        'notes',
+        'recordingRunHours',
+        'comp1RunHourStart',
+        'comp2RunHourStart',
+        'comp1RunHours',
+        'comp2RunHours',
+        'purgeTimeHr',
+        'purgeTimeMin'
+      ]);
 
-      // Temperatures and pressures
-      condInletTemp: parseNumber(values?.condInletTemp),
-      condOutletTemp: parseNumber(values?.condOutletTemp),
-      condRefrigTemp: parseNumber(values?.condRefrigTemp),
-      condPressure: parseNumber(values?.condPressure),
-      condAPDrop: parseNumber(values?.condAPDrop),
-      evapInletTemp: parseNumber(values?.evapInletTemp),
-      evapOutletTemp: parseNumber(values?.evapOutletTemp),
-      evapRefrigTemp: parseNumber(values?.evapRefrigTemp),
-      evapPressure: parseNumber(values?.evapPressure),
-      evapAPDrop: parseNumber(values?.evapAPDrop),
-      airTemp: parseNumber(values?.airTemp),
+      const values = form.getFieldsValue(true);
 
-      // Run hours
-      runHourStart: values?.recordingRunHours,
-      runHours: parseNumber(values?.runHours),
-      comp1RunHours: parseNumber(values?.comp1RunHours),
-      comp2RunHours: parseNumber(values?.comp2RunHours),
-      comp1RunHourStart: parseBoolean(values?.comp1RunHourStart),
-      comp2RunHourStart: parseBoolean(values?.comp2RunHourStart),
+      const payload = {
+        companyId: values?.companyId || null,
+        facilityId: values?.facilityId || null,
+        userId: userData?._id || null,
+        chillerId: values?.chillerId || null,
+        readingDate: values?.readingDate ? dayjs(values.readingDate).format('MM-DD-YYYY') : null,
+        readingTime: values?.readingTime ? dayjs(values.readingTime).format('hh:mm A') : null,
+        readingTimeZone: selectedTimeZone || null,
 
-      // Oil values
-      oilPresHigh: parseNumber(values?.oilPresHigh),
-      oilPresLow: parseNumber(values?.oilPresLow),
-      oilPresDif: parseNumber(values?.oilPresDif),
-      oilSumpTemp: parseNumber(values?.oilSumpTemp),
-      oilLevel: parseNumber(values?.oilLevel),
-      bearingTemp: parseNumber(values?.bearingTemp),
+        // Temperatures and pressures
+        condInletTemp: parseNumber(values?.condInletTemp),
+        condOutletTemp: parseNumber(values?.condOutletTemp),
+        condRefrigTemp: parseNumber(values?.condRefrigTemp),
+        condPressure: parseNumber(values?.condPressure),
+        condAPDrop: parseNumber(values?.condAPDrop),
+        evapInletTemp: parseNumber(values?.evapInletTemp),
+        evapOutletTemp: parseNumber(values?.evapOutletTemp),
+        evapRefrigTemp: parseNumber(values?.evapRefrigTemp),
+        evapPressure: parseNumber(values?.evapPressure),
+        evapAPDrop: parseNumber(values?.evapAPDrop),
+        airTemp: parseNumber(values?.airTemp),
 
-      // Purge time
-      purgeTimeHr: parseNumber(values?.purgeTimeHr),
-      purgeTimeMin: parseNumber(values?.purgeTimeMin),
+        // Run hours
+        runHourStart: values?.recordingRunHours,
+        runHours: parseNumber(values?.runHours),
+        comp1RunHours: parseNumber(values?.comp1RunHours),
+        comp2RunHours: parseNumber(values?.comp2RunHours),
+        comp1RunHourStart: parseBoolean(values?.comp1RunHourStart),
+        comp2RunHourStart: parseBoolean(values?.comp2RunHourStart),
 
-      // Electrical values
-      ampsPhase1: parseNumber(values?.ampsPhase1),
-      ampsPhase2: parseNumber(values?.ampsPhase2),
-      ampsPhase3: parseNumber(values?.ampsPhase3),
-      voltsPhase1: parseNumber(values?.voltsPhase1),
-      voltsPhase2: parseNumber(values?.voltsPhase2),
-      voltsPhase3: parseNumber(values?.voltsPhase3),
+        // Oil values
+        oilPresHigh: parseNumber(values?.oilPresHigh),
+        oilPresLow: parseNumber(values?.oilPresLow),
+        oilPresDif: parseNumber(values?.oilPresDif),
+        oilSumpTemp: parseNumber(values?.oilSumpTemp),
+        oilLevel: parseNumber(values?.oilLevel),
+        bearingTemp: parseNumber(values?.bearingTemp),
 
-      // Notes
-      userNote: values?.notes?.trim() || ''
-    };
+        // Purge time
+        purgeTimeHr: parseNumber(values?.purgeTimeHr),
+        purgeTimeMin: parseNumber(values?.purgeTimeMin),
 
-    if (id) {
-      editLogAction(
-        { ...payload, id },
-        {
+        // Electrical values
+        ampsPhase1: parseNumber(values?.ampsPhase1),
+        ampsPhase2: parseNumber(values?.ampsPhase2),
+        ampsPhase3: parseNumber(values?.ampsPhase3),
+        voltsPhase1: parseNumber(values?.voltsPhase1),
+        voltsPhase2: parseNumber(values?.voltsPhase2),
+        voltsPhase3: parseNumber(values?.voltsPhase3),
+
+        // Notes
+        userNote: values?.notes?.trim() || null
+      };
+
+      if (id) {
+        editLogAction(
+          { ...payload, id },
+          {
+            onSuccess: (res) => handleSuccess(res?.message || ''),
+            onError: handleError
+          }
+        );
+      } else {
+        addLogAction(payload, {
           onSuccess: (res) => handleSuccess(res?.message || ''),
           onError: handleError
-        }
-      );
-    } else {
-      addLogAction(payload, {
-        onSuccess: (res) => handleSuccess(res?.message || ''),
-        onError: handleError
-      });
+        });
+      }
+    } catch (errorInfo) {
+      console.log('Validation failed for strict fields:', errorInfo);
     }
+  };
+
+  const handleFocus = (fieldName: string) => {
+    // Trigger validation only for this field
+    form.validateFields([fieldName]).catch(() => {
+      return;
+    });
+  };
+
+  const handleBlur = (fieldName: string) => {
+    form.setFields([{ name: fieldName, errors: [] }]);
   };
 
   return (
     <Wrapper>
       {isLogLoading && <Loader />}
-      <Form form={form} onFinish={onSubmit} disabled={isPending || isEditPending || isLogLoading}>
+      <Form form={form} disabled={isPending || isEditPending || isLogLoading}>
         <HeaderToolbar
           title={id ? 'Edit Log' : 'Add Log'}
           backBtn={true}
@@ -378,7 +414,8 @@ const AddEditLog: React.FC = () => {
               <Button
                 type="primary"
                 shape="round"
-                htmlType="submit"
+                htmlType="button"
+                onClick={onSubmit}
                 className="title-btn"
                 disabled={isPending || isEditPending || isLogLoading}
                 loading={isPending || isEditPending}
@@ -588,7 +625,6 @@ const AddEditLog: React.FC = () => {
                         name: 'notes',
                         label: 'Operator Notes',
                         rules: [
-                          { required: true, message: 'Please enter operator notes.' },
                           {
                             validator: (_, value) => {
                               if (value && value.trim() === '') {
@@ -636,11 +672,17 @@ const AddEditLog: React.FC = () => {
                             name: 'condInletTemp',
                             rules: [
                               {
-                                validator: validateLogFieldWithMinMax('inlet temperature', 40, 105)
+                                validator: validateLogFieldWithMinMaxNonRequired(
+                                  'inlet temperature',
+                                  40,
+                                  105
+                                )
                               }
                             ]
                           }}
                           inputProps={{
+                            onFocus: () => handleFocus('condInletTemp'),
+                            onBlur: () => handleBlur('condInletTemp'),
                             onKeyDown: allowNegativeDecimalOnly,
                             maxLength: 10,
                             type: 'text',
@@ -670,11 +712,17 @@ const AddEditLog: React.FC = () => {
                             name: 'condOutletTemp',
                             rules: [
                               {
-                                validator: validateLogFieldWithMinMax('outlet temperature', 40, 105)
+                                validator: validateLogFieldWithMinMaxNonRequired(
+                                  'outlet temperature',
+                                  40,
+                                  120
+                                )
                               }
                             ]
                           }}
                           inputProps={{
+                            onFocus: () => handleFocus('condOutletTemp'),
+                            onBlur: () => handleBlur('condOutletTemp'),
                             addonAfterText: degreeUnit,
                             onKeyDown: allowNegativeDecimalOnly,
                             maxLength: 10,
@@ -704,7 +752,7 @@ const AddEditLog: React.FC = () => {
                               name: 'condRefrigTemp',
                               rules: [
                                 {
-                                  validator: validateLogFieldWithMinMax(
+                                  validator: validateLogFieldWithMinMaxNonRequired(
                                     'refrig temperature',
                                     50,
                                     120
@@ -713,6 +761,8 @@ const AddEditLog: React.FC = () => {
                               ]
                             }}
                             inputProps={{
+                              onFocus: () => handleFocus('condRefrigTemp'),
+                              onBlur: () => handleBlur('condRefrigTemp'),
                               addonAfterText: degreeUnit,
                               onKeyDown: allowNegativeDecimalOnly,
                               maxLength: 10,
@@ -759,11 +809,13 @@ const AddEditLog: React.FC = () => {
                             name: 'condPressure',
                             rules: [
                               {
-                                validator: validateLogFieldWithMinMax('pressure', -18, 33)
+                                validator: validateLogFieldWithMinMaxNonRequired('pressure', -9, 18)
                               }
                             ]
                           }}
                           inputProps={{
+                            onFocus: () => handleFocus('condPressure'),
+                            onBlur: () => handleBlur('condPressure'),
                             addonAfterText: selectedChiller?.condPressureUnit || 'PSIG',
                             onKeyDown: allowNegativeDecimalOnly,
                             maxLength: 10,
@@ -809,11 +861,17 @@ const AddEditLog: React.FC = () => {
                             name: 'condAPDrop',
                             rules: [
                               {
-                                validator: validateLogFieldWithMinMax('pressure drop', 0, 115)
+                                validator: validateLogFieldWithMinMaxNonRequired(
+                                  'pressure drop',
+                                  0,
+                                  50
+                                )
                               }
                             ]
                           }}
                           inputProps={{
+                            onFocus: () => handleFocus('condAPDrop'),
+                            onBlur: () => handleBlur('condAPDrop'),
                             addonAfterText: selectedChiller?.condAPDropUnit || 'PSIG',
                             onKeyDown: allowNegativeDecimalOnly,
                             maxLength: 10,
@@ -850,11 +908,17 @@ const AddEditLog: React.FC = () => {
                             name: 'evapInletTemp',
                             rules: [
                               {
-                                validator: validateLogFieldWithMinMax('inlet temperature', -60, 80)
+                                validator: validateLogFieldWithMinMaxNonRequired(
+                                  'inlet temperature',
+                                  -60,
+                                  80
+                                )
                               }
                             ]
                           }}
                           inputProps={{
+                            onFocus: () => handleFocus('evapInletTemp'),
+                            onBlur: () => handleBlur('evapInletTemp'),
                             addonAfterText: degreeUnit,
                             onKeyDown: allowNegativeDecimalOnly,
                             maxLength: 10,
@@ -883,11 +947,17 @@ const AddEditLog: React.FC = () => {
                             name: 'evapOutletTemp',
                             rules: [
                               {
-                                validator: validateLogFieldWithMinMax('outlet temperature', -60, 80)
+                                validator: validateLogFieldWithMinMaxNonRequired(
+                                  'outlet temperature',
+                                  -60,
+                                  80
+                                )
                               }
                             ]
                           }}
                           inputProps={{
+                            onFocus: () => handleFocus('evapOutletTemp'),
+                            onBlur: () => handleBlur('evapOutletTemp'),
                             addonAfterText: degreeUnit,
                             onKeyDown: allowNegativeDecimalOnly,
                             maxLength: 10,
@@ -917,7 +987,7 @@ const AddEditLog: React.FC = () => {
                               name: 'evapRefrigTemp',
                               rules: [
                                 {
-                                  validator: validateLogFieldWithMinMax(
+                                  validator: validateLogFieldWithMinMaxNonRequired(
                                     'sat. refrig temperature',
                                     -60,
                                     80
@@ -926,6 +996,8 @@ const AddEditLog: React.FC = () => {
                               ]
                             }}
                             inputProps={{
+                              onFocus: () => handleFocus('evapRefrigTemp'),
+                              onBlur: () => handleBlur('evapRefrigTemp'),
                               addonAfterText: degreeUnit,
                               onKeyDown: allowNegativeDecimalOnly,
                               maxLength: 10,
@@ -972,11 +1044,13 @@ const AddEditLog: React.FC = () => {
                             name: 'evapPressure',
                             rules: [
                               {
-                                validator: validateLogFieldWithMinMax('pressure', -50, 2)
+                                validator: validateLogFieldWithMinMaxNonRequired('pressure', -10, 1)
                               }
                             ]
                           }}
                           inputProps={{
+                            onFocus: () => handleFocus('evapPressure'),
+                            onBlur: () => handleBlur('evapPressure'),
                             addonAfterText: selectedChiller?.evapPressureUnit || 'PSIG',
                             onKeyDown: allowNegativeDecimalOnly,
                             maxLength: 10,
@@ -1005,11 +1079,17 @@ const AddEditLog: React.FC = () => {
                             name: 'evapAPDrop',
                             rules: [
                               {
-                                validator: validateLogFieldWithMinMax('pressure drop', 0, 115)
+                                validator: validateLogFieldWithMinMaxNonRequired(
+                                  'pressure drop',
+                                  0,
+                                  50
+                                )
                               }
                             ]
                           }}
                           inputProps={{
+                            onFocus: () => handleFocus('evapAPDrop'),
+                            onBlur: () => handleBlur('evapAPDrop'),
                             addonAfterText: selectedChiller?.evapAPDropUnit || 'PSIG',
                             onKeyDown: allowNegativeDecimalOnly,
                             maxLength: 10,
@@ -1046,18 +1126,20 @@ const AddEditLog: React.FC = () => {
                               required
                               // colClassName="addonAfterClass"
                               formItemProps={{
-                                name: 'oilPresHigh',
-                                rules: [
-                                  {
-                                    validator: validateLogFieldWithMinMax(
-                                      'oil pressure high',
-                                      0,
-                                      isUnitMetric ? 1379 : 200
-                                    )
-                                  }
-                                ]
+                                name: 'oilPresHigh'
+                                // rules: [
+                                //   {
+                                //     validator: validateLogFieldWithMinMaxNonRequired(
+                                //       'oil pressure high',
+                                //       0,
+                                //       isUnitMetric ? 1379 : 200
+                                //     )
+                                //   }
+                                // ]
                               }}
                               inputProps={{
+                                // onFocus: () => handleFocus('oilPresHigh'),
+                                // onBlur: () => handleBlur('oilPresHigh'),
                                 onKeyDown: allowNegativeDecimalOnly,
                                 maxLength: 10,
                                 type: 'text'
@@ -1085,18 +1167,20 @@ const AddEditLog: React.FC = () => {
                               required
                               // colClassName="addonAfterClass"
                               formItemProps={{
-                                name: 'oilPresLow',
-                                rules: [
-                                  {
-                                    validator: validateLogFieldWithMinMax(
-                                      'oil pressure low',
-                                      0,
-                                      isUnitMetric ? 677 : 200
-                                    )
-                                  }
-                                ]
+                                name: 'oilPresLow'
+                                // rules: [
+                                //   {
+                                //     validator: validateLogFieldWithMinMaxNonRequired(
+                                //       'oil pressure low',
+                                //       0,
+                                //       isUnitMetric ? 677 : 200
+                                //     )
+                                //   }
+                                // ]
                               }}
                               inputProps={{
+                                // onFocus: () => handleFocus('oilPresLow'),
+                                // onBlur: () => handleBlur('oilPresLow'),
                                 onKeyDown: allowNegativeDecimalOnly,
                                 maxLength: 10,
                                 type: 'text'
@@ -1124,18 +1208,20 @@ const AddEditLog: React.FC = () => {
                               required
                               // colClassName="addonAfterClass"
                               formItemProps={{
-                                name: 'oilPresDif',
-                                rules: [
-                                  {
-                                    validator: validateLogFieldWithMinMax(
-                                      'oil pressure low',
-                                      0,
-                                      isUnitMetric ? 1379 : 200
-                                    )
-                                  }
-                                ]
+                                name: 'oilPresDif'
+                                // rules: [
+                                //   {
+                                //     validator: validateLogFieldWithMinMaxNonRequired(
+                                //       'oil pressure low',
+                                //       0,
+                                //       isUnitMetric ? 1379 : 200
+                                //     )
+                                //   }
+                                // ]
                               }}
                               inputProps={{
+                                // onFocus: () => handleFocus('oilPresDif'),
+                                // onBlur: () => handleBlur('oilPresDif'),
                                 onKeyDown: allowNegativeDecimalOnly,
                                 maxLength: 10,
                                 type: 'text'
@@ -1163,18 +1249,20 @@ const AddEditLog: React.FC = () => {
                               required
                               colClassName="addonAfterClass"
                               formItemProps={{
-                                name: 'oilSumpTemp',
-                                rules: [
-                                  {
-                                    validator: validateLogFieldWithMinMax(
-                                      'oil sump temperature',
-                                      isUnitMetric ? -18 : 0,
-                                      isUnitMetric ? 93 : 200
-                                    )
-                                  }
-                                ]
+                                name: 'oilSumpTemp'
+                                // rules: [
+                                //   {
+                                //     validator: validateLogFieldWithMinMaxNonRequired(
+                                //       'oil sump temperature',
+                                //       isUnitMetric ? -18 : 0,
+                                //       isUnitMetric ? 93 : 200
+                                //     )
+                                //   }
+                                // ]
                               }}
                               inputProps={{
+                                // onFocus: () => handleFocus('oilSumpTemp'),
+                                // onBlur: () => handleBlur('oilSumpTemp'),
                                 addonAfterText: degreeUnit,
                                 onKeyDown: allowNegativeDecimalOnly,
                                 maxLength: 10,
@@ -1203,14 +1291,20 @@ const AddEditLog: React.FC = () => {
                               required
                               // colClassName="addonAfterClass"
                               formItemProps={{
-                                name: 'oilLevel',
-                                rules: [
-                                  {
-                                    validator: validateLogFieldWithMinMax('oil level', 0, 100)
-                                  }
-                                ]
+                                name: 'oilLevel'
+                                // rules: [
+                                //   {
+                                //     validator: validateLogFieldWithMinMaxNonRequired(
+                                //       'oil level',
+                                //       0,
+                                //       100
+                                //     )
+                                //   }
+                                // ]
                               }}
                               inputProps={{
+                                // onFocus: () => handleFocus('oilLevel'),
+                                // onBlur: () => handleBlur('oilLevel'),
                                 onKeyDown: allowNegativeDecimalOnly,
                                 maxLength: 10,
                                 type: 'text'
@@ -1240,15 +1334,17 @@ const AddEditLog: React.FC = () => {
                               name: 'bearingTemp',
                               rules: [
                                 {
-                                  validator: validateLogFieldWithMinMax(
+                                  validator: validateLogFieldWithMinMaxNonRequired(
                                     'bearing temperature',
-                                    isUnitMetric ? 10 : 50,
+                                    isUnitMetric ? 32 : 90,
                                     isUnitMetric ? 93 : 200
                                   )
                                 }
                               ]
                             }}
                             inputProps={{
+                              onFocus: () => handleFocus('bearingTemp'),
+                              onBlur: () => handleBlur('bearingTemp'),
                               addonAfterText: degreeUnit,
                               onKeyDown: allowNegativeDecimalOnly,
                               maxLength: 10,
@@ -1478,12 +1574,7 @@ const AddEditLog: React.FC = () => {
                           required
                           // colClassName="addonAfterClass"
                           formItemProps={{
-                            name: 'ampsPhase1',
-                            rules: [
-                              {
-                                validator: validateLogFieldWithMinMax('amp phase 1 load', 0, 30)
-                              }
-                            ]
+                            name: 'ampsPhase1'
                           }}
                           inputProps={{
                             onKeyDown: allowNegativeDecimalOnly,
@@ -1515,11 +1606,16 @@ const AddEditLog: React.FC = () => {
                                 name: 'ampsPhase2',
                                 rules: [
                                   {
-                                    validator: validateLogFieldWithMinMax('amp phase 2', 0, 30)
+                                    validator: validateLogFieldWithMinMaxNonRequiredAmp(
+                                      'amp phase 2',
+                                      1500
+                                    )
                                   }
                                 ]
                               }}
                               inputProps={{
+                                onFocus: () => handleFocus('ampsPhase2'),
+                                onBlur: () => handleBlur('ampsPhase2'),
                                 onKeyDown: allowNegativeDecimalOnly,
                                 maxLength: 10,
                                 type: 'text'
@@ -1550,11 +1646,16 @@ const AddEditLog: React.FC = () => {
                                 name: 'ampsPhase3',
                                 rules: [
                                   {
-                                    validator: validateLogFieldWithMinMax('amp phase 3', 0, 30)
+                                    validator: validateLogFieldWithMinMaxNonRequiredAmp(
+                                      'amp phase 3',
+                                      1500
+                                    )
                                   }
                                 ]
                               }}
                               inputProps={{
+                                onFocus: () => handleFocus('ampsPhase3'),
+                                onBlur: () => handleBlur('ampsPhase3'),
                                 onKeyDown: allowNegativeDecimalOnly,
                                 maxLength: 10,
                                 type: 'text'
@@ -1583,11 +1684,17 @@ const AddEditLog: React.FC = () => {
                                 name: 'voltsPhase1',
                                 rules: [
                                   {
-                                    validator: validateLogFieldWithMinMax('volts phase 1', 255, 345)
+                                    validator: validateLogFieldWithMinMaxNonRequired(
+                                      'volts phase 1',
+                                      850,
+                                      1150
+                                    )
                                   }
                                 ]
                               }}
                               inputProps={{
+                                onFocus: () => handleFocus('voltsPhase1'),
+                                onBlur: () => handleBlur('voltsPhase1'),
                                 onKeyDown: allowNegativeDecimalOnly,
                                 maxLength: 10,
                                 type: 'text'
@@ -1615,11 +1722,17 @@ const AddEditLog: React.FC = () => {
                                 name: 'voltsPhase2',
                                 rules: [
                                   {
-                                    validator: validateLogFieldWithMinMax('volts phase 2', 255, 345)
+                                    validator: validateLogFieldWithMinMaxNonRequired(
+                                      'volts phase 2',
+                                      850,
+                                      1150
+                                    )
                                   }
                                 ]
                               }}
                               inputProps={{
+                                onFocus: () => handleFocus('voltsPhase2'),
+                                onBlur: () => handleBlur('voltsPhase2'),
                                 onKeyDown: allowNegativeDecimalOnly,
                                 maxLength: 10,
                                 type: 'text'
@@ -1647,11 +1760,17 @@ const AddEditLog: React.FC = () => {
                                 name: 'voltsPhase3',
                                 rules: [
                                   {
-                                    validator: validateLogFieldWithMinMax('volts phase 3', 255, 345)
+                                    validator: validateLogFieldWithMinMaxNonRequired(
+                                      'volts phase 3',
+                                      850,
+                                      1150
+                                    )
                                   }
                                 ]
                               }}
                               inputProps={{
+                                onFocus: () => handleFocus('voltsPhase3'),
+                                onBlur: () => handleBlur('voltsPhase3'),
                                 onKeyDown: allowNegativeDecimalOnly,
                                 maxLength: 10,
                                 type: 'text'
@@ -1678,7 +1797,8 @@ const AddEditLog: React.FC = () => {
           <Button
             type="primary"
             shape="round"
-            htmlType="submit"
+            htmlType="button"
+            onClick={onSubmit}
             className="title-btn"
             disabled={isPending || isEditPending || isLogLoading}
             loading={isPending || isEditPending}

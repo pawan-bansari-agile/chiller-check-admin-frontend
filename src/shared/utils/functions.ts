@@ -569,8 +569,6 @@ export const validatePhoneNumber = async (_: any, value: string) => {
     if (phoneNumber.length !== 10) {
       return Promise.reject(new Error('Please enter valid phone number.'));
     }
-  } else {
-    return Promise.reject(new Error('Please enter phone number.'));
   }
 };
 
@@ -624,8 +622,6 @@ export const hasPermission = (
 };
 
 export const validateLogFieldWithMinMax = (fieldName: string = '', min = 0, max = Infinity) => {
-  console.log('max: ', max);
-  console.log('min: ', min);
   return (_: any, value: string) => {
     if (!value || !value?.trim()) return Promise.reject(new Error(`Please enter ${fieldName}.`));
     if (value === '-' || value === '.' || value === '-.') {
@@ -643,6 +639,44 @@ export const validateLogFieldWithMinMax = (fieldName: string = '', min = 0, max 
       return Promise.reject(new Error(`Please enter valid ${fieldName}.`));
     }
 
+    if (isNaN(num) || num < min || num > max) {
+      return Promise.reject(
+        new Error(
+          `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be between ${min} and ${max}.`
+        )
+      );
+    }
+
+    return Promise.resolve();
+  };
+};
+
+export const validateLogFieldWithMinMaxNonRequired = (
+  fieldName: string = '',
+  min = 0,
+  max = Infinity
+) => {
+  return () => {
+    return Promise.reject(
+      new Error(
+        `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be between ${min} and ${max}.`
+      )
+    );
+    // if (value === '-' || value === '.' || value === '-.') {
+    //   return Promise.reject(new Error(`Please enter valid ${fieldName}.`));
+    // }
+    // const num = parseFloat(value);
+
+    // if (isNaN(num)) {
+    //   return Promise.reject(new Error(`Please enter valid ${fieldName}.`));
+    // }
+
+    // const decimalRegex = /^-?\d+(\.\d+)?$/; // allows 0, 0.1, 10.25, etc.
+
+    // if (!decimalRegex.test(value)) {
+    //   return Promise.reject(new Error(`Please enter valid ${fieldName}.`));
+    // }
+
     // if (isNaN(num) || num < min || num > max) {
     //   return Promise.reject(
     //     new Error(
@@ -651,7 +685,42 @@ export const validateLogFieldWithMinMax = (fieldName: string = '', min = 0, max 
     //   );
     // }
 
-    return Promise.resolve();
+    // return Promise.resolve();
+  };
+};
+
+export const validateLogFieldWithMinMaxNonRequiredAmp = (
+  fieldName: string = '',
+  max = Infinity
+) => {
+  return () => {
+    return Promise.reject(
+      new Error(`${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be ${max} or less.`)
+    );
+    // if (value === '-' || value === '.' || value === '-.') {
+    //   return Promise.reject(new Error(`Please enter valid ${fieldName}.`));
+    // }
+    // const num = parseFloat(value);
+
+    // if (isNaN(num)) {
+    //   return Promise.reject(new Error(`Please enter valid ${fieldName}.`));
+    // }
+
+    // const decimalRegex = /^-?\d+(\.\d+)?$/; // allows 0, 0.1, 10.25, etc.
+
+    // if (!decimalRegex.test(value)) {
+    //   return Promise.reject(new Error(`Please enter valid ${fieldName}.`));
+    // }
+
+    // if (isNaN(num) || num < min || num > max) {
+    //   return Promise.reject(
+    //     new Error(
+    //       `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be between ${min} and ${max}.`
+    //     )
+    //   );
+    // }
+
+    // return Promise.resolve();
   };
 };
 

@@ -174,7 +174,7 @@ export const Wrapper = styled.div`
     height: 100%;
 
     .CardWithTitleWrap {
-      height: 100%;
+      height: 97%;
     }
   }
 
@@ -279,7 +279,7 @@ export const Wrapper = styled.div`
     height: 100%;
   }
   .maintenanceRow {
-    height: 49%;
+    // height: 49%;
 
     &:first-child {
       margin-bottom: 18px;
@@ -289,7 +289,19 @@ export const Wrapper = styled.div`
     height: 100%;
 
     .CardWithTitleWrap {
-      height: 100%;
+      height: 98%;
+    }
+    .viewMediaWrap {
+      display: flex;
+      gap: 10px;
+      flex-direction: column;
+      padding: 15px 32px 40px;
+      button {
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 100%;
+        background-color: transparent;
+      }
     }
   }
   .mainFirstRow {

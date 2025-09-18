@@ -77,7 +77,7 @@ const EditAccount: React.FC = () => {
       firstName,
       lastName,
       email,
-      phoneNumber: formatPhoneNumber(phoneNumber),
+      phoneNumber: phoneNumber ? formatPhoneNumber(phoneNumber) : null,
       userRole: role
     });
   }, [data, form]);
@@ -87,7 +87,7 @@ const EditAccount: React.FC = () => {
       firstName: values?.firstName?.trim(),
       lastName: values?.lastName?.trim(),
       email: values?.email || '',
-      phoneNumber: data?.phoneNumber || '',
+      phoneNumber: data?.phoneNumber ? data?.phoneNumber : undefined,
       role: data?.role || '',
       profileImage: imageName || '',
       permissions: data?.permissions,
@@ -291,7 +291,6 @@ const EditAccount: React.FC = () => {
                     <RenderTextInput
                       label="Phone number"
                       // tooltip="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
-                      required
                       colClassName="userMobileInput"
                       formItemProps={{
                         name: 'phoneNumber'

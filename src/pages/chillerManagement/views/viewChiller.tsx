@@ -101,7 +101,16 @@ const ViewChiller = () => {
                 className="title-btn"
                 type="primary"
                 icon={<FileIcon />}
-                onClick={() => navigate(ROUTES.LOG_ENTRY)}
+                onClick={() => {
+                  const params = new URLSearchParams({
+                    page: '1',
+                    limit: '10',
+                    companyId: chillerData?.companyId ?? '',
+                    facilityId: chillerData?.facilityId ?? '',
+                    chillerId: id ?? ''
+                  });
+                  navigate(`${ROUTES.LOG_ENTRY}?${params.toString()}`);
+                }}
               >
                 Log Entries
               </Button>
@@ -155,7 +164,16 @@ const ViewChiller = () => {
               className="title-btn"
               type="primary"
               icon={<FileIcon />}
-              onClick={() => navigate(ROUTES.LOG_ENTRY)}
+              onClick={() => {
+                const params = new URLSearchParams({
+                  page: '1',
+                  limit: '10',
+                  companyId: chillerData?.companyId ?? '',
+                  facilityId: chillerData?.facilityId ?? '',
+                  chillerId: id ?? ''
+                });
+                navigate(`${ROUTES.LOG_ENTRY}?${params.toString()}`);
+              }}
             >
               Log Entries
             </Button>

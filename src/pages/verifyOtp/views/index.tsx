@@ -17,9 +17,9 @@ const VerifyOtp: React.FC = () => {
       <AuthLayout
         formProps={{
           title: 'OTP Verification',
-          desc: `Please enter the OTP sent to your registered mobile number.
+          desc: `Please enter the OTP sent to your registered mobile number/email.
                   If you are facing issues with receiving OTP please contact 
-                  your admin to update your phone number.`
+                  your admin to update your phone number/email.`
         }}
       >
         <Form className="auth-form" form={form} onFinish={onSubmit}>

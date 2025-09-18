@@ -161,7 +161,7 @@ const UserAddEditForm: React.FC = () => {
         email: userDetails?.email,
         phoneNumber: userDetails?.phoneNumber?.startsWith('+1')
           ? userDetails?.phoneNumber?.slice(2)
-          : userDetails?.phoneNumber
+          : userDetails?.phoneNumber || null
       });
       setImageName(userDetails?.profileImage || '');
       const imgUrl = userDetails?.profileImage
@@ -455,7 +455,9 @@ const UserAddEditForm: React.FC = () => {
       lastName: values?.lastName,
       profileImage: imageName || '',
       email: values?.email?.toLowerCase(),
-      phoneNumber: `+1${values?.phoneNumber?.replace(/\s+/g, '')}`,
+      phoneNumber: values?.phoneNumber
+        ? `+1${values?.phoneNumber?.replace(/\s+/g, '')}`
+        : undefined,
       role: values?.role,
       permissions: finalPermissions,
       companyId:
@@ -730,7 +732,6 @@ const UserAddEditForm: React.FC = () => {
                   <Col xs={24} sm={24} md={12} lg={8}>
                     <RenderPatternFormatInput
                       label="Phone Number"
-                      required
                       colClassName="userMobileInput"
                       formItemProps={{
                         name: 'phoneNumber',

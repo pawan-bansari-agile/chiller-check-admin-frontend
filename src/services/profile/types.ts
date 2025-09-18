@@ -31,7 +31,7 @@ export interface IProfileRes {
 export interface IUpdateProfile {
   firstName: string;
   lastName: string;
-  phoneNumber: string;
+  phoneNumber?: string;
   role: string;
   profileImage: string;
 }

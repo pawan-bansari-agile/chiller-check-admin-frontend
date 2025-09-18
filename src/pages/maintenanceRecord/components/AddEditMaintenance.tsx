@@ -257,11 +257,28 @@ const AddEditMaintenance: React.FC = () => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    const validTypes = ['application/pdf'];
+    const validTypes = [
+      'application/pdf', // PDF
+      'image/jpeg', // JPG, JPEG
+      'image/png', // PNG
+      'image/webp', // WEBP
+      'image/svg+xml', // SVG
+      'image/gif', // GIF
+      'text/plain', // TXT
+      'text/csv', // CSV
+      'application/json', // JSON
+      'application/msword', // DOC
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // DOCX
+      'application/vnd.ms-excel', // XLS
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' // XLSX
+    ];
 
     // ✅ Validate file type
     if (!validTypes.includes(selectedFile.type)) {
-      showToaster('error', 'Only PDF files (.pdf) are allowed.');
+      showToaster(
+        'error',
+        'Only PDF, JPG, JPEG, PNG, GIF, WEBP, SVG, TXT, CSV, JSON, DOC, DOCX, XLS, and XLSX files are allowed.'
+      );
       return;
     }
 
@@ -711,7 +728,7 @@ const AddEditMaintenance: React.FC = () => {
                       <FilePdfOutlined style={{ fontSize: '40px' }} />
                     </span>
                     <div className="maintenanceDetailsPDFView">
-                      <h4>{imageData?.originalName || 'Document.pdf'}</h4>
+                      <h4>{imageData?.originalName || 'Name not available'}</h4>
                       <h5>{formatFileSize(imageData?.size)}</h5>
                       <button type="button" onClick={() => window.open(showPdf, '_blank')}>
                         <EyeOutlined color="#000ABC" /> View
@@ -740,7 +757,11 @@ const AddEditMaintenance: React.FC = () => {
                       {
                         validator: async () => {
                           if (!imageData?.name) {
-                            return Promise.reject(new Error('Please upload a PDF file.'));
+                            return Promise.reject(
+                              new Error(
+                                'Please upload a valid file (PDF, JPG, JPEG, PNG, GIF, WEBP, SVG, TXT, CSV, JSON, DOC, DOCX, XLS, XLSX).'
+                              )
+                            );
                           }
                           return Promise.resolve();
                         }
@@ -749,7 +770,7 @@ const AddEditMaintenance: React.FC = () => {
                   >
                     <input
                       type="file"
-                      accept=".pdf"
+                      accept=".jpg,.jpeg,.png,.webp,.svg,.JPG,.JPEG,.PNG,.GIF,.WEBP,.SVG,.txt,.csv,.json,.pdf,.doc,.docx,.xls,.xlsx"
                       onChange={handleFileChange}
                       className="custom-file-input"
                     />

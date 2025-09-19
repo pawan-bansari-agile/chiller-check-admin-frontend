@@ -24,7 +24,7 @@ const HeaderToolbar: React.FC<IHeaderToolbarProps> = (props) => {
       <Row align="middle" justify="space-between" gutter={[10, 6]} className="main-row">
         {(title || button) && (
           <Col xs={24}>
-            <Row justify={'space-between'} align={'middle'} className="sub-row">
+            <Row justify={'center'} align={'middle'} className="sub-row">
               {title && (
                 <Col className={`title-wrap ${backBtn ? 'title-with-cta' : ''}`}>
                   {backBtn && (

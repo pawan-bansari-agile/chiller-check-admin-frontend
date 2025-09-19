@@ -19,8 +19,8 @@ export const Wrapper = styled.div`
       display: flex;
       align-items: center;
       gap: 10px;
-      font-size: 14px;
-      font-weight: 400;
+      font-size: 16px;
+      font-weight: 600;
       color: ${({ theme }) => theme.colors.inkBlue};
       line-height: 150%;
 
@@ -29,10 +29,10 @@ export const Wrapper = styled.div`
         width: 24px;
         height: 24px;
         border-radius: 4px;
-        background-color: #fadb14;
+        background-color: rgb(255, 255, 100);
 
         &.effLossLegends {
-          background-color: #cf1322;
+          background-color: rgb(153, 0, 0);
         }
       }
     }
@@ -42,6 +42,7 @@ export const Wrapper = styled.div`
     margin: 35px 0;
     padding: 0 22px;
   }
+
   .charityCard {
     width: 100%;
     height: 100%;
@@ -58,6 +59,11 @@ export const Wrapper = styled.div`
 
     .chiller-title {
       margin: 25px 0;
+      font-size: 24px;
+      line-height: 24px;
+      font-weight: 600;
+      text-align: center;
+      color: rgb(0, 0, 128);
     }
 
     .issueHeader {
@@ -68,10 +74,10 @@ export const Wrapper = styled.div`
       border-bottom: 2px solid #f0f0f0;
 
       h2 {
-        font-size: 16px;
+        font-size: 24px;
         line-height: 24px;
         font-weight: 600;
-        color: ${({ theme }) => theme.colors.inkBlue};
+        color: rgb(0, 0, 128);
         margin: 0;
         padding: 0;
         border: none;
@@ -85,16 +91,16 @@ export const Wrapper = styled.div`
 
     .facilityIssueHeader {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
       padding-bottom: 25px;
       border-bottom: 2px solid #f0f0f0;
 
       h2 {
-        font-size: 16px;
+        font-size: 24px;
         line-height: 24px;
         font-weight: 600;
-        color: ${({ theme }) => theme.colors.inkBlue};
+        color: rgb(0, 0, 128);
         margin: 0;
         padding: 0;
         border: none;
@@ -147,10 +153,10 @@ export const Wrapper = styled.div`
       span {
         width: 16.5%;
         text-align: center;
-        font-size: 16px;
+        font-size: 20px;
         font-weight: 600;
         line-height: 100%;
-        color: ${({ theme }) => theme.colors.inkBlue};
+        color: rgb(0, 0, 0);
         margin-bottom: 25px;
 
         .anticon {
@@ -163,9 +169,16 @@ export const Wrapper = styled.div`
       border: 2px solid #f0f0f0;
       border-radius: 12px;
 
+      .underline-link {
+        text-decoration: underline;
+        text-decoration-color: rgb(0, 0, 255);
+        text-decoration-thickness: 2px;
+        cursor: pointer;
+      }
+
       div {
         padding: 18px 15px;
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 500;
         line-height: 100%;
         color: ${({ theme }) => theme.colors.inkBlue};
@@ -214,6 +227,7 @@ export const Wrapper = styled.div`
       border-radius: 0;
       border-bottom: 0;
       border-top: 0;
+      border-bottom: 2px solid #f0f0f0 !important;
 
       &:nth-of-type(2) {
         border-top: 2px solid #f0f0f0 !important;
@@ -288,6 +302,7 @@ export const Wrapper = styled.div`
       border-radius: 0;
       border-bottom: 0;
       border-top: 0;
+      border-bottom: 2px solid #f0f0f0 !important;
 
       &:nth-of-type(2) {
         border-top: 2px solid #f0f0f0 !important;
@@ -311,22 +326,24 @@ export const Wrapper = styled.div`
 
   .checkboxLocation {
     font-size: 16px;
-    color: ${({ theme }) => theme.colors.inkBlue};
+    font-weight: 600;
+    line-height: 24px;
+    color: rgb(0, 0, 0);
   }
 
   .legendWrap {
     border-radius: 8px;
     padding: 10px;
-    font-size: 14px;
-    font-weight: 400;
+    font-size: 16px;
+    font-weight: 600;
     color: #fff;
     line-height: 22px;
 
     &.effLossLegend {
-      background: #cf1322;
+      background-color: rgb(153, 0, 0);
     }
     &.nonCondenseLegend {
-      background: #fadb14;
+      background-color: rgb(255, 255, 100);
     }
   }
 

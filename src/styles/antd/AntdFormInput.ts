@@ -288,6 +288,16 @@ export const AntdFormInput = createGlobalStyle`
       }
     }
   }
+.ant-form-item{
+  .ant-checkbox-wrapper{
+    .ant-checkbox{
+      .ant-checkbox-inner{
+        border: 1px solid rgb(0,0,0);
+      }
+    }
+  }
+}
+  
 
           .automatedNotification {
       .ant-checkbox-wrapper {

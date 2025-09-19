@@ -11,7 +11,7 @@ export const styledTheme = {
     blackShadow: '#EDEDEE',
     magenta: '#EB2F96',
     gray: '#1A191C',
-    bgColor: '#EDEFF3',
+    bgColor: 'rgb(230,230,240)',
     inkBlue: '#040C2B',
     lightBlue: '#253174',
     shadowBlue: '#D6E5FE',

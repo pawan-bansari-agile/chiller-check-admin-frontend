@@ -23,8 +23,8 @@ export const Wrapper = styled.div`
         }
 
         .page-title {
-          font-size: 26px;
-          font-weight: 600;
+          font-size: 30px;
+          font-weight: 700;
           line-height: 28px;
           margin: 0;
           text-transform: capitalize;
@@ -34,13 +34,16 @@ export const Wrapper = styled.div`
 
       .cta-wrap {
         ${removeScroll}
+        position:absolute;
+        right: 10px;
         a {
           display: inline-block;
         }
         .title-btn {
           padding: 5px 25px;
           span {
-            font-weight: 500;
+            font-size: 16px;
+            font-weight: 600;
             line-height: 22px;
           }
         }

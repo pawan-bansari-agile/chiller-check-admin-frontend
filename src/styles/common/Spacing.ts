@@ -201,6 +201,10 @@ export const Spacing = createGlobalStyle`
     margin-bottom: 16px;
 }
 
+.mb-16-imp {
+    margin-bottom: 16px !important;
+}
+
 .mb-10 {
     margin-bottom: 10px;
 }

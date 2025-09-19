@@ -147,6 +147,10 @@ export const StyledLayout = styled(Layout)`
 
         .ant-menu-item {
           color: ${({ theme }) => theme.colors.white};
+          .ant-menu-title-content {
+            font-size: 16px;
+            font-weight: 600;
+          }
 
           .anticon {
             font-size: 18px;
@@ -156,6 +160,10 @@ export const StyledLayout = styled(Layout)`
           background: ${({ theme }) => theme.colors.lightBlue};
         }
         .ant-menu-submenu {
+          .ant-menu-title-content {
+            font-size: 16px;
+            font-weight: 600;
+          }
           .ant-menu-submenu-title {
             color: ${({ theme }) => theme.colors.white};
 

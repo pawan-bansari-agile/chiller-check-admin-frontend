@@ -108,13 +108,20 @@ const ChillerLogRow: React.FC<ChillerLog> = ({
         </div>
       )}
       <div>
-        <Link className="chillerNavigate" to={ROUTES.View_CHILLER_MANAGEMENT(chillerId)}>
+        <Link
+          className="chillerNavigate underline-link"
+          to={ROUTES.View_CHILLER_MANAGEMENT(chillerId)}
+        >
           {ChillerNo || '-'}
         </Link>
       </div>
       <div className="timeValueWrap" onClick={() => navigate(ROUTES.VIEW_LOG_ENTRY(logId))}>
-        <span>{convertUtcToTimezone(readingDateUTC, facilityTimezone, 'Date')}</span>
-        <span>{convertUtcToTimezone(readingDateUTC, facilityTimezone, 'Time')}</span>
+        <span className="underline-link">
+          {convertUtcToTimezone(readingDateUTC, facilityTimezone, 'Date')}
+        </span>
+        <span className="underline-link">
+          {convertUtcToTimezone(readingDateUTC, facilityTimezone, 'Time')}
+        </span>
       </div>
       {[effLoss, condAppLoss, evapAppLoss, nonCondLoss, otherLoss].map((v, idx) => (
         <div key={idx}>
@@ -154,13 +161,15 @@ const Dashboard: React.FC = () => {
       <div className="shadowPaperWrap">
         {/* ===== Efficiency Alert Legend ===== */}
         <ShadowPaper>
+          <ul className="dashboardEffList mb-16-imp">
+            <li>Alert key</li>
+          </ul>
           <ul className="dashboardEffList">
-            <li>ALERT KEY: 2-9%</li>
             <li>
-              EFFICIENCY LOSS: <span className="effLegends"></span>
+              2-9% Efficiency loss: <span className="effLegends"></span>
             </li>
             <li>
-              10%+ EFFICIENCY LOSS: <span className="effLegends effLossLegends"></span>
+              10%+ Efficiency loss: <span className="effLegends effLossLegends"></span>
             </li>
           </ul>
         </ShadowPaper>
@@ -168,7 +177,7 @@ const Dashboard: React.FC = () => {
         {/* ===== Global Efficiency Alerts ===== */}
         <div className="charityCard">
           <div className="issueHeader">
-            <h2 className="themeColor">Efficiency Loss &gt; 10%</h2>
+            <h2 className="themeColor">Alerts</h2>
           </div>
           <div className="scrollDiv">
             <div className="consumptionChart">
@@ -196,15 +205,19 @@ const Dashboard: React.FC = () => {
         {/* ===== Company-wide Performance Summary ===== */}
         <div className="charityCard">
           <div className="issueHeader">
-            <h2 className="themeColor">Performance Summary for Your Company's Chillers</h2>
+            <h2 className="themeColor">Company Performance Summary</h2>
           </div>
           <div className="scrollDiv">
             <div className="consumptionChart performaceSummaryChartDashboard">
               <div className="labelWrap">
                 <span></span>
                 <span>Avg. Eff. Loss</span>
-                <span>Total Target Cost at Average Load Profile</span>
-                <span>Total Actual Cost at Average Load Profile</span>
+                <span>
+                  Total Target Cost at <br /> Average Load Profile
+                </span>
+                <span>
+                  Total Actual Cost at <br /> Average Load Profile
+                </span>
                 <span>Estimated $ Loss</span>
                 <span>Estimated kWh Loss</span>
                 <span>Estimated BTU Loss</span>

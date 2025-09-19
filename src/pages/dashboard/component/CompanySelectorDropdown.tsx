@@ -101,7 +101,7 @@ const CompanySelectorDropdown: React.FC<IProps> = ({ setCompanyId }) => {
         open={open}
         onOpenChange={(flag) => setOpen(flag)}
       >
-        <Button type="primary" className="title-btn">
+        <Button type="primary" className="title-btn company-dropdown-btn">
           {selectedCompany?.label || 'Select Company'} <DownOutlined />
         </Button>
       </Dropdown>

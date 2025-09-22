@@ -70,6 +70,10 @@ export const StyledLayout = styled(Layout)`
       &.hover-expand-sidebar:not(:hover) .ant-menu-submenu-arrow {
         display: none;
       }
+      &.hover-expand-sidebar .ant-menu-item:hover {
+        background: ${({ theme }) => theme.colors.lightPurple};
+      }
+
       &.hover-expand-sidebar {
         width: 60px !important;
         max-width: 60px !important;

@@ -494,27 +494,48 @@ const Sidebar = () => {
     [userData?.role, permissions]
   );
 
+  // Set selected key based on current location
   useEffect(() => {
     const preferredKey = localStorage.getItem('selectedSidebarKey') || '';
     const { selectedKey } = findActiveKeys(filteredItems, location.pathname, preferredKey);
     setSelectedKeyState(selectedKey);
   }, [location.pathname, filteredItems]);
 
+  // Open submenu on sidebar hover
   const handleSidebarMouseEnter = () => {
-    if (openKeys.length === 0) {
-      const preferredKey = localStorage.getItem('selectedSidebarKey') || '';
-      const { openKey } = findActiveKeys(filteredItems, location.pathname, preferredKey);
-      setOpenKeys([openKey || localStorage.getItem('selectedSidebarKey')?.[0] || '1']);
-    }
+    // if (openKeys.length === 0) {
+    const preferredKey = localStorage.getItem('selectedSidebarKey') || '';
+    const { openKey } = findActiveKeys(filteredItems, location.pathname, preferredKey);
+    if (openKey) setOpenKeys([openKey]);
+    // }
   };
 
   const handleSidebarMouseLeave = () => {
     setOpenKeys([]);
   };
 
+  // Add onTitleMouseEnter to submenu items so they open on hover
+  const enhancedItems = filteredItems.map((item) =>
+    item.children
+      ? {
+          ...item,
+          onTitleMouseEnter: () => {
+            const key = item.key.toString();
+            setOpenKeys((prev) => (prev.includes(key) ? prev : [...prev, key]));
+          }
+        }
+      : item
+  );
+
   return (
-    <StyledLayout.Sider width={238} collapsedWidth={60} className="hover-expand-sidebar">
-      <div onMouseEnter={handleSidebarMouseEnter} onMouseLeave={handleSidebarMouseLeave}>
+    <StyledLayout.Sider
+      onMouseEnter={handleSidebarMouseEnter}
+      onMouseLeave={handleSidebarMouseLeave}
+      width={238}
+      collapsedWidth={60}
+      className="hover-expand-sidebar"
+    >
+      <div>
         <Menu
           mode="inline"
           selectedKeys={[selectedKeyState]}
@@ -524,10 +545,10 @@ const Sidebar = () => {
             const link = item.props.link;
             setSelectedKeyState(key);
             localStorage.setItem('selectedSidebarKey', key);
-            navigate(link);
+            if (link) navigate(link);
             setOpenKeys([]);
           }}
-          items={filteredItems as ItemType<MenuItemType>[]}
+          items={enhancedItems as ItemType<MenuItemType>[]}
         />
       </div>
     </StyledLayout.Sider>

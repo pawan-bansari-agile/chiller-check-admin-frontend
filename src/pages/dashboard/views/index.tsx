@@ -155,7 +155,7 @@ const Dashboard: React.FC = () => {
       {isLoading && <Loader />}
       <Meta title="Dashboard" />
       <HeaderToolbar
-        title="dashboard"
+        title="DASHBOARD"
         button={<CompanySelectorDropdown setCompanyId={setCompanyId} />}
       />
       <div className="shadowPaperWrap">
@@ -177,7 +177,7 @@ const Dashboard: React.FC = () => {
         {/* ===== Global Efficiency Alerts ===== */}
         <div className="charityCard">
           <div className="issueHeader">
-            <h2 className="themeColor">Alerts</h2>
+            <h2 className="themeColor">ALERTS</h2>
           </div>
           <div className="scrollDiv">
             <div className="consumptionChart">
@@ -205,7 +205,7 @@ const Dashboard: React.FC = () => {
         {/* ===== Company-wide Performance Summary ===== */}
         <div className="charityCard">
           <div className="issueHeader">
-            <h2 className="themeColor">Company Performance Summary</h2>
+            <h2 className="themeColor">COMPANY PERFORMANCE SUMMARY</h2>
           </div>
           <div className="scrollDiv">
             <div className="consumptionChart performaceSummaryChartDashboard">
@@ -277,12 +277,14 @@ const Dashboard: React.FC = () => {
           return (
             <div key={facility?.facilityId} className="charityCard">
               <div className="issueHeader facilityHeader">
-                <h2 className="themeColor">Facility - {facility?.facilityName || '-'}</h2>
+                <h2 className="themeColor">
+                  FACILITY - {facility?.facilityName?.toUpperCase() || '-'}
+                </h2>
               </div>
 
               {/* Facility Chiller Logs */}
               <div className="scrollDiv">
-                <h2 className="themeColor chiller-title">Chillers</h2>
+                <h2 className="themeColor chiller-title">CHILLERS</h2>
                 <div className="consumptionChart mainBuildingDashboard">
                   <div className="labelWrap">
                     <span>Dashboard</span>
@@ -312,7 +314,7 @@ const Dashboard: React.FC = () => {
               {perfData && !hideFacility && (
                 <>
                   <div className="facilityIssueHeader">
-                    <h2 className="themeColor">Facility Performance</h2>
+                    <h2 className="themeColor">FACILITY PERFORMANCE</h2>
                   </div>
                   <div className="scrollDiv">
                     <div className="consumptionChart facilityPerformanceChartDashboard">

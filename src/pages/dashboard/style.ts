@@ -223,6 +223,9 @@ export const Wrapper = styled.div`
         line-height: 24px;
       }
     }
+    .valueWrap:nth-of-type(even) {
+      background-color: rgb(230, 230, 240); /* light grey */
+    }
     .valueWrap {
       border-radius: 0;
       border-bottom: 0;
@@ -297,6 +300,9 @@ export const Wrapper = styled.div`
       span {
         line-height: 24px;
       }
+    }
+    .valueWrap:nth-of-type(even) {
+      background-color: rgb(230, 230, 240); /* light grey */
     }
     .valueWrap {
       border-radius: 0;

@@ -188,7 +188,7 @@ export const Wrapper = styled.div`
         align-items: center;
         border-left: 2px solid #f0f0f0;
         .chillerNavigate {
-          color: #000abc;
+          color: rgb(0, 0, 255);
         }
         &:first-of-type {
           border-left: none;
@@ -199,7 +199,7 @@ export const Wrapper = styled.div`
           gap: 5px;
 
           span {
-            color: #000abc;
+            color: rgb(0, 0, 255);
             cursor: pointer;
           }
         }

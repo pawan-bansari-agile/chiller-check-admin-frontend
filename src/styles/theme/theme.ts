@@ -1,6 +1,6 @@
 export const styledTheme = {
   colors: {
-    primary: '#000ABC',
+    primary: '#000080',
     secondary: '#E6F7FF',
     body: '#f4f4f4',
     placeholder: '#8c8c8c',

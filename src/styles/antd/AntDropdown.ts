@@ -119,7 +119,7 @@ border: none;
 
     .chillerColumnsList{
         margin-bottom: 0;
-        max-height: 370px;
+        max-height: 700px;
         overflow: auto;
 
         li{

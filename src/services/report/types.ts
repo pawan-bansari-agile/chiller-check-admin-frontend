@@ -12,7 +12,7 @@ export interface IAddReportReq {
   description: string;
   header: string;
   footer: string;
-  sharedTo: string[] | [];
+  sharedTo: { userId: string; interval: string }[] | [];
   createdBy?: string;
   updatedBy?: string;
 }
@@ -35,7 +35,7 @@ export interface Report {
   description: string;
   header: string;
   footer: string;
-  sharedTo: string[];
+  sharedTo: { userId: string; interval: string }[] | [];
   createdBy: string;
   updatedBy: string;
   isDeleted: boolean;
@@ -145,7 +145,7 @@ export interface IViewReportRes {
   header: string;
   footer: string;
   dateType: string;
-  sharedTo: string[];
+  sharedTo: { userId: string; interval: string }[] | [];
   createdBy: string;
   updatedBy: string;
   isDeleted: boolean;

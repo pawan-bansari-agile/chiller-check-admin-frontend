@@ -122,6 +122,12 @@ const columns = [
     }
   },
   {
+    title: 'Interval',
+    key: 'interval',
+    dataIndex: 'interval',
+    render: (value?: string) => (value ? capitalizeFirstLetter(value) : '-')
+  },
+  {
     title: 'Status',
     dataIndex: 'isActive',
     key: 'isActive',

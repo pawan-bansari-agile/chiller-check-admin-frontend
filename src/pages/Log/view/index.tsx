@@ -129,7 +129,43 @@ const LogEntry: React.FC = () => {
       'condAppLoss',
       'evapAppLoss',
       'nonCondLoss',
-      'otherLoss'
+      'otherLoss',
+
+      'airTemp',
+      'runHours',
+      'runHourStart',
+
+      'condInletTemp',
+      'condOutletTemp',
+      'condRefrigTemp',
+      'condPressure',
+      'condAPDrop',
+
+      'evapInletTemp',
+      'evapOutletTemp',
+      'evapRefrigTemp',
+      'evapPressure',
+      'evapAPDrop',
+
+      'oilPresHigh',
+      'oilPresLow',
+      'oilPresDif',
+      'oilSumpTemp',
+      'oilLevel',
+      'bearingTemp',
+      'comp1RunHours',
+      'comp1RunHourStart',
+      'comp2RunHours',
+      'comp2RunHourStart',
+      'purgeTimeHr',
+      'purgeTimeMin',
+
+      'ampsPhase1',
+      'ampsPhase2',
+      'ampsPhase3',
+      'voltsPhase1',
+      'voltsPhase2',
+      'voltsPhase3'
     ],
     []
   );
@@ -312,6 +348,8 @@ const LogEntry: React.FC = () => {
     }
   };
 
+  const renderOtherCell = useCallback((value?: number | null) => value ?? '-', []);
+
   const renderCell = useCallback(
     (data?: { type?: string; value?: number; problem?: ILogProblemRes[] }) => {
       const className = getAlertClassName(data?.type);
@@ -346,9 +384,9 @@ const LogEntry: React.FC = () => {
     const baseColumns: ColumnsType<any> = [
       {
         title: 'Creator & Timestamp',
+        fixed: 'left',
         dataIndex: 'creator',
         key: 'creator',
-        // width: 200,
         render: (_: any, record: IViewLogRes) => (
           <div className="updateUser">
             <figure>
@@ -368,15 +406,16 @@ const LogEntry: React.FC = () => {
       },
       {
         title: 'Facility Name',
+        fixed: 'left',
         key: 'facilityName',
         dataIndex: 'facilityName',
         render: (value) => value || '-'
       },
       {
         title: 'Make / Model',
+        fixed: 'left',
         key: 'ChillerNo',
         dataIndex: 'ChillerNo',
-        // width: 165,
         render: (_: any, record: IViewLogRes) => (
           <div className="chillerNameWrap">
             <a className="chillerName">{record?.chillerName || '-'}</a>
@@ -388,9 +427,9 @@ const LogEntry: React.FC = () => {
       },
       {
         title: 'Updated At',
+        fixed: 'left',
         dataIndex: 'updatedAt',
         key: 'updatedAt',
-        // width: 165,
         render: (value) => (value ? dayjs(value).format('MM/DD/YY HH:mm') : '-'),
         sorter: true,
         sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'updatedAt')
@@ -399,7 +438,6 @@ const LogEntry: React.FC = () => {
         title: 'Efficiency Loss %',
         key: 'effLoss',
         dataIndex: 'effLoss',
-        // width: 185,
         sorter: true,
         sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'effLoss'),
         render: renderCell
@@ -432,10 +470,195 @@ const LogEntry: React.FC = () => {
         title: 'Other Losses %',
         key: 'otherLoss',
         dataIndex: 'otherLoss',
-        // width: 165,
         sorter: true,
         sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'otherLoss'),
         render: renderCell
+      },
+      {
+        title: 'Outside Air Temp.',
+        key: 'airTemp',
+        dataIndex: 'airTemp',
+        render: renderOtherCell
+      },
+      {
+        title: 'Chiller Run Hours',
+        key: 'runHours',
+        dataIndex: 'runHours',
+        render: renderOtherCell
+      },
+      {
+        title: 'Begin Recording Run Hrs.',
+        key: 'runHourStart',
+        dataIndex: 'runHourStart',
+        render: (value) => (value ? 'Yes' : 'No')
+      },
+      {
+        title: 'Cond. Inlet Temp',
+        key: 'condInletTemp',
+        dataIndex: 'condInletTemp',
+        render: renderOtherCell
+      },
+      {
+        title: 'Cond. Outlet Temp',
+        key: 'condOutletTemp',
+        dataIndex: 'condOutletTemp',
+        render: renderOtherCell
+      },
+      {
+        title: 'Cond. Refrig Temp',
+        key: 'condRefrigTemp',
+        dataIndex: 'condRefrigTemp',
+        render: renderOtherCell
+      },
+      {
+        title: 'Cond. Pressure',
+        key: 'condPressure',
+        dataIndex: 'condPressure',
+        render: renderOtherCell
+      },
+      {
+        title: 'Cond. Pressure Drop',
+        key: 'condAPDrop',
+        dataIndex: 'condAPDrop',
+        render: renderOtherCell
+      },
+      {
+        title: 'Evap. Inlet Temp',
+        key: 'evapInletTemp',
+        dataIndex: 'evapInletTemp',
+        render: renderOtherCell
+      },
+      {
+        title: 'Evap. Outlet Temp',
+        key: 'evapOutletTemp',
+        dataIndex: 'evapOutletTemp',
+        render: renderOtherCell
+      },
+      {
+        title: 'Evap. Refrig Temp',
+        key: 'evapRefrigTemp',
+        dataIndex: 'evapRefrigTemp',
+        render: renderOtherCell
+      },
+      {
+        title: 'Evap. Pressure',
+        key: 'evapPressure',
+        dataIndex: 'evapPressure',
+        render: renderOtherCell
+      },
+      {
+        title: 'Evap. Pressure Drop',
+        key: 'evapAPDrop',
+        dataIndex: 'evapAPDrop',
+        render: renderOtherCell
+      },
+      {
+        title: 'Oil Pres. High',
+        key: 'oilPresHigh',
+        dataIndex: 'oilPresHigh',
+        render: renderOtherCell
+      },
+      {
+        title: 'Oil Pres. Low',
+        key: 'oilPresLow',
+        dataIndex: 'oilPresLow',
+        render: renderOtherCell
+      },
+      {
+        title: 'Oil Pres. Dif.',
+        key: 'oilPresDif',
+        dataIndex: 'oilPresDif',
+        render: renderOtherCell
+      },
+      {
+        title: 'Oil Sump Temp.',
+        key: 'oilSumpTemp',
+        dataIndex: 'oilSumpTemp',
+        render: renderOtherCell
+      },
+      {
+        title: 'Oil Level',
+        key: 'oilLevel',
+        dataIndex: 'oilLevel',
+        render: renderOtherCell
+      },
+      {
+        title: 'Bearing Temp.',
+        key: 'bearingTemp',
+        dataIndex: 'bearingTemp',
+        render: renderOtherCell
+      },
+      {
+        title: 'Comp 1 Run Hours',
+        key: 'comp1RunHours',
+        dataIndex: 'comp1RunHours',
+        render: renderOtherCell
+      },
+      {
+        title: 'Comp 1 Run Hours Start',
+        key: 'comp1RunHourStart',
+        dataIndex: 'comp1RunHourStart',
+        render: (value) => (value === true ? 'Yes' : value === false ? 'No' : '-')
+      },
+      {
+        title: 'Comp 2 Run Hours',
+        key: 'comp2RunHours',
+        dataIndex: 'comp2RunHours',
+        render: renderOtherCell
+      },
+      {
+        title: 'Comp 2 Run Hours Start',
+        key: 'comp2RunHourStart',
+        dataIndex: 'comp2RunHourStart',
+        render: (value) => (value === true ? 'Yes' : value === false ? 'No' : '-')
+      },
+      {
+        title: 'Purge Time (Hr)',
+        key: 'purgeTimeHr',
+        dataIndex: 'purgeTimeHr',
+        render: renderOtherCell
+      },
+      {
+        title: 'Purge Time (Min)',
+        key: 'purgeTimeMin',
+        dataIndex: 'purgeTimeMin',
+        render: renderOtherCell
+      },
+      {
+        title: 'Amps Phase 1',
+        key: 'ampsPhase1',
+        dataIndex: 'ampsPhase1',
+        render: renderOtherCell
+      },
+      {
+        title: 'Amps Phase 2',
+        key: 'ampsPhase2',
+        dataIndex: 'ampsPhase2',
+        render: renderOtherCell
+      },
+      {
+        title: 'Amps Phase 3',
+        key: 'ampsPhase3',
+        dataIndex: 'ampsPhase3',
+        render: renderOtherCell
+      },
+      {
+        title: 'Volts Phase 1',
+        key: 'voltsPhase1',
+        dataIndex: 'voltsPhase1',
+        render: renderOtherCell
+      },
+      {
+        title: 'Volts Phase 2',
+        key: 'voltsPhase2',
+        dataIndex: 'voltsPhase2',
+        render: renderOtherCell
+      },
+      {
+        title: 'Volts Phase 3',
+        key: 'voltsPhase3',
+        dataIndex: 'voltsPhase3',
+        render: renderOtherCell
       }
     ];
 
@@ -464,14 +687,14 @@ const LogEntry: React.FC = () => {
         : {};
 
     return [...baseColumns, actionColumn];
-  }, [args?.sort_by, args?.sort_order, renderCell]);
+  }, [args?.sort_by, args?.sort_order, renderCell, renderOtherCell]);
 
   const getColumnTitle = (key: string) => {
     const title = columns.find((col) => col.key === key)?.title;
     return typeof title === 'function' ? key : title;
   };
 
-  const requiredColumnKeys = ['creator', 'facilityName', 'ChillerNo'];
+  // const requiredColumnKeys = ['creator', 'facilityName', 'ChillerNo'];
 
   const menu = (
     <div className="chillerColumns">
@@ -480,7 +703,7 @@ const LogEntry: React.FC = () => {
           <li key={key}>
             <Checkbox
               checked={visibleColumns[key]}
-              disabled={requiredColumnKeys.includes(key)}
+              // disabled={requiredColumnKeys.includes(key)}
               onChange={() => handleColumnToggle(key)}
             >
               <span className="checkboxLabelTitle">{getColumnTitle(key)}</span>
@@ -492,7 +715,7 @@ const LogEntry: React.FC = () => {
   );
 
   const handleColumnToggle = (key: string) => {
-    if (requiredColumnKeys.includes(key)) return;
+    // if (requiredColumnKeys.includes(key)) return;
     setVisibleColumns((prev) => ({
       ...prev,
       [key]: !prev[key]
@@ -724,7 +947,7 @@ const LogEntry: React.FC = () => {
         <CommonTable
           columns={filteredColumns}
           dataSource={data?.logList || []}
-          scroll={{ x: 1700 }}
+          scroll={{ x: 'max-content' }}
           loading={isLoading}
           pagination={{
             current: args?.page,
@@ -735,6 +958,7 @@ const LogEntry: React.FC = () => {
             hasPermission('log', 'view')
               ? {
                   selectedRowKeys: logIds,
+                  fixed: 'left',
                   columnWidth: 60,
                   onChange: (selectedRowKeys: any) => {
                     setLogIds(selectedRowKeys);

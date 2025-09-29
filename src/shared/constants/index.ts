@@ -103,6 +103,12 @@ export enum NotificationType {
   BOTH = 'Both'
 }
 
+export enum SharedToType {
+  DAILY = 'daily',
+  WEEKLY = 'weekly',
+  MONTHLY = 'monthly'
+}
+
 export const enumToDropdownOptions = <T extends Record<string, string>>(enumObj: T) =>
   Object.values(enumObj).map((value) => ({
     label: value,
@@ -114,6 +120,10 @@ export const parameterTypeOptions = enumToDropdownOptions(ParameterType);
 export const chartTypeOptions = enumToDropdownOptions(ChartType);
 export const dateRangeOptions = enumToDropdownOptions(DateRange);
 export const notificationOptions = enumToDropdownOptions(NotificationType);
+export const sharedToTypeOptions = enumToDropdownOptions(SharedToType)?.map(({ value }) => ({
+  label: value ? value[0]?.toUpperCase() + value?.slice(1) : value,
+  value
+}));
 
 export const CHART_DROPDOWN = [
   {

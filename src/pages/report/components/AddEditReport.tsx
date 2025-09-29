@@ -4,7 +4,17 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { ExclamationCircleOutlined, EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button, Col, DatePicker, Form, Input, Row, TablePaginationConfig, Tag } from 'antd';
+import {
+  Button,
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  Row,
+  Select,
+  TablePaginationConfig,
+  Tag
+} from 'antd';
 import { FilterValue, SorterResult } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -44,7 +54,8 @@ import {
   chartTypeOptions,
   dateRangeOptions,
   notificationOptions,
-  parameterTypeOptions
+  parameterTypeOptions,
+  sharedToTypeOptions
 } from '@/shared/constants';
 import { getStartEndDates } from '@/shared/constants/day';
 import { ROUTES } from '@/shared/constants/routes';
@@ -115,7 +126,8 @@ const AddEditReport: React.FC = () => {
     startDate: '',
     endDate: ''
   });
-  const [sharedToIds, setSharedToIds] = useState<string[] | []>([]);
+  const [sharedToIds, setSharedToIds] = useState<{ userId: string; interval: string }[]>([]);
+
   const [editorValues, setEditorValues] = useState({
     header: '',
     footer: ''
@@ -388,6 +400,31 @@ const AddEditReport: React.FC = () => {
       dataIndex: 'facilities',
       render: (data: { name: string }[]) => {
         return data?.map((fac) => fac?.name)?.join(', ') || '-';
+      }
+    },
+    {
+      title: 'Select Interval',
+      dataIndex: 'selectInterval',
+      key: 'selectInterval',
+      render: (_: any, record: UserList) => {
+        const current = sharedToIds?.find((item) => item?.userId === record?._id);
+
+        return (
+          <Select
+            style={{ width: 120 }}
+            placeholder="Select"
+            options={sharedToTypeOptions}
+            value={current?.interval}
+            onChange={(value) => {
+              setSharedToIds((prev) =>
+                prev?.map((item) =>
+                  item?.userId === record?._id ? { ...item, interval: value } : item
+                )
+              );
+            }}
+            disabled={!sharedToIds?.some((item) => item?.userId === record?._id)} // disable if row not selected
+          />
+        );
       }
     },
     {
@@ -718,6 +755,7 @@ const AddEditReport: React.FC = () => {
               </div>
               <CommonTable
                 columns={columns}
+                scroll={{ x: 'max-content' }}
                 dataSource={notifyUserList?.userList || []}
                 pagination={{
                   current: args?.page,
@@ -727,12 +765,21 @@ const AddEditReport: React.FC = () => {
                 loading={isNotifyUserLoading}
                 onChange={handleTableChange}
                 rowSelection={{
-                  selectedRowKeys: sharedToIds,
+                  selectedRowKeys: sharedToIds.map((item) => item?.userId),
                   columnWidth: 60,
-                  onChange: (selectedRowKeys: any) => {
-                    setSharedToIds(selectedRowKeys);
+                  onChange: (selectedRowKeys: React.Key[]) => {
+                    setSharedToIds((prev) =>
+                      selectedRowKeys?.map((key) => {
+                        // Keep previous type if already exists, else default to first option
+                        const existing = prev?.find((p) => p?.userId === key);
+                        return {
+                          userId: key as string,
+                          interval: existing?.interval || sharedToTypeOptions?.[0]?.value || ''
+                        };
+                      })
+                    );
                   },
-                  preserveSelectedRowKeys: true // <-- Important!
+                  preserveSelectedRowKeys: true
                 }}
                 emptyText={
                   <EmptyState

@@ -35,8 +35,8 @@ export const AntTable = createGlobalStyle`
             }
         }
         .ant-table-tbody{
-            .ant-table-measure-row{
-                display: none;
+            tr:first-of-type td{
+              padding: 0 !important;
             }
             .ant-table-row.ant-table-row-selected >.ant-table-cell{
                 background: #fff !important;

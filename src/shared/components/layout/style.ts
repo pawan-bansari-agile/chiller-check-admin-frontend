@@ -65,7 +65,7 @@ export const StyledLayout = styled(Layout)`
     /* Sidebar */
     .ant-layout-sider {
       height: calc(100vh - 55px);
-      background: ${({ theme }) => theme.colors.inkBlue} !important ;
+      background: ${({ theme }) => theme.colors.black} !important ;
 
       &.hover-expand-sidebar:not(:hover) .ant-menu-submenu-arrow {
         display: none;
@@ -116,12 +116,12 @@ export const StyledLayout = styled(Layout)`
       .ant-layout-sider-trigger {
         padding: 16px;
         display: flex;
-        background: ${({ theme }) => theme.colors.inkBlue};
+        background: ${({ theme }) => theme.colors.black};
       }
 
       .ant-menu-light,
       .ant-menu-light > .ant-menu {
-        background: ${({ theme }) => theme.colors.inkBlue};
+        background: ${({ theme }) => theme.colors.black};
       }
 
       .ant-menu {
@@ -161,7 +161,7 @@ export const StyledLayout = styled(Layout)`
           }
         }
         .ant-menu-item-selected {
-          background: ${({ theme }) => theme.colors.lightBlue};
+          background: rgb(0, 0, 128);
         }
         .ant-menu-submenu {
           .ant-menu-title-content {

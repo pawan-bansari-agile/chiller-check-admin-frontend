@@ -176,11 +176,11 @@ const Dashboard: React.FC = () => {
 
         {/* ===== Global Efficiency Alerts ===== */}
         <div className="charityCard">
-          <div className="issueHeader">
+          <div className="issueHeader alertHeader">
             <h2 className="themeColor">ALERTS</h2>
           </div>
           <div className="scrollDiv">
-            <div className="consumptionChart">
+            <div className="consumptionChart alertChartDashboard">
               <div className="labelWrap">
                 <span>Facility</span>
                 <span>Chiller</span>
@@ -204,7 +204,7 @@ const Dashboard: React.FC = () => {
 
         {/* ===== Company-wide Performance Summary ===== */}
         <div className="charityCard">
-          <div className="issueHeader">
+          <div className="issueHeader companyHeader">
             <h2 className="themeColor">COMPANY PERFORMANCE SUMMARY</h2>
           </div>
           <div className="scrollDiv">

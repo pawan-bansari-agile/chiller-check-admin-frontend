@@ -28,7 +28,7 @@ export const Wrapper = styled.div`
           line-height: 28px;
           margin: 0;
           text-transform: capitalize;
-          color: ${({ theme }) => theme.colors.inkBlue};
+          color: ${({ theme }) => theme.colors.black};
         }
       }
 

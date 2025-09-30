@@ -47,6 +47,7 @@ import {
   TIMEZONE_OPTIONS,
   TimezoneEnum
 } from '@/shared/constants';
+import { ROUTES } from '@/shared/constants/routes';
 import { ChillerIcon } from '@/shared/svg';
 import {
   allowOnlyNonNegativeInteger,
@@ -388,12 +389,13 @@ const AddEditMaintenance: React.FC = () => {
         <HeaderToolbar
           title={id ? 'Edit Maintenance Record' : 'Add Maintenance Record'}
           backBtn={true}
+          backTo={ROUTES.MAINTENANCE}
           className="addEditHeader userAddEditHeader"
           button={
             <div className="editButtonWrap">
               <Button
                 className="title-cancel-btn"
-                onClick={() => navigate(-1)}
+                onClick={() => navigate(ROUTES.MAINTENANCE)}
                 disabled={isPending || isEditPending || isMaintenanceLoading}
               >
                 Cancel
@@ -784,7 +786,7 @@ const AddEditMaintenance: React.FC = () => {
         <div className="maintenanceButtonWrap extraActionButton">
           <Button
             className="title-cancel-btn"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate(ROUTES.MAINTENANCE)}
             disabled={isPending || isEditPending || isMaintenanceLoading}
           >
             Cancel

@@ -43,6 +43,7 @@ import {
   VOLTAGE_CHOICE
 } from '@/shared/constants';
 import { validateNoFutureTime } from '@/shared/constants/day';
+import { ROUTES } from '@/shared/constants/routes';
 import {
   allowAverageLoad,
   allowNegativeDecimalOnly,
@@ -401,12 +402,13 @@ const AddEditLog: React.FC = () => {
         <HeaderToolbar
           title={id ? 'Edit Log' : 'Add Log'}
           backBtn={true}
+          backTo={ROUTES.LOG_ENTRY}
           className="addEditHeader userAddEditHeader"
           button={
             <div className="editButtonWrap">
               <Button
                 className="title-cancel-btn"
-                onClick={() => navigate(-1)}
+                onClick={() => navigate(ROUTES.LOG_ENTRY)}
                 disabled={isPending || isLogLoading || isEditPending}
               >
                 Cancel
@@ -1789,7 +1791,7 @@ const AddEditLog: React.FC = () => {
         <div className="editButtonWrap extraActionButton">
           <Button
             className="title-cancel-btn"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate(ROUTES.LOG_ENTRY)}
             disabled={isPending || isEditPending || isLogLoading}
           >
             Cancel

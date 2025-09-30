@@ -133,7 +133,7 @@ const ViewChiller = () => {
               )}
             </Tabs.TabPane>
 
-            <Tabs.TabPane tab="Details" key="2" forceRender>
+            <Tabs.TabPane tab="Setup" key="2" forceRender>
               {chillerData && <DetailsTab chillerData={chillerData as IChillerViewRes} />}
             </Tabs.TabPane>
 

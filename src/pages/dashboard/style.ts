@@ -21,7 +21,7 @@ export const Wrapper = styled.div`
       gap: 10px;
       font-size: 16px;
       font-weight: 600;
-      color: ${({ theme }) => theme.colors.inkBlue};
+      color: ${({ theme }) => theme.colors.black};
       line-height: 150%;
 
       span.effLegends {
@@ -51,10 +51,31 @@ export const Wrapper = styled.div`
     padding: 25px;
     overflow: auto;
 
-    .facilityHeader {
+   
+         .facilityHeader {
       display: flex;
-      justify-content: center !important;
+      justify-content: center;
       align-items: center;
+      background:rgb(0,0,128) !important;
+      padding-bottom: 25px;
+      padding-top: 25px;
+
+      border-bottom: 2px solid #f0f0f0;
+
+      h2 {
+        font-size: 24px;
+        line-height: 24px;
+        font-weight: 600;
+        color: rgb(255,255,255) !important;
+        margin: 0;
+        padding: 0;
+        border: none;
+      }
+
+      /* a {
+        color: #000abc;
+        font-weight: 600;
+      } */
     }
 
     .chiller-title {
@@ -88,7 +109,56 @@ export const Wrapper = styled.div`
         font-weight: 600;
       } */
     }
+         .alertHeader {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background:rgb(153,0,0) !important;
+      padding-bottom: 25px;
+      padding-top: 25px;
 
+      border-bottom: 2px solid #f0f0f0;
+
+      h2 {
+        font-size: 24px;
+        line-height: 24px;
+        font-weight: 600;
+        color: rgb(255,255,255) !important;
+        margin: 0;
+        padding: 0;
+        border: none;
+      }
+
+      /* a {
+        color: #000abc;
+        font-weight: 600;
+      } */
+    }
+   .companyHeader {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background:rgb(0,0,128) !important;
+      padding-bottom: 25px;
+      padding-top: 25px;
+
+      border-bottom: 2px solid #f0f0f0;
+
+      h2 {
+        font-size: 24px;
+        line-height: 24px;
+        font-weight: 600;
+        color: rgb(255,255,255) !important;
+        margin: 0;
+        padding: 0;
+        border: none;
+      }
+
+      /* a {
+        color: #000abc;
+        font-weight: 600;
+      } */
+    }
     .facilityIssueHeader {
       display: flex;
       justify-content: center;
@@ -144,6 +214,18 @@ export const Wrapper = styled.div`
     width: 100%;
   }
 
+  .alertChartDashboard{
+  
+  .labelWrap {
+  span {
+  color: rgb(153, 0, 0) !important;
+  }
+  }
+  .valueWrap:nth-of-type(even) {
+    background-color: rgb(245, 230, 230)
+    }
+  }
+
   .consumptionChart {
     min-width: 1200px;
     .labelWrap {
@@ -177,11 +259,14 @@ export const Wrapper = styled.div`
       }
 
       div {
+      white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
         padding: 18px 15px;
         font-size: 16px;
         font-weight: 500;
         line-height: 100%;
-        color: ${({ theme }) => theme.colors.inkBlue};
+        color: ${({ theme }) => theme.colors.black};
         width: 16.5%;
         display: flex;
         justify-content: center;
@@ -231,6 +316,7 @@ export const Wrapper = styled.div`
       border-bottom: 0;
       border-top: 0;
       border-bottom: 2px solid #f0f0f0 !important;
+      background: rgb(230,230,240)
 
       &:nth-of-type(2) {
         border-top: 2px solid #f0f0f0 !important;
@@ -342,7 +428,7 @@ export const Wrapper = styled.div`
     padding: 10px;
     font-size: 16px;
     font-weight: 600;
-    color: #fff;
+    color: rgb(0,0,0);
     line-height: 22px;
 
     &.effLossLegend {

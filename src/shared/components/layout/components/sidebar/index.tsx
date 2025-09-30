@@ -9,7 +9,7 @@ import {
   ProfileOutlined,
   SettingOutlined
 } from '@ant-design/icons';
-import { Menu } from 'antd';
+import { Menu, Tooltip } from 'antd';
 import { ItemType, MenuItemType } from 'antd/es/menu/interface';
 
 import { authStore } from '@/store/auth';
@@ -41,7 +41,23 @@ function createMenuItem(
   roles?: string[],
   permissionKey?: string
 ) {
-  return { link, key, icon, children, label, type, roles, permissionKey };
+  return {
+    link,
+    key,
+    icon,
+    children,
+    label:
+      typeof label === 'string' ? (
+        <Tooltip zIndex={99999} title={label} placement="left">
+          <span>{label}</span>
+        </Tooltip>
+      ) : (
+        label
+      ),
+    type,
+    roles,
+    permissionKey
+  };
 }
 
 const items = [
@@ -60,8 +76,8 @@ const items = [
     <ProfileOutlined />,
     [
       createMenuItem(
-        ROUTES.LOG_ENTRY,
-        'Log Entries',
+        ROUTES.ADD_LOG_ENTRY,
+        'Add Log Record',
         '2-1',
         undefined,
         undefined,
@@ -76,8 +92,8 @@ const items = [
         'log'
       ),
       createMenuItem(
-        ROUTES.MAINTENANCE,
-        'Maintenance Entries',
+        ROUTES.ADD_MAINTENANCE,
+        'Add Maintenance Record',
         '2-2',
         undefined,
         undefined,

@@ -51,12 +51,11 @@ export const Wrapper = styled.div`
     padding: 25px;
     overflow: auto;
 
-   
-         .facilityHeader {
+    .facilityHeader {
       display: flex;
       justify-content: center;
       align-items: center;
-      background:rgb(0,0,128) !important;
+      background: rgb(0, 0, 128) !important;
       padding-bottom: 25px;
       padding-top: 25px;
 
@@ -66,7 +65,7 @@ export const Wrapper = styled.div`
         font-size: 24px;
         line-height: 24px;
         font-weight: 600;
-        color: rgb(255,255,255) !important;
+        color: rgb(255, 255, 255) !important;
         margin: 0;
         padding: 0;
         border: none;
@@ -109,11 +108,11 @@ export const Wrapper = styled.div`
         font-weight: 600;
       } */
     }
-         .alertHeader {
+    .alertHeader {
       display: flex;
       justify-content: center;
       align-items: center;
-      background:rgb(153,0,0) !important;
+      background: rgb(153, 0, 0) !important;
       padding-bottom: 25px;
       padding-top: 25px;
 
@@ -123,7 +122,7 @@ export const Wrapper = styled.div`
         font-size: 24px;
         line-height: 24px;
         font-weight: 600;
-        color: rgb(255,255,255) !important;
+        color: rgb(255, 255, 255) !important;
         margin: 0;
         padding: 0;
         border: none;
@@ -134,11 +133,11 @@ export const Wrapper = styled.div`
         font-weight: 600;
       } */
     }
-   .companyHeader {
+    .companyHeader {
       display: flex;
       justify-content: center;
       align-items: center;
-      background:rgb(0,0,128) !important;
+      background: rgb(0, 0, 128) !important;
       padding-bottom: 25px;
       padding-top: 25px;
 
@@ -148,7 +147,7 @@ export const Wrapper = styled.div`
         font-size: 24px;
         line-height: 24px;
         font-weight: 600;
-        color: rgb(255,255,255) !important;
+        color: rgb(255, 255, 255) !important;
         margin: 0;
         padding: 0;
         border: none;
@@ -214,18 +213,6 @@ export const Wrapper = styled.div`
     width: 100%;
   }
 
-  .alertChartDashboard{
-  
-  .labelWrap {
-  span {
-  color: rgb(153, 0, 0) !important;
-  }
-  }
-  .valueWrap:nth-of-type(even) {
-    background-color: rgb(245, 230, 230)
-    }
-  }
-
   .consumptionChart {
     min-width: 1200px;
     .labelWrap {
@@ -259,9 +246,9 @@ export const Wrapper = styled.div`
       }
 
       div {
-      white-space: normal;
-    overflow-wrap: break-word;
-    word-break: break-word;
+        white-space: normal;
+        overflow-wrap: break-word;
+        word-break: break-word;
         padding: 18px 15px;
         font-size: 16px;
         font-weight: 500;
@@ -300,6 +287,57 @@ export const Wrapper = styled.div`
         }
       }
     }
+
+    &.alertChartDashboard {
+      .labelWrap {
+        span {
+          color: rgb(153, 0, 0) !important;
+        }
+      }
+      .valueWrap {
+        border-radius: 0;
+        border-bottom: 0;
+        border-top: 0;
+        border-bottom: 2px solid rgb(153, 0, 0) !important;
+        border-left: 2px solid rgb(153, 0, 0) !important;
+        border-right: 2px solid rgb(153, 0, 0) !important;
+
+        &:nth-of-type(even) {
+          background-color: rgb(245, 230, 230);
+        }
+
+        &:first-of-type {
+          border-top: 2px solid rgb(153, 0, 0) !important;
+          border-top-left-radius: 12px;
+          border-top-right-radius: 12px;
+        }
+
+        &:nth-of-type(2) {
+          border-top: 2px solid rgb(153, 0, 0) !important;
+          border-top-left-radius: 12px;
+          border-top-right-radius: 12px;
+        }
+
+        &:nth-of-type(6) {
+          border-bottom: 2px solid rgb(153, 0, 0) !important;
+          border-bottom-left-radius: 12px;
+          border-bottom-right-radius: 12px;
+        }
+
+        &:last-of-type {
+          border-bottom: 2px solid rgb(153, 0, 0) !important;
+          border-bottom-left-radius: 12px;
+          border-bottom-right-radius: 12px;
+        }
+
+        div {
+          border-left: 2px solid rgb(153, 0, 0);
+          &:first-of-type {
+            border-left: none;
+          }
+        }
+      }
+    }
   }
 
   .performaceSummaryChartDashboard {
@@ -310,60 +348,80 @@ export const Wrapper = styled.div`
     }
     .valueWrap:nth-of-type(even) {
       background-color: rgb(230, 230, 240); /* light grey */
+      border-bottom: 2px solid rgb(0, 0, 128) !important;
     }
     .valueWrap {
       border-radius: 0;
       border-bottom: 0;
       border-top: 0;
-      border-bottom: 2px solid #f0f0f0 !important;
-      background: rgb(230,230,240)
+      border-bottom: 2px solid rgb(0, 0, 128) !important;
+      border-left: 2px solid rgb(0, 0, 128) !important;
+      border-right: 2px solid rgb(0, 0, 128) !important;
+
+      &:first-of-type {
+        border-top: 2px solid rgb(0, 0, 128) !important;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+      }
 
       &:nth-of-type(2) {
-        border-top: 2px solid #f0f0f0 !important;
+        border-top: 2px solid rgb(0, 0, 128) !important;
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
       }
 
       &:nth-of-type(6) {
-        border-bottom: 2px solid #f0f0f0 !important;
+        border-bottom: 2px solid rgb(0, 0, 128) !important;
         border-bottom-left-radius: 12px;
         border-bottom-right-radius: 12px;
       }
 
       &:last-of-type {
-        border-bottom: 2px solid #f0f0f0 !important;
+        border-bottom: 2px solid rgb(0, 0, 128) !important;
         border-bottom-left-radius: 12px;
         border-bottom-right-radius: 12px;
       }
 
       div {
         width: 20% !important;
+        border-left: 2px solid rgb(0, 0, 128);
       }
     }
   }
 
   .mainBuildingDashboard {
+    .valueWrap:nth-of-type(even) {
+      background-color: rgb(230, 230, 240); /* light grey */
+      border-bottom: 2px solid rgb(0, 0, 128) !important;
+    }
     .valueWrap {
       border-radius: 0;
       border-bottom: 0;
       border-top: 0;
+      border-bottom: 2px solid rgb(0, 0, 128) !important;
+      border-left: 2px solid rgb(0, 0, 128) !important;
+      border-right: 2px solid rgb(0, 0, 128) !important;
 
       &:nth-of-type(2) {
-        border-top: 2px solid #f0f0f0 !important;
+        border-top: 2px solid rgb(0, 0, 128) !important;
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
       }
 
       &:nth-of-type(4) {
-        border-bottom: 2px solid #f0f0f0 !important;
+        border-bottom: 2px solid rgb(0, 0, 128) !important;
         border-bottom-left-radius: 12px;
         border-bottom-right-radius: 12px;
       }
 
       &:last-of-type {
-        border-bottom: 2px solid #f0f0f0 !important;
+        border-bottom: 2px solid rgb(0, 0, 128) !important;
         border-bottom-left-radius: 12px;
         border-bottom-right-radius: 12px;
+      }
+
+      div {
+        border-left: 2px solid rgb(0, 0, 128);
       }
 
       .dashboardIcon {
@@ -373,7 +431,7 @@ export const Wrapper = styled.div`
         width: 32px;
         height: 32px;
         border-radius: 5px;
-        background: #000abc;
+        background: rgb(0, 0, 255);
         svg {
           color: #fff;
         }
@@ -388,30 +446,36 @@ export const Wrapper = styled.div`
       }
     }
     .valueWrap:nth-of-type(even) {
+      border-bottom: 2px solid rgb(0, 0, 128) !important;
       background-color: rgb(230, 230, 240); /* light grey */
     }
     .valueWrap {
       border-radius: 0;
       border-bottom: 0;
       border-top: 0;
-      border-bottom: 2px solid #f0f0f0 !important;
+      border-bottom: 2px solid rgb(0, 0, 128) !important;
+      border-left: 2px solid rgb(0, 0, 128) !important;
+      border-right: 2px solid rgb(0, 0, 128) !important;
 
       &:nth-of-type(2) {
-        border-top: 2px solid #f0f0f0 !important;
+        border-top: 2px solid rgb(0, 0, 128) !important;
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
       }
 
       &:nth-of-type(6) {
-        border-bottom: 2px solid #f0f0f0 !important;
+        border-bottom: 2px solid rgb(0, 0, 128) !important;
         border-bottom-left-radius: 12px;
         border-bottom-right-radius: 12px;
       }
 
       &:last-of-type {
-        border-bottom: 2px solid #f0f0f0 !important;
+        border-bottom: 2px solid rgb(0, 0, 128) !important;
         border-bottom-left-radius: 12px;
         border-bottom-right-radius: 12px;
+      }
+      div {
+        border-left: 2px solid rgb(0, 0, 128);
       }
     }
   }
@@ -428,7 +492,7 @@ export const Wrapper = styled.div`
     padding: 10px;
     font-size: 16px;
     font-weight: 600;
-    color: rgb(0,0,0);
+    color: rgb(0, 0, 0);
     line-height: 22px;
 
     &.effLossLegend {

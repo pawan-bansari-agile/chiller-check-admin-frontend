@@ -162,14 +162,14 @@ const Dashboard: React.FC = () => {
         {/* ===== Efficiency Alert Legend ===== */}
         <ShadowPaper>
           <ul className="dashboardEffList mb-16-imp">
-            <li>Alert key</li>
+            <li>Alert Key</li>
           </ul>
           <ul className="dashboardEffList">
             <li>
-              2-9% Efficiency loss: <span className="effLegends"></span>
+              2-9% Efficiency Loss: <span className="effLegends"></span>
             </li>
             <li>
-              10%+ Efficiency loss: <span className="effLegends effLossLegends"></span>
+              10%+ Efficiency Loss: <span className="effLegends effLossLegends"></span>
             </li>
           </ul>
         </ShadowPaper>
@@ -258,7 +258,7 @@ const Dashboard: React.FC = () => {
               inputProps={{ onChange: (e) => setHideFacility(e.target.checked) }}
               colClassName="locationPerformanceCheckbox"
             >
-              <span className="checkboxLocation">Hide Location Performance Summaries</span>
+              <span className="checkboxLocation">Hide Facility Performance Summaries</span>
             </RenderCheckboxInput>
           </ShadowPaper>
         ) : null}
@@ -278,7 +278,7 @@ const Dashboard: React.FC = () => {
             <div key={facility?.facilityId} className="charityCard">
               <div className="issueHeader facilityHeader">
                 <h2 className="themeColor">
-                  FACILITY - {facility?.facilityName?.toUpperCase() || '-'}
+                  FACILITY PERFORMANCE SUMMARY - {facility?.facilityName?.toUpperCase() || '-'}
                 </h2>
               </div>
 

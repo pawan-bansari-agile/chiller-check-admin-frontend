@@ -839,9 +839,9 @@ const LogEntry: React.FC = () => {
   return (
     <Wrapper>
       {loading && <Loader />}
-      <Meta title="Log Entries" />
+      <Meta title="Logsheet" />
       <HeaderToolbar
-        title="Log Entries"
+        title="Logsheet"
         button={
           <div className="logButtonWrap">
             {hasPermission('log', 'view') && (

@@ -71,6 +71,12 @@ const ViewChiller = () => {
       }
     });
   };
+
+  const handleTabChange = (key: string) => {
+    if (key === '4') navigate(ROUTES.LOG_ENTRY);
+    if (key === '5') navigate(ROUTES.MAINTENANCE);
+  };
+
   return (
     <Wrapper>
       {isLoading && <Loader />}
@@ -112,7 +118,7 @@ const ViewChiller = () => {
                   navigate(`${ROUTES.LOG_ENTRY}?${params.toString()}`);
                 }}
               >
-                Log Entries
+                Logsheet
               </Button>
             )}
           </div>
@@ -120,7 +126,12 @@ const ViewChiller = () => {
       />
       <div className="shadowWrap">
         <ShadowPaper>
-          <Tabs defaultActiveKey="1" destroyInactiveTabPane={false} className="userTab">
+          <Tabs
+            defaultActiveKey="1"
+            destroyInactiveTabPane={false}
+            onChange={handleTabChange}
+            className="userTab"
+          >
             <Tabs.TabPane tab="Analytics" key="1" forceRender>
               {chillerData && (
                 <AnalyticsTab
@@ -136,6 +147,8 @@ const ViewChiller = () => {
             <Tabs.TabPane tab="Setup" key="2" forceRender>
               {chillerData && <DetailsTab chillerData={chillerData as IChillerViewRes} />}
             </Tabs.TabPane>
+            <Tabs.TabPane tab="Add Log Sheet" key="4" forceRender></Tabs.TabPane>
+            <Tabs.TabPane tab="Add Maintenance" key="5" forceRender></Tabs.TabPane>
 
             <Tabs.TabPane tab="Timeline" key="3" forceRender>
               {id && <TimelineTab id={id} />}
@@ -175,7 +188,7 @@ const ViewChiller = () => {
                 navigate(`${ROUTES.LOG_ENTRY}?${params.toString()}`);
               }}
             >
-              Log Entries
+              Logsheet
             </Button>
           )}
         </div>

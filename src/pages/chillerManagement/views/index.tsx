@@ -339,14 +339,15 @@ const ChillerManagement: React.FC = () => {
         sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'tons'),
         render: (_: any, record: IChillerList) =>
           record?.unit === MEASUREMENT_UNITS?.[0]?.value
-            ? (record?.tons ?? '-')
-            : (record?.kwr ?? '-')
+            ? (record?.tons?.toFixed(2) ?? '-')
+            : (record?.kwr?.toFixed(2) ?? '-')
       },
       {
         title: 'Energy Cost $',
         key: 'energyCost',
         dataIndex: 'energyCost',
         sorter: true,
+        render: (value) => value?.toFixed(2) ?? '-',
         // width: 175,
         sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'energyCost')
       },
@@ -355,7 +356,7 @@ const ChillerManagement: React.FC = () => {
         key: 'emissionFactor',
         dataIndex: 'emissionFactor',
         sorter: true,
-        render: (value) => value ?? '-',
+        render: (value) => value?.toFixed(2) ?? '-',
         // width: 175,
         sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'emissionFactor')
       },
@@ -529,7 +530,7 @@ const ChillerManagement: React.FC = () => {
 
   const renderCell = useCallback((data?: { type?: string; value?: number }) => {
     const className = getAlertClassName(data?.type);
-    return <div className={`loss-cell ${className}`}>{data?.value ?? '-'}</div>;
+    return <div className={`loss-cell ${className}`}>{data?.value?.toFixed(2) ?? '-'}</div>;
   }, []);
 
   return (

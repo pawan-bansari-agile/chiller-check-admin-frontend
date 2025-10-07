@@ -41,10 +41,13 @@ const labels: Record<string, string> = {
   last12Months: 'Last 12 Months'
 };
 
-const formatPercentage = (value?: number | null) => (value != null ? `${value} %` : '-');
+const formatPercentage = (value?: number | null) =>
+  value != null ? `${value?.toFixed(2)} %` : '-';
 
 const formatDollar = (value?: number | null) =>
-  value != null ? `$ ${value?.toLocaleString('en-US')}` : '-';
+  value != null
+    ? `$ ${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    : '-';
 
 const getClassName = (value?: number | null) => {
   if (value == null) return '';
@@ -72,9 +75,24 @@ const PerformanceRow: React.FC<{ label: string; values?: Metrics }> = ({ label, 
     <div>{formatDollar(values?.targetCost)}</div>
     <div>{formatDollar(values?.actualCost)}</div>
     <div>{formatDollar(values?.lossCost)}</div>
-    <div>{values?.kwhLoss?.toLocaleString('en-US') ?? '-'}</div>
-    <div>{values?.btuLoss?.toLocaleString('en-US') ?? '-'}</div>
-    <div>{values?.co2?.toLocaleString('en-US') ?? '-'}</div>
+    <div>
+      {values?.kwhLoss?.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }) ?? '-'}
+    </div>
+    <div>
+      {values?.btuLoss?.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }) ?? '-'}
+    </div>
+    <div>
+      {values?.co2?.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }) ?? '-'}
+    </div>
   </div>
 );
 

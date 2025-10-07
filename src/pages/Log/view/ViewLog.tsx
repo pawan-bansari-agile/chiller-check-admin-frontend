@@ -248,7 +248,9 @@ const ViewLog: React.FC = () => {
                     </span>
                     <h3>
                       Efficient Loss:{' '}
-                      <span>{logData?.effLoss ? `${logData?.effLoss?.value} %` : '-'}</span>
+                      <span>
+                        {logData?.effLoss ? `${logData?.effLoss?.value?.toFixed(2)} %` : '-'}
+                      </span>
                     </h3>
                   </div>
                   <div className="titleWrap lossesWrap">
@@ -257,7 +259,11 @@ const ViewLog: React.FC = () => {
                     </span>
                     <h3>
                       Cond. App. Loss:{' '}
-                      <span>{logData?.condAppLoss ? `${logData?.condAppLoss?.value} %` : '-'}</span>
+                      <span>
+                        {logData?.condAppLoss
+                          ? `${logData?.condAppLoss?.value?.toFixed(2)} %`
+                          : '-'}
+                      </span>
                     </h3>
                   </div>
                 </li>
@@ -268,7 +274,11 @@ const ViewLog: React.FC = () => {
                     </span>
                     <h3>
                       Evap. App. Loss:{' '}
-                      <span>{logData?.evapAppLoss ? `${logData?.evapAppLoss?.value} %` : '-'}</span>
+                      <span>
+                        {logData?.evapAppLoss
+                          ? `${logData?.evapAppLoss?.value?.toFixed(2)} %`
+                          : '-'}
+                      </span>
                     </h3>
                   </div>
                   <div className="titleWrap lossesWrap">
@@ -277,7 +287,11 @@ const ViewLog: React.FC = () => {
                     </span>
                     <h3>
                       Non-Cond. Loss:{' '}
-                      <span>{logData?.nonCondLoss ? `${logData?.nonCondLoss?.value} %` : '-'}</span>
+                      <span>
+                        {logData?.nonCondLoss
+                          ? `${logData?.nonCondLoss?.value?.toFixed(2)} %`
+                          : '-'}
+                      </span>
                     </h3>
                   </div>
                 </li>
@@ -288,7 +302,9 @@ const ViewLog: React.FC = () => {
                     </span>
                     <h3>
                       Other Losses:{' '}
-                      <span>{logData?.otherLoss ? `${logData?.otherLoss?.value} %` : '-'}</span>
+                      <span>
+                        {logData?.otherLoss ? `${logData?.otherLoss?.value?.toFixed(2)} %` : '-'}
+                      </span>
                     </h3>
                   </div>
                 </li>
@@ -304,7 +320,7 @@ const ViewLog: React.FC = () => {
                 <Details
                   detailsTitle="Outside Air Temp."
                   className="commonBadge"
-                  detailsDescription={`${logData?.airTemp ?? '-'} ${degreeUnit}`}
+                  detailsDescription={`${logData?.airTemp?.toFixed(2) ?? '-'} ${degreeUnit}`}
                   detailsIcon
                 />
                 <Details
@@ -324,7 +340,7 @@ const ViewLog: React.FC = () => {
                 <Details
                   className="readingDetails"
                   detailsTitle="Chiller Run Hours"
-                  detailsDescription={logData?.runHours ?? '-'}
+                  detailsDescription={logData?.runHours?.toFixed(2) ?? '-'}
                   detailsIcon
                 />
                 <Details
@@ -352,33 +368,33 @@ const ViewLog: React.FC = () => {
                 <Col xs={24} sm={24} md={24} lg={24}>
                   <div className="otherLogForm">
                     <span className="mainlabel">Inlet Temperature</span>
-                    <span className="mainLabelValue">{`${logData?.condInletTemp ?? '-'} ${degreeUnit}`}</span>
+                    <span className="mainLabelValue">{`${logData?.condInletTemp?.toFixed(2) ?? '-'} ${degreeUnit}`}</span>
                   </div>
                 </Col>
                 <Col xs={24} sm={24} md={24} lg={24}>
                   <div className="otherLogForm">
                     <span className="mainlabel">Outlet Temperature</span>
-                    <span className="mainLabelValue">{`${logData?.condOutletTemp ?? '-'} ${degreeUnit}`}</span>
+                    <span className="mainLabelValue">{`${logData?.condOutletTemp?.toFixed(2) ?? '-'} ${degreeUnit}`}</span>
                   </div>
                 </Col>
                 {selectedChiller && !selectedChiller?.highPressureRefrig && (
                   <Col xs={24} sm={24} md={24} lg={24}>
                     <div className="otherLogForm">
                       <span className="mainlabel">Sat.Refrig Temp.</span>
-                      <span className="mainLabelValue">{`${logData?.condRefrigTemp ?? '-'} ${degreeUnit}`}</span>
+                      <span className="mainLabelValue">{`${logData?.condRefrigTemp?.toFixed(2) ?? '-'} ${degreeUnit}`}</span>
                     </div>
                   </Col>
                 )}{' '}
                 <Col xs={24} sm={24} md={24} lg={24}>
                   <div className="otherLogForm">
                     <span className="mainlabel">Pressure</span>
-                    <span className="mainLabelValue">{`${logData?.condPressure ?? '-'} ${selectedChiller?.condPressureUnit || 'PSIG'}`}</span>
+                    <span className="mainLabelValue">{`${logData?.condPressure?.toFixed(2) ?? '-'} ${selectedChiller?.condPressureUnit || 'PSIG'}`}</span>
                   </div>
                 </Col>{' '}
                 <Col xs={24} sm={24} md={24} lg={24}>
                   <div className="otherLogForm">
                     <span className="mainlabel">Pressure Drop</span>
-                    <span className="mainLabelValue">{`${logData?.condAPDrop ?? '-'} ${selectedChiller?.condAPDropUnit || 'PSIG'}`}</span>
+                    <span className="mainLabelValue">{`${logData?.condAPDrop?.toFixed(2) ?? '-'} ${selectedChiller?.condAPDropUnit || 'PSIG'}`}</span>
                   </div>
                 </Col>
               </Row>
@@ -392,33 +408,33 @@ const ViewLog: React.FC = () => {
                 <Col xs={24} sm={24} md={24} lg={24}>
                   <div className="otherLogForm">
                     <span className="mainlabel">Inlet Temperature</span>
-                    <span className="mainLabelValue">{`${logData?.evapInletTemp ?? '-'} ${degreeUnit}`}</span>
+                    <span className="mainLabelValue">{`${logData?.evapInletTemp?.toFixed(2) ?? '-'} ${degreeUnit}`}</span>
                   </div>
                 </Col>
                 <Col xs={24} sm={24} md={24} lg={24}>
                   <div className="otherLogForm">
                     <span className="mainlabel">Outlet Temperature</span>
-                    <span className="mainLabelValue">{`${logData?.evapOutletTemp ?? '-'} ${degreeUnit}`}</span>
+                    <span className="mainLabelValue">{`${logData?.evapOutletTemp?.toFixed(2) ?? '-'} ${degreeUnit}`}</span>
                   </div>
                 </Col>
                 {selectedChiller && selectedChiller?.useEvapRefrigTemp && (
                   <Col xs={24} sm={24} md={24} lg={24}>
                     <div className="otherLogForm">
                       <span className="mainlabel">Sat.Refrig Temp.</span>
-                      <span className="mainLabelValue">{`${logData?.evapRefrigTemp ?? '-'} ${degreeUnit}`}</span>
+                      <span className="mainLabelValue">{`${logData?.evapRefrigTemp?.toFixed(2) ?? '-'} ${degreeUnit}`}</span>
                     </div>
                   </Col>
                 )}{' '}
                 <Col xs={24} sm={24} md={24} lg={24}>
                   <div className="otherLogForm">
                     <span className="mainlabel">Pressure</span>
-                    <span className="mainLabelValue">{`${logData?.evapPressure ?? '-'} ${selectedChiller?.evapPressureUnit || 'PSIG'}`}</span>
+                    <span className="mainLabelValue">{`${logData?.evapPressure?.toFixed(2) ?? '-'} ${selectedChiller?.evapPressureUnit || 'PSIG'}`}</span>
                   </div>
                 </Col>{' '}
                 <Col xs={24} sm={24} md={24} lg={24}>
                   <div className="otherLogForm">
                     <span className="mainlabel">Pressure Drop</span>
-                    <span className="mainLabelValue">{`${logData?.evapAPDrop ?? '-'} ${selectedChiller?.evapAPDropUnit || 'PSIG'}`}</span>
+                    <span className="mainLabelValue">{`${logData?.evapAPDrop?.toFixed(2) ?? '-'} ${selectedChiller?.evapAPDropUnit || 'PSIG'}`}</span>
                   </div>
                 </Col>
               </Row>
@@ -435,7 +451,9 @@ const ViewLog: React.FC = () => {
                     <Col xs={24} sm={24} md={24} lg={24}>
                       <div className="otherLogForm">
                         <span className="mainlabel">Oil Press High</span>
-                        <span className="mainLabelValue">{logData?.oilPresHigh ?? '-'}</span>
+                        <span className="mainLabelValue">
+                          {logData?.oilPresHigh?.toFixed(2) ?? '-'}
+                        </span>
                       </div>
                     </Col>
                   )}
@@ -444,7 +462,9 @@ const ViewLog: React.FC = () => {
                     <Col xs={24} sm={24} md={24} lg={24}>
                       <div className="otherLogForm">
                         <span className="mainlabel">Oil Press Low</span>
-                        <span className="mainLabelValue">{logData?.oilPresLow ?? '-'}</span>
+                        <span className="mainLabelValue">
+                          {logData?.oilPresLow?.toFixed(2) ?? '-'}
+                        </span>
                       </div>
                     </Col>
                   )}
@@ -453,7 +473,9 @@ const ViewLog: React.FC = () => {
                     <Col xs={24} sm={24} md={24} lg={24}>
                       <div className="otherLogForm">
                         <span className="mainlabel">Oil Press Dif</span>
-                        <span className="mainLabelValue">{logData?.oilPresDif ?? '-'}</span>
+                        <span className="mainLabelValue">
+                          {logData?.oilPresDif?.toFixed(2) ?? '-'}
+                        </span>
                       </div>
                     </Col>
                   )}
@@ -462,7 +484,7 @@ const ViewLog: React.FC = () => {
                     <Col xs={24} sm={24} md={24} lg={24}>
                       <div className="otherLogForm">
                         <span className="mainlabel">Sump Temp.</span>
-                        <span className="mainLabelValue">{`${logData?.oilSumpTemp ?? '-'} ${degreeUnit}`}</span>
+                        <span className="mainLabelValue">{`${logData?.oilSumpTemp?.toFixed(2) ?? '-'} ${degreeUnit}`}</span>
                       </div>
                     </Col>
                   )}{' '}
@@ -471,7 +493,9 @@ const ViewLog: React.FC = () => {
                     <Col xs={24} sm={24} md={24} lg={24}>
                       <div className="otherLogForm">
                         <span className="mainlabel">Oil Level</span>
-                        <span className="mainLabelValue">{logData?.oilLevel ?? '-'}</span>
+                        <span className="mainLabelValue">
+                          {logData?.oilLevel?.toFixed(2) ?? '-'}
+                        </span>
                       </div>
                     </Col>
                   )}{' '}
@@ -479,14 +503,16 @@ const ViewLog: React.FC = () => {
                   <Col xs={24} sm={24} md={24} lg={24}>
                     <div className="otherLogForm">
                       <span className="mainlabel">Bearing Temp</span>
-                      <span className="mainLabelValue">{`${logData?.bearingTemp ?? '-'} ${degreeUnit}`}</span>
+                      <span className="mainLabelValue">{`${logData?.bearingTemp?.toFixed(2) ?? '-'} ${degreeUnit}`}</span>
                     </div>
                   </Col>
                 )}{' '}
                 <Col xs={24} sm={24} md={24} lg={24}>
                   <div className="otherLogForm">
                     <span className="mainlabel">Comp 1 Run Hours</span>
-                    <span className="mainLabelValue">{logData?.comp1RunHours ?? '-'}</span>
+                    <span className="mainLabelValue">
+                      {logData?.comp1RunHours?.toFixed(2) ?? '-'}
+                    </span>
                   </div>
                 </Col>{' '}
                 <Col xs={24} sm={24} md={24} lg={24}>
@@ -507,7 +533,9 @@ const ViewLog: React.FC = () => {
                     <Col xs={24} sm={24} md={24} lg={24}>
                       <div className="otherLogForm">
                         <span className="mainlabel">Comp 2 Run Hours</span>
-                        <span className="mainLabelValue">{logData?.comp2RunHours ?? '-'}</span>
+                        <span className="mainLabelValue">
+                          {logData?.comp2RunHours?.toFixed(2) ?? '-'}
+                        </span>
                       </div>
                     </Col>
                   )}{' '}
@@ -534,7 +562,9 @@ const ViewLog: React.FC = () => {
                     <Col xs={24} sm={24} md={24} lg={24}>
                       <div className="otherLogForm">
                         <span className="mainlabel">Purge Time Hrs.</span>
-                        <span className="mainLabelValue">{logData?.purgeTimeHr ?? '-'}</span>
+                        <span className="mainLabelValue">
+                          {logData?.purgeTimeHr?.toFixed(2) ?? '-'}
+                        </span>
                       </div>
                     </Col>
                   )}
@@ -542,7 +572,9 @@ const ViewLog: React.FC = () => {
                   <Col xs={24} sm={24} md={24} lg={24}>
                     <div className="otherLogForm">
                       <span className="mainlabel">Purge Time</span>
-                      <span className="mainLabelValue">{logData?.purgeTimeMin ?? '-'}</span>
+                      <span className="mainLabelValue">
+                        {logData?.purgeTimeMin?.toFixed(2) ?? '-'}
+                      </span>
                     </div>
                   </Col>
                 )}
@@ -557,14 +589,16 @@ const ViewLog: React.FC = () => {
                 <Col xs={24} sm={24} md={24} lg={24}>
                   <div className="otherLogForm">
                     <span className="mainlabel">Amps Phase 1/% Load</span>
-                    <span className="mainLabelValue">{logData?.ampsPhase1 ?? '-'}</span>
+                    <span className="mainLabelValue">{logData?.ampsPhase1?.toFixed(2) ?? '-'}</span>
                   </div>
                 </Col>
                 {selectedChiller && selectedChiller?.ampChoice === AMPERAGE_CHOICE?.[0]?.value && (
                   <Col xs={24} sm={24} md={24} lg={24}>
                     <div className="otherLogForm">
                       <span className="mainlabel">Amps Phase 2</span>
-                      <span className="mainLabelValue">{logData?.ampsPhase2 ?? '-'}</span>
+                      <span className="mainLabelValue">
+                        {logData?.ampsPhase2?.toFixed(2) ?? '-'}
+                      </span>
                     </div>
                   </Col>
                 )}
@@ -572,7 +606,9 @@ const ViewLog: React.FC = () => {
                   <Col xs={24} sm={24} md={24} lg={24}>
                     <div className="otherLogForm">
                       <span className="mainlabel">Amps Phase 3</span>
-                      <span className="mainLabelValue">{logData?.ampsPhase3 ?? '-'}</span>
+                      <span className="mainLabelValue">
+                        {logData?.ampsPhase3?.toFixed(2) ?? '-'}
+                      </span>
                     </div>
                   </Col>
                 )}{' '}
@@ -582,7 +618,9 @@ const ViewLog: React.FC = () => {
                     <Col xs={24} sm={24} md={24} lg={24}>
                       <div className="otherLogForm">
                         <span className="mainlabel">Volts Phase 1</span>
-                        <span className="mainLabelValue">{logData?.voltsPhase1 ?? '-'}</span>
+                        <span className="mainLabelValue">
+                          {logData?.voltsPhase1?.toFixed(2) ?? '-'}
+                        </span>
                       </div>
                     </Col>
                   )}{' '}
@@ -591,7 +629,9 @@ const ViewLog: React.FC = () => {
                     <Col xs={24} sm={24} md={24} lg={24}>
                       <div className="otherLogForm">
                         <span className="mainlabel">Volts Phase 2</span>
-                        <span className="mainLabelValue">{logData?.voltsPhase2 ?? '-'}</span>
+                        <span className="mainLabelValue">
+                          {logData?.voltsPhase2?.toFixed(2) ?? '-'}
+                        </span>
                       </div>
                     </Col>
                   )}{' '}
@@ -600,7 +640,9 @@ const ViewLog: React.FC = () => {
                     <Col xs={24} sm={24} md={24} lg={24}>
                       <div className="otherLogForm">
                         <span className="mainlabel">Volts Phase 3</span>
-                        <span className="mainLabelValue">{logData?.voltsPhase3 ?? '-'}</span>
+                        <span className="mainLabelValue">
+                          {logData?.voltsPhase3?.toFixed(2) ?? '-'}
+                        </span>
                       </div>
                     </Col>
                   )}

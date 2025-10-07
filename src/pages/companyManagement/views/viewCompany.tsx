@@ -138,7 +138,7 @@ const ViewCompany: React.FC = () => {
       key: 'altitude',
       width: 150,
       render: (_value: number, record: Facility) =>
-        `${record?.altitude + ' ' + capitalizeFirstLetter(record?.altitudeUnit)}`
+        `${record?.altitude?.toFixed(2) + ' ' + capitalizeFirstLetter(record?.altitudeUnit)}`
     },
     {
       title: 'Country',
@@ -214,17 +214,19 @@ const ViewCompany: React.FC = () => {
       key: 'efficiencyRating',
       width: 180,
       dataIndex: 'efficiencyRating',
-      render: (value: number) => value ?? '-'
+      render: (value: number) => value?.toFixed(2) ?? '-'
     },
     {
       title: 'Energy Cost $',
       key: 'energyCost',
-      dataIndex: 'energyCost'
+      dataIndex: 'energyCost',
+      render: (value: number) => value?.toFixed(2) ?? '-'
     },
     {
       title: 'Avg. Load Profile(%)',
       key: 'avgLoadProfile',
-      dataIndex: 'avgLoadProfile'
+      dataIndex: 'avgLoadProfile',
+      render: (value: number) => value?.toFixed(2) ?? '-'
     },
     {
       title: 'Operation Hours (W)',
@@ -331,7 +333,7 @@ const ViewCompany: React.FC = () => {
 
   const renderCell = useCallback((data?: { type?: string; value?: number }) => {
     const className = getAlertClassName(data?.type);
-    return <div className={`loss-cell ${className}`}>{data?.value ?? '-'}</div>;
+    return <div className={`loss-cell ${className}`}>{data?.value?.toFixed(2) ?? '-'}</div>;
   }, []);
 
   return (

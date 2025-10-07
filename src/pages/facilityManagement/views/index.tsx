@@ -180,7 +180,8 @@ const FacilityManagement: React.FC = () => {
       key: 'altitude',
       sorter: true,
       sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'altitude'),
-      render: (_, record) => `${record?.altitude} ${capitalizeFirstLetter(record?.altitudeUnit)}`
+      render: (_, record) =>
+        `${record?.altitude?.toFixed(2)} ${capitalizeFirstLetter(record?.altitudeUnit)}`
     },
     {
       title: 'Chillers',

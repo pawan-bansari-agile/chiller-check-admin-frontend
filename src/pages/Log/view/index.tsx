@@ -455,7 +455,7 @@ const LogEntry: React.FC = () => {
     }
   };
 
-  const renderOtherCell = useCallback((value?: number | null) => value ?? '-', []);
+  const renderOtherCell = useCallback((value?: number | null) => value?.toFixed(2) ?? '-', []);
 
   const renderCell = useCallback(
     (data?: { type?: string; value?: number; problem?: ILogProblemRes[] }) => {
@@ -480,7 +480,7 @@ const LogEntry: React.FC = () => {
           title={hasAlert ? 'Click here to show problem & solution' : undefined}
           onClick={hasAlert ? handleClick : undefined}
         >
-          {data?.value ?? '-'}
+          {data?.value?.toFixed(2) ?? '-'}
         </div>
       );
     },
@@ -562,7 +562,7 @@ const LogEntry: React.FC = () => {
         render: renderCell
       },
       {
-        title: 'Cond. App. Loss %',
+        title: 'Cond App Loss %',
         key: 'condAppLoss',
         width: 10,
         dataIndex: 'condAppLoss',
@@ -571,7 +571,7 @@ const LogEntry: React.FC = () => {
         render: renderCell
       },
       {
-        title: 'Evap. App. Loss %',
+        title: 'Evap App Loss %',
         key: 'evapAppLoss',
         width: 10,
         dataIndex: 'evapAppLoss',
@@ -580,7 +580,7 @@ const LogEntry: React.FC = () => {
         render: renderCell
       },
       {
-        title: 'Non-Cond. App. Loss %',
+        title: 'Non-Cond App Loss %',
         key: 'nonCondLoss',
         width: 10,
         dataIndex: 'nonCondLoss',

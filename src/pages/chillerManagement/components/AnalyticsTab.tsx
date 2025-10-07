@@ -45,10 +45,12 @@ const AnalyticsTab: React.FC<IProps> = ({
   } | null>(null);
 
   const formatRunHr = (value: number | null | undefined) =>
-    value != null || value != undefined ? `${value} %` : '-';
+    value != null || value != undefined ? `${value?.toFixed(2)} %` : '-';
 
   const formatDollar = (value: number | null | undefined) =>
-    value != null || value != undefined ? `$ ${value?.toLocaleString('en-US')}` : '-';
+    value != null || value != undefined
+      ? `$ ${value?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      : '-';
 
   const selectedZone = useMemo(() => {
     return TimezoneEnum[facilityTimezone as keyof typeof TimezoneEnum] || TimezoneEnum.EST;
@@ -203,10 +205,10 @@ const AnalyticsTab: React.FC<IProps> = ({
                     <span title="Est. Annual Run Hr.">Est. Annual Run Hr.</span>
                   </div>
                   <div className="valueWrap">
-                    <div>{compressorRunHours?.runHrYTD ?? '-'}</div>
-                    <div>{compressorRunHours?.runHrLastYTD ?? '-'}</div>
-                    <div>{compressorRunHours?.runHrLast12Months ?? '-'}</div>
-                    <div>{compressorRunHours?.estAnnualRunHr ?? '-'}</div>
+                    <div>{compressorRunHours?.runHrYTD?.toFixed(2) ?? '-'}</div>
+                    <div>{compressorRunHours?.runHrLastYTD?.toFixed(2) ?? '-'}</div>
+                    <div>{compressorRunHours?.runHrLast12Months?.toFixed(2) ?? '-'}</div>
+                    <div>{compressorRunHours?.estAnnualRunHr?.toFixed(2) ?? '-'}</div>
                   </div>
                 </div>
               </div>

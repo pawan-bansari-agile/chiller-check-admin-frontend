@@ -97,7 +97,9 @@ const DetailsTab: React.FC<IProps> = ({ chillerData }) => {
           />
           <Details
             detailsTitle="Avg. Load Profile"
-            detailsDescription={avgLoadProfile?.toString() ? `${avgLoadProfile} %` : '-'}
+            detailsDescription={
+              avgLoadProfile?.toString() ? `${avgLoadProfile?.toFixed(2)} %` : '-'
+            }
             detailsIcon
           />
           <Details
@@ -124,7 +126,9 @@ const DetailsTab: React.FC<IProps> = ({ chillerData }) => {
           <Details
             detailsTitle={unit === MEASUREMENT_UNITS?.[1]?.value ? 'kWR' : 'Tons'}
             detailsDescription={
-              unit === MEASUREMENT_UNITS?.[1]?.value ? (kwr ?? '-') : (tons ?? '-')
+              unit === MEASUREMENT_UNITS?.[1]?.value
+                ? (kwr?.toFixed(2) ?? '-')
+                : (tons?.toFixed(2) ?? '-')
             }
             detailsIcon
           />
@@ -132,19 +136,19 @@ const DetailsTab: React.FC<IProps> = ({ chillerData }) => {
             detailsTitle="Efficiency Rating"
             detailsDescription={
               unit === MEASUREMENT_UNITS?.[1]?.value
-                ? `${efficiencyRating ?? '-'} COP`
-                : `${efficiencyRating ?? '-'} kW/ton`
+                ? `${efficiencyRating?.toFixed(2) ?? '-'} COP`
+                : `${efficiencyRating?.toFixed(2) ?? '-'} kW/ton`
             }
             detailsIcon
           />
           <Details
             detailsTitle="Energy Cost $ (kW. hr.)"
-            detailsDescription={`${energyCost ?? '-'} USD`}
+            detailsDescription={`${energyCost?.toFixed(2) ?? '-'} USD`}
             detailsIcon
           />
           <Details
             detailsTitle="CO2e Emission Factor"
-            detailsDescription={`${emissionFactor ?? '-'} kg of CO2e per kWh`}
+            detailsDescription={`${emissionFactor?.toFixed(2) ?? '-'} kg of CO2e per kWh`}
             detailsIcon
           />
         </ul>
@@ -156,7 +160,7 @@ const DetailsTab: React.FC<IProps> = ({ chillerData }) => {
         <ul className="chillerDetailList">
           <Details
             detailsTitle="Design Condenser Water Pressure Drop"
-            detailsDescription={`${condDPDrop} ${condDPDropUnit}`}
+            detailsDescription={`${condDPDrop?.toFixed(2)} ${condDPDropUnit}`}
             detailsIcon
           />
           <Details
@@ -175,17 +179,17 @@ const DetailsTab: React.FC<IProps> = ({ chillerData }) => {
 
           <Details
             detailsTitle="Design Condenser Approach Temp."
-            detailsDescription={`${condApproach ?? '-'} ${unit === MEASUREMENT_UNITS?.[1]?.value ? '°C' : '℉'}`}
+            detailsDescription={`${condApproach?.toFixed(2) ?? '-'} ${unit === MEASUREMENT_UNITS?.[1]?.value ? '°C' : '℉'}`}
             detailsIcon
           />
           <Details
             detailsTitle="Design Condenser ∆ T"
-            detailsDescription={condDesignDeltaT ?? '-'}
+            detailsDescription={condDesignDeltaT?.toFixed(2) ?? '-'}
             detailsIcon
           />
           <Details
             detailsTitle="Design Condenser Flow"
-            detailsDescription={condDesignFlow ?? '-'}
+            detailsDescription={condDesignFlow?.toFixed(2) ?? '-'}
             detailsIcon
           />
         </ul>
@@ -197,7 +201,7 @@ const DetailsTab: React.FC<IProps> = ({ chillerData }) => {
         <ul className="chillerDetailList">
           <Details
             detailsTitle="Design Chill Water Pressure Drop"
-            detailsDescription={`${evapDPDrop} ${evapDPDropUnit}`}
+            detailsDescription={`${evapDPDrop?.toFixed(2)} ${evapDPDropUnit}`}
             detailsIcon
           />
           <Details
@@ -221,17 +225,17 @@ const DetailsTab: React.FC<IProps> = ({ chillerData }) => {
 
           <Details
             detailsTitle="Design Evaporator Approach Temp."
-            detailsDescription={`${evapApproach ?? '-'} ${unit === MEASUREMENT_UNITS?.[1]?.value ? '°C' : '℉'}`}
+            detailsDescription={`${evapApproach?.toFixed(2) ?? '-'} ${unit === MEASUREMENT_UNITS?.[1]?.value ? '°C' : '℉'}`}
             detailsIcon
           />
           <Details
             detailsTitle="Evaporator Design Outlet Water Temp."
-            detailsDescription={`${evapDOWTemp ?? '-'} ${unit === MEASUREMENT_UNITS?.[1]?.value ? '°C' : '℉'}`}
+            detailsDescription={`${evapDOWTemp?.toFixed(2) ?? '-'} ${unit === MEASUREMENT_UNITS?.[1]?.value ? '°C' : '℉'}`}
             detailsIcon
           />
           <Details
             detailsTitle="Evaporator Design ∆ T"
-            detailsDescription={`${evapDesignDeltaT ?? '-'} ${unit === MEASUREMENT_UNITS?.[1]?.value ? '°C' : '℉'}`}
+            detailsDescription={`${evapDesignDeltaT?.toFixed(2) ?? '-'} ${unit === MEASUREMENT_UNITS?.[1]?.value ? '°C' : '℉'}`}
             detailsIcon
           />
 
@@ -239,7 +243,7 @@ const DetailsTab: React.FC<IProps> = ({ chillerData }) => {
           <Details
             className="extraDetails"
             detailsTitle="Evaporator Design Flow"
-            detailsDescription={evapDesignFlow ?? '-'}
+            detailsDescription={evapDesignFlow?.toFixed(2) ?? '-'}
             detailsIcon
           />
         </ul>
@@ -251,7 +255,7 @@ const DetailsTab: React.FC<IProps> = ({ chillerData }) => {
         <ul className="chillerDetailList">
           <Details
             detailsTitle="Design Voltage"
-            detailsDescription={designVoltage ?? '-'}
+            detailsDescription={designVoltage?.toFixed(2) ?? '-'}
             detailsIcon
           />
           <Details
@@ -261,7 +265,7 @@ const DetailsTab: React.FC<IProps> = ({ chillerData }) => {
           />
           <Details
             detailsTitle="Full-Load Amperage"
-            detailsDescription={fullLoadAmps ?? '-'}
+            detailsDescription={fullLoadAmps?.toFixed(2) ?? '-'}
             detailsIcon
           />
           <Details

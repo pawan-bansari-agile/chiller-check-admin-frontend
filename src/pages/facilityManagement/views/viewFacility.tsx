@@ -115,7 +115,9 @@ const ViewFacility: React.FC = () => {
         if (data?.effLoss?.type === ALERT_TYPE.ALERT) className = 'bgRed';
         if (data?.effLoss?.type === ALERT_TYPE.WARNING) className = 'bgYellow';
 
-        return <div className={`loss-cell ${className}`}>{data?.effLoss?.value ?? '-'}</div>;
+        return (
+          <div className={`loss-cell ${className}`}>{data?.effLoss?.value?.toFixed(2) ?? '-'}</div>
+        );
       }
     },
     // {

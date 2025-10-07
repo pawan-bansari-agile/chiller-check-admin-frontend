@@ -134,11 +134,10 @@ export const logHooks = {
   },
 
   LogList: (args: ICommonPagination) => {
-    return useApiQuery(
-      logQueryKeys.logList(args),
-      () => logApi.getLogList(args),
-      defaultQueryOptions
-    );
+    return useApiQuery(logQueryKeys.logList(args), () => logApi.getLogList(args), {
+      ...defaultQueryOptions,
+      enabled: Boolean(args?.chillerId)
+    });
   },
 
   useDeleteLog: (

@@ -21,6 +21,7 @@ import { FilterValue, SorterResult, TablePaginationConfig } from 'antd/es/table/
 import dayjs from 'dayjs';
 
 import { chillerHooks } from '@/services/chiller';
+import { IChillerViewRes } from '@/services/chiller/types';
 import { ICommonPagination } from '@/services/common/types';
 import { companyHooks } from '@/services/company';
 import { facilityHooks } from '@/services/facility';
@@ -37,7 +38,17 @@ import CommonModal from '@/shared/components/common/Modal/components/CommonModal
 import ShadowPaper from '@/shared/components/common/ShadowPaper';
 import { CommonTable } from '@/shared/components/common/Table';
 import EmptyState from '@/shared/components/common/Table/EmptyState';
-import { ALERT_TYPE, IMAGE_MODULE_NAME, IMAGE_URL, LocalStorageKeys } from '@/shared/constants';
+import {
+  ALERT_TYPE,
+  AMPERAGE_CHOICE,
+  IMAGE_MODULE_NAME,
+  IMAGE_URL,
+  LocalStorageKeys,
+  NUMBER_OF_COMPRESSOR,
+  OIL_PRESSURE_DIFF,
+  PURGE_READING_UNIT,
+  VOLTAGE_CHOICE
+} from '@/shared/constants';
 import { ROUTES } from '@/shared/constants/routes';
 import { DownloadTemplateIcon, EditIcon } from '@/shared/svg';
 import {
@@ -81,6 +92,9 @@ const LogEntry: React.FC = () => {
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
   const [selectedFacilityId, setSelectedFacilityId] = useState<string | null>(null);
   const [selectedChillerId, setSelectedChillerId] = useState<string | null>(null);
+  const [selectedChiller, setSelectedChiller] = useState<IChillerViewRes | null>(null);
+  console.log('selectedChiller: ', selectedChiller);
+
   const [logIds, setLogIds] = useState<string[] | []>([]);
   const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({});
   const [fileList, setFileList] = useState<UploadFile[]>([]);
@@ -92,6 +106,10 @@ const LogEntry: React.FC = () => {
   } | null>(null);
 
   const { data, isLoading } = logHooks.LogList(args);
+  const { data: chillerData, isLoading: isChillerDataLoading } = chillerHooks.ChillerView(
+    selectedChillerId!
+  );
+
   const { data: companyList, isLoading: isCompanyLoading } = companyHooks.AllCompanyList();
   const { mutate: exportLogAction, isPending } = logHooks.useExportLog();
 
@@ -119,12 +137,24 @@ const LogEntry: React.FC = () => {
   const { data: chillerList, isLoading: isChillerLoading } =
     chillerHooks.ChillerAllList(chillerArgs);
 
-  const toggleableColumnKeys = useMemo(
-    () => [
+  useEffect(() => {
+    if (selectedChillerId && chillerData) {
+      setSelectedChiller(chillerData);
+    } else {
+      setSelectedChiller(null);
+    }
+  }, [chillerData, selectedChillerId]);
+
+  const toggleableColumnKeys = useMemo(() => {
+    if (!selectedChiller) return [];
+
+    // Original ordered list of all possible keys
+    const allKeys: (string | { key: string; condition?: boolean | undefined })[] = [
       'creator',
       'facilityName',
       'ChillerNo',
       'updatedAt',
+
       'effLoss',
       'condAppLoss',
       'evapAppLoss',
@@ -132,42 +162,119 @@ const LogEntry: React.FC = () => {
       'otherLoss',
 
       'airTemp',
-      'runHours',
       'runHourStart',
 
       'condInletTemp',
       'condOutletTemp',
-      'condRefrigTemp',
+      { key: 'condRefrigTemp', condition: !selectedChiller?.highPressureRefrig },
+      'calculatedCondRefrigTemp',
+      'condAppVariance',
       'condPressure',
+      'nonCondensables',
       'condAPDrop',
 
       'evapInletTemp',
       'evapOutletTemp',
-      'evapRefrigTemp',
+      { key: 'evapRefrigTemp', condition: selectedChiller?.useEvapRefrigTemp },
+      'calculatedEvapRefrigTemp',
+      'evapAppVariance',
       'evapPressure',
       'evapAPDrop',
 
-      'oilPresHigh',
-      'oilPresLow',
-      'oilPresDif',
-      'oilSumpTemp',
-      'oilLevel',
-      'bearingTemp',
+      {
+        key: 'oilPresHigh',
+        condition: [OIL_PRESSURE_DIFF?.[0]?.value, OIL_PRESSURE_DIFF?.[1]?.value].includes(
+          selectedChiller?.compOPIndicator
+        )
+      },
+      {
+        key: 'oilPresLow',
+        condition: selectedChiller?.compOPIndicator === OIL_PRESSURE_DIFF?.[0]?.value
+      },
+      {
+        key: 'oilPresDif',
+        condition: selectedChiller?.compOPIndicator === OIL_PRESSURE_DIFF?.[2]?.value
+      },
+      {
+        key: 'oilSumpTemp',
+        condition: selectedChiller?.compOPIndicator !== OIL_PRESSURE_DIFF?.[3]?.value
+      },
+      {
+        key: 'oilLevel',
+        condition: selectedChiller?.compOPIndicator !== OIL_PRESSURE_DIFF?.[3]?.value
+      },
+      { key: 'bearingTemp', condition: selectedChiller?.haveBearingTemp },
+
+      'runHours',
+      'comp1RunHours',
+      'comp1RunHourStart',
+
+      {
+        key: 'comp2RunHours',
+        condition:
+          selectedChiller?.numberOfCompressors?.toString() === NUMBER_OF_COMPRESSOR?.[1]?.value
+      },
+      {
+        key: 'comp2RunHourStart',
+        condition:
+          selectedChiller?.numberOfCompressors?.toString() === NUMBER_OF_COMPRESSOR?.[1]?.value
+      },
+
+      {
+        key: 'purgeTimeHr',
+        condition:
+          selectedChiller?.havePurge &&
+          selectedChiller?.purgeReadingUnit === PURGE_READING_UNIT?.[1]?.value
+      },
+      { key: 'purgeTimeMin', condition: selectedChiller?.havePurge },
+
+      'ampsPhase1',
+      { key: 'ampsPhase2', condition: selectedChiller?.ampChoice === AMPERAGE_CHOICE?.[0]?.value },
+      { key: 'ampsPhase3', condition: selectedChiller?.ampChoice === AMPERAGE_CHOICE?.[0]?.value },
+
+      {
+        key: 'voltsPhase1',
+        condition: [VOLTAGE_CHOICE?.[0]?.value, VOLTAGE_CHOICE?.[1]?.value].includes(
+          selectedChiller?.voltageChoice
+        )
+      },
+      {
+        key: 'voltsPhase2',
+        condition: selectedChiller?.voltageChoice === VOLTAGE_CHOICE?.[0]?.value
+      },
+      {
+        key: 'voltsPhase3',
+        condition: selectedChiller?.voltageChoice === VOLTAGE_CHOICE?.[0]?.value
+      }
+    ];
+
+    // Filter keys based on condition (keep order intact)
+    return allKeys
+      ?.filter((k) => typeof k === 'string' || k?.condition)
+      ?.map((k) => (typeof k === 'string' ? k : k?.key));
+  }, [selectedChiller]);
+
+  const initiallyUncheckedKeys = useMemo(
+    () => [
+      'facilityName',
+      'ChillerNo',
+      'effLoss',
+      'condAppLoss',
+      'evapAppLoss',
+      'nonCondLoss',
+      'otherLoss',
+      'airTemp',
+      'runHourStart',
+      'condAppVariance',
+      'evapAppVariance',
       'comp1RunHours',
       'comp1RunHourStart',
       'comp2RunHours',
       'comp2RunHourStart',
       'purgeTimeHr',
-      'purgeTimeMin',
-
-      'ampsPhase1',
-      'ampsPhase2',
-      'ampsPhase3',
-      'voltsPhase1',
-      'voltsPhase2',
-      'voltsPhase3'
+      'purgeTimeMin'
     ],
-    []
+    [selectedChiller]
   );
 
   // Transforms company list into dropdown options
@@ -242,10 +349,10 @@ const LogEntry: React.FC = () => {
   useEffect(() => {
     const initialState: Record<string, boolean> = {};
     toggleableColumnKeys?.forEach((key) => {
-      initialState[key] = true;
+      initialState[key] = !initiallyUncheckedKeys.includes(key);
     });
     setVisibleColumns(initialState);
-  }, [toggleableColumnKeys]);
+  }, [toggleableColumnKeys, initiallyUncheckedKeys]);
 
   const debouncedSearch = useRef(
     debounce((value: string) => {
@@ -380,26 +487,37 @@ const LogEntry: React.FC = () => {
     []
   );
 
-  const columns = useMemo<ColumnsType<any>>(() => {
-    const baseColumns: ColumnsType<any> = [
+  const columns = useMemo<ColumnsType<IViewLogRes>>(() => {
+    const formatDate = (date?: string) => (date ? dayjs(date).format('MM/DD/YY HH:mm') : '-');
+
+    const yesNoRender = (value: boolean | undefined) =>
+      value === true ? 'Yes' : value === false ? 'No' : '-';
+
+    // Helper to build conditional column
+    const conditionalCol = (condition: boolean, col: ColumnsType<IViewLogRes>[number]) =>
+      condition ? col : null;
+
+    const baseColumns: (ColumnsType<IViewLogRes>[number] | null)[] = [
       {
         title: 'Creator & Timestamp',
         fixed: 'left',
         dataIndex: 'creator',
         key: 'creator',
-        render: (_: any, record: IViewLogRes) => (
+        render: (_: any, record) => (
           <div className="updateUser">
             <figure>
               <img
-                src={`${record?.userProfileImage ? `${IMAGE_URL}chiller-check/${IMAGE_MODULE_NAME.PROFILE_PIC}/${record?.userProfileImage}` : toAbsoluteUrl('/icons/placeHolder.jpg')}`}
+                src={
+                  record?.userProfileImage
+                    ? `${IMAGE_URL}chiller-check/${IMAGE_MODULE_NAME.PROFILE_PIC}/${record?.userProfileImage}`
+                    : toAbsoluteUrl('/icons/placeHolder.jpg')
+                }
                 alt="user"
               />
             </figure>
             <div>
-              <h4>{record?.userFirstName + ' ' + record?.userLastName}</h4>
-              <span>
-                {record?.createdAt ? dayjs(record?.createdAt).format('MM/DD/YY HH:mm') : null}
-              </span>
+              <h4>{`${record?.userFirstName || ''} ${record?.userLastName || ''}`}</h4>
+              <span>{formatDate(record?.createdAt)}</span>
             </div>
           </div>
         )
@@ -416,7 +534,7 @@ const LogEntry: React.FC = () => {
         fixed: 'left',
         key: 'ChillerNo',
         dataIndex: 'ChillerNo',
-        render: (_: any, record: IViewLogRes) => (
+        render: (_, record) => (
           <div className="chillerNameWrap">
             <a className="chillerName">{record?.chillerName || '-'}</a>
             <span>{record?.ChillerNo || '-'}</span>
@@ -430,13 +548,14 @@ const LogEntry: React.FC = () => {
         fixed: 'left',
         dataIndex: 'updatedAt',
         key: 'updatedAt',
-        render: (value) => (value ? dayjs(value).format('MM/DD/YY HH:mm') : '-'),
+        render: formatDate,
         sorter: true,
         sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'updatedAt')
       },
       {
         title: 'Efficiency Loss %',
         key: 'effLoss',
+        width: 10,
         dataIndex: 'effLoss',
         sorter: true,
         sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'effLoss'),
@@ -445,6 +564,7 @@ const LogEntry: React.FC = () => {
       {
         title: 'Cond. App. Loss %',
         key: 'condAppLoss',
+        width: 10,
         dataIndex: 'condAppLoss',
         sorter: true,
         sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'condAppLoss'),
@@ -453,6 +573,7 @@ const LogEntry: React.FC = () => {
       {
         title: 'Evap. App. Loss %',
         key: 'evapAppLoss',
+        width: 10,
         dataIndex: 'evapAppLoss',
         sorter: true,
         sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'evapAppLoss'),
@@ -461,6 +582,7 @@ const LogEntry: React.FC = () => {
       {
         title: 'Non-Cond. App. Loss %',
         key: 'nonCondLoss',
+        width: 10,
         dataIndex: 'nonCondLoss',
         sorter: true,
         sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'nonCondLoss'),
@@ -469,6 +591,7 @@ const LogEntry: React.FC = () => {
       {
         title: 'Other Losses %',
         key: 'otherLoss',
+        width: 10,
         dataIndex: 'otherLoss',
         sorter: true,
         sortOrder: getAntDSortOrder(args?.sort_by, args?.sort_order, 'otherLoss'),
@@ -477,198 +600,291 @@ const LogEntry: React.FC = () => {
       {
         title: 'Outside Air Temp.',
         key: 'airTemp',
+        width: 10,
         dataIndex: 'airTemp',
-        render: renderOtherCell
-      },
-      {
-        title: 'Chiller Run Hours',
-        key: 'runHours',
-        dataIndex: 'runHours',
         render: renderOtherCell
       },
       {
         title: 'Begin Recording Run Hrs.',
         key: 'runHourStart',
+        width: 10,
         dataIndex: 'runHourStart',
-        render: (value) => (value ? 'Yes' : 'No')
+        render: (v) => (v ? 'Yes' : 'No')
       },
       {
-        title: 'Cond. Inlet Temp',
+        title: 'Cond Inlet Temp',
         key: 'condInletTemp',
+        width: 10,
         dataIndex: 'condInletTemp',
         render: renderOtherCell
       },
       {
-        title: 'Cond. Outlet Temp',
+        title: 'Cond Outlet Temp',
         key: 'condOutletTemp',
+        width: 10,
         dataIndex: 'condOutletTemp',
         render: renderOtherCell
       },
-      {
-        title: 'Cond. Refrig Temp',
+      conditionalCol(!selectedChiller?.highPressureRefrig, {
+        title: 'Cond Refrig Temp',
         key: 'condRefrigTemp',
+        width: 10,
         dataIndex: 'condRefrigTemp',
+        render: renderOtherCell
+      }),
+      {
+        title: 'Cond Excess Approach',
+        key: 'calculatedCondRefrigTemp',
+        width: 10,
+        dataIndex: 'calculatedCondRefrigTemp',
         render: renderOtherCell
       },
       {
-        title: 'Cond. Pressure',
+        title: 'Cond App Variance',
+        key: 'condAppVariance',
+        width: 10,
+        dataIndex: 'condAppVariance',
+        render: renderOtherCell
+      },
+      {
+        title: 'Cond Pressure',
         key: 'condPressure',
+        width: 10,
         dataIndex: 'condPressure',
         render: renderOtherCell
       },
       {
-        title: 'Cond. Pressure Drop',
+        title: 'Non Cond',
+        key: 'nonCondensables',
+        width: 10,
+        dataIndex: 'nonCondensables',
+        render: renderOtherCell
+      },
+      {
+        title: 'Cond Pressure Drop',
         key: 'condAPDrop',
+        width: 10,
         dataIndex: 'condAPDrop',
         render: renderOtherCell
       },
       {
-        title: 'Evap. Inlet Temp',
+        title: 'Evap Inlet Temp',
         key: 'evapInletTemp',
+        width: 10,
         dataIndex: 'evapInletTemp',
         render: renderOtherCell
       },
       {
-        title: 'Evap. Outlet Temp',
+        title: 'Evap Outlet Temp',
         key: 'evapOutletTemp',
+        width: 10,
         dataIndex: 'evapOutletTemp',
         render: renderOtherCell
       },
-      {
-        title: 'Evap. Refrig Temp',
+      conditionalCol(!!selectedChiller?.useEvapRefrigTemp, {
+        title: 'Evap Refrig Temp',
         key: 'evapRefrigTemp',
+        width: 10,
         dataIndex: 'evapRefrigTemp',
+        render: renderOtherCell
+      }),
+      {
+        title: 'Evap Excess Approach',
+        key: 'calculatedEvapRefrigTemp',
+        width: 10,
+        dataIndex: 'calculatedEvapRefrigTemp',
         render: renderOtherCell
       },
       {
-        title: 'Evap. Pressure',
+        title: 'Evap App Variance',
+        key: 'evapAppVariance',
+        width: 10,
+        dataIndex: 'evapAppVariance',
+        render: renderOtherCell
+      },
+      {
+        title: 'Evap Pressure',
         key: 'evapPressure',
+        width: 10,
         dataIndex: 'evapPressure',
         render: renderOtherCell
       },
       {
-        title: 'Evap. Pressure Drop',
+        title: 'Evap Pressure Drop',
         key: 'evapAPDrop',
+        width: 10,
         dataIndex: 'evapAPDrop',
         render: renderOtherCell
       },
-      {
-        title: 'Oil Pres. High',
-        key: 'oilPresHigh',
-        dataIndex: 'oilPresHigh',
-        render: renderOtherCell
-      },
-      {
-        title: 'Oil Pres. Low',
+
+      // Oil Pressure conditional
+      conditionalCol(
+        [OIL_PRESSURE_DIFF?.[0]?.value, OIL_PRESSURE_DIFF?.[1]?.value].includes(
+          selectedChiller?.compOPIndicator || ''
+        ),
+        {
+          title: 'Oil Pressure High',
+          key: 'oilPresHigh',
+          width: 10,
+          dataIndex: 'oilPresHigh',
+          render: renderOtherCell
+        }
+      ),
+      conditionalCol(selectedChiller?.compOPIndicator === OIL_PRESSURE_DIFF?.[0]?.value, {
+        title: 'Oil Pressure Low',
         key: 'oilPresLow',
+        width: 10,
         dataIndex: 'oilPresLow',
         render: renderOtherCell
-      },
-      {
-        title: 'Oil Pres. Dif.',
+      }),
+      conditionalCol(selectedChiller?.compOPIndicator === OIL_PRESSURE_DIFF?.[2]?.value, {
+        title: 'Oil Pressure Dif.',
         key: 'oilPresDif',
+        width: 10,
         dataIndex: 'oilPresDif',
         render: renderOtherCell
-      },
-      {
+      }),
+      conditionalCol(selectedChiller?.compOPIndicator !== OIL_PRESSURE_DIFF?.[3]?.value, {
         title: 'Oil Sump Temp.',
         key: 'oilSumpTemp',
+        width: 10,
         dataIndex: 'oilSumpTemp',
         render: renderOtherCell
-      },
-      {
+      }),
+      conditionalCol(selectedChiller?.compOPIndicator !== OIL_PRESSURE_DIFF?.[3]?.value, {
         title: 'Oil Level',
         key: 'oilLevel',
+        width: 10,
         dataIndex: 'oilLevel',
         render: renderOtherCell
-      },
-      {
+      }),
+      conditionalCol(!!selectedChiller?.haveBearingTemp, {
         title: 'Bearing Temp.',
         key: 'bearingTemp',
+        width: 10,
         dataIndex: 'bearingTemp',
+        render: renderOtherCell
+      }),
+
+      {
+        title: 'Run Hours',
+        key: 'runHours',
+        width: 10,
+        dataIndex: 'runHours',
         render: renderOtherCell
       },
       {
         title: 'Comp 1 Run Hours',
         key: 'comp1RunHours',
+        width: 10,
         dataIndex: 'comp1RunHours',
         render: renderOtherCell
       },
       {
         title: 'Comp 1 Run Hours Start',
         key: 'comp1RunHourStart',
+        width: 10,
         dataIndex: 'comp1RunHourStart',
-        render: (value) => (value === true ? 'Yes' : value === false ? 'No' : '-')
+        render: yesNoRender
       },
-      {
-        title: 'Comp 2 Run Hours',
-        key: 'comp2RunHours',
-        dataIndex: 'comp2RunHours',
-        render: renderOtherCell
-      },
-      {
-        title: 'Comp 2 Run Hours Start',
-        key: 'comp2RunHourStart',
-        dataIndex: 'comp2RunHourStart',
-        render: (value) => (value === true ? 'Yes' : value === false ? 'No' : '-')
-      },
-      {
-        title: 'Purge Time (Hr)',
-        key: 'purgeTimeHr',
-        dataIndex: 'purgeTimeHr',
-        render: renderOtherCell
-      },
-      {
-        title: 'Purge Time (Min)',
+
+      conditionalCol(
+        selectedChiller?.numberOfCompressors?.toString() === NUMBER_OF_COMPRESSOR?.[1]?.value,
+        {
+          title: 'Comp 2 Run Hours',
+          key: 'comp2RunHours',
+          width: 10,
+          dataIndex: 'comp2RunHours',
+          render: renderOtherCell
+        }
+      ),
+      conditionalCol(
+        selectedChiller?.numberOfCompressors?.toString() === NUMBER_OF_COMPRESSOR?.[1]?.value,
+        {
+          title: 'Comp 2 Run Hours Start',
+          key: 'comp2RunHourStart',
+          width: 10,
+          dataIndex: 'comp2RunHourStart',
+          render: yesNoRender
+        }
+      ),
+
+      conditionalCol(
+        selectedChiller?.purgeReadingUnit === PURGE_READING_UNIT?.[1]?.value &&
+          selectedChiller?.havePurge,
+        {
+          title: 'Purge Time Hr',
+          key: 'purgeTimeHr',
+          width: 10,
+          dataIndex: 'purgeTimeHr',
+          render: renderOtherCell
+        }
+      ),
+      conditionalCol(!!selectedChiller?.havePurge, {
+        title: 'Purge Time Min',
         key: 'purgeTimeMin',
+        width: 10,
         dataIndex: 'purgeTimeMin',
         render: renderOtherCell
-      },
+      }),
+
       {
         title: 'Amps Phase 1',
         key: 'ampsPhase1',
+        width: 10,
         dataIndex: 'ampsPhase1',
         render: renderOtherCell
       },
-      {
+      conditionalCol(selectedChiller?.ampChoice === AMPERAGE_CHOICE?.[0]?.value, {
         title: 'Amps Phase 2',
         key: 'ampsPhase2',
+        width: 10,
         dataIndex: 'ampsPhase2',
         render: renderOtherCell
-      },
-      {
+      }),
+      conditionalCol(selectedChiller?.ampChoice === AMPERAGE_CHOICE?.[0]?.value, {
         title: 'Amps Phase 3',
         key: 'ampsPhase3',
+        width: 10,
         dataIndex: 'ampsPhase3',
         render: renderOtherCell
-      },
-      {
-        title: 'Volts Phase 1',
-        key: 'voltsPhase1',
-        dataIndex: 'voltsPhase1',
-        render: renderOtherCell
-      },
-      {
+      }),
+
+      conditionalCol(
+        [VOLTAGE_CHOICE?.[0]?.value, VOLTAGE_CHOICE?.[1]?.value].includes(
+          selectedChiller?.voltageChoice || ''
+        ),
+        {
+          title: 'Volts Phase 1',
+          key: 'voltsPhase1',
+          width: 10,
+          dataIndex: 'voltsPhase1',
+          render: renderOtherCell
+        }
+      ),
+      conditionalCol(selectedChiller?.voltageChoice === VOLTAGE_CHOICE?.[0]?.value, {
         title: 'Volts Phase 2',
         key: 'voltsPhase2',
+        width: 10,
         dataIndex: 'voltsPhase2',
         render: renderOtherCell
-      },
-      {
+      }),
+      conditionalCol(selectedChiller?.voltageChoice === VOLTAGE_CHOICE?.[0]?.value, {
         title: 'Volts Phase 3',
         key: 'voltsPhase3',
+        width: 10,
         dataIndex: 'voltsPhase3',
         render: renderOtherCell
-      }
+      })
     ];
 
-    const actionColumn: ColumnsType<any>[number] =
+    const actionColumn =
       hasPermission('log', 'edit') || hasPermission('log', 'view')
         ? {
             title: '',
             key: '_id',
             dataIndex: '_id',
-            fixed: 'right' as any,
+            fixed: 'right' as const,
             render: (id: string) => (
               <div className="actionIonWrap">
                 {hasPermission('log', 'edit') && (
@@ -684,10 +900,10 @@ const LogEntry: React.FC = () => {
               </div>
             )
           }
-        : {};
+        : null;
 
-    return [...baseColumns, actionColumn];
-  }, [args?.sort_by, args?.sort_order, renderCell, renderOtherCell]);
+    return [...baseColumns, actionColumn].filter(Boolean) as ColumnsType<IViewLogRes>;
+  }, [args?.sort_by, args?.sort_order, renderCell, renderOtherCell, selectedChiller]);
 
   const getColumnTitle = (key: string) => {
     const title = columns.find((col) => col.key === key)?.title;
@@ -838,7 +1054,7 @@ const LogEntry: React.FC = () => {
 
   return (
     <Wrapper>
-      {loading && <Loader />}
+      {(loading || isChillerDataLoading) && <Loader />}
       <Meta title="Logsheet" />
       <HeaderToolbar
         title="Logsheet"
@@ -864,6 +1080,7 @@ const LogEntry: React.FC = () => {
                 size="small"
                 icon={<DownloadOutlined />}
                 onClick={() => setIsModalOpen(true)}
+                disabled={!selectedChillerId}
               >
                 Import
               </Button>
@@ -876,7 +1093,7 @@ const LogEntry: React.FC = () => {
               </Link>
             )}
             {hasPermission('log', 'view') && (
-              <Dropdown overlay={menu} trigger={['click']}>
+              <Dropdown overlay={menu} trigger={['click']} disabled={!selectedChillerId}>
                 <Button
                   type="primary"
                   className="title-btn"
@@ -898,6 +1115,7 @@ const LogEntry: React.FC = () => {
                 <label className="peakLoad">Peak Load</label>
                 <Switch
                   value={args?.peakLoad || false}
+                  disabled={!selectedChillerId}
                   onChange={(e) => updateParamsAndArgs({ page: 1, peakLoad: e })}
                 />
               </div>
@@ -945,7 +1163,7 @@ const LogEntry: React.FC = () => {
         </div>
 
         <CommonTable
-          columns={filteredColumns}
+          columns={selectedChillerId ? filteredColumns : []}
           dataSource={data?.logList || []}
           scroll={{ x: 'max-content' }}
           loading={isLoading}
@@ -955,7 +1173,7 @@ const LogEntry: React.FC = () => {
             total: data?.totalRecords || 0
           }}
           rowSelection={
-            hasPermission('log', 'view')
+            hasPermission('log', 'view') && selectedChillerId
               ? {
                   selectedRowKeys: logIds,
                   fixed: 'left',
@@ -969,12 +1187,20 @@ const LogEntry: React.FC = () => {
           }
           onChange={handleTableChange}
           emptyText={
-            <EmptyState
-              isEmpty={isEmpty}
-              search={args.search || args.companyId || args.facilityId || args.chillerId}
-              searchDescription="No Log Found"
-              defaultDescription="No Data Found"
-            />
+            selectedChillerId ? (
+              <EmptyState
+                isEmpty={isEmpty}
+                search={args.search || args.companyId || args.facilityId || args.chillerId}
+                searchDescription="No Log Found"
+                defaultDescription="No Data Found"
+              />
+            ) : (
+              <EmptyState
+                isEmpty
+                textStyle
+                defaultDescription="Please select a chiller first to view the log list for that chiller"
+              />
+            )
           }
         />
       </ShadowPaper>

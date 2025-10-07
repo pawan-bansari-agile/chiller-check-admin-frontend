@@ -10,10 +10,12 @@ interface EmptyStateProps {
   searchDescription?: string;
   defaultImage?: string;
   searchImage?: string;
+  textStyle?: boolean;
 }
 
 const EmptyState: React.FC<EmptyStateProps> = ({
   isEmpty,
+  textStyle,
   search,
   defaultDescription = 'No Data',
   searchDescription = 'Search not found',
@@ -22,9 +24,19 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   if (!isEmpty) return null;
 
   return search ? (
-    <Empty className="pt-40 pb-40" image={defaultImage} description={searchDescription} />
+    <Empty
+      style={textStyle ? { fontSize: '20px', fontWeight: 'bolder' } : undefined}
+      className="pt-40 pb-40"
+      image={defaultImage}
+      description={searchDescription}
+    />
   ) : (
-    <Empty className="pt-40 pb-40" image={defaultImage} description={defaultDescription} />
+    <Empty
+      style={textStyle ? { fontSize: '20px', fontWeight: 'bolder' } : undefined}
+      className="pt-40 pb-40"
+      image={defaultImage}
+      description={defaultDescription}
+    />
   );
 };
 

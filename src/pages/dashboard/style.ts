@@ -492,7 +492,7 @@ export const Wrapper = styled.div`
     padding: 10px;
     font-size: 16px;
     font-weight: 600;
-    color: rgb(0, 0, 0);
+    color: #ffffff;
     line-height: 22px;
 
     &.effLossLegend {

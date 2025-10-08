@@ -19,6 +19,9 @@ import { Button, Checkbox, Dropdown, Input, Switch, Upload, UploadFile, message 
 import { ColumnsType } from 'antd/es/table';
 import { FilterValue, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 
 import { chillerHooks } from '@/services/chiller';
 import { IChillerViewRes } from '@/services/chiller/types';
@@ -47,6 +50,7 @@ import {
   NUMBER_OF_COMPRESSOR,
   OIL_PRESSURE_DIFF,
   PURGE_READING_UNIT,
+  TimezoneEnum,
   VOLTAGE_CHOICE
 } from '@/shared/constants';
 import { ROUTES } from '@/shared/constants/routes';
@@ -65,6 +69,10 @@ import {
 import { Wrapper } from '../style';
 
 const { Dragger } = Upload;
+
+dayjs.extend(customParseFormat);
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const LogEntry: React.FC = () => {
   const navigate = useNavigate();
@@ -256,8 +264,10 @@ const LogEntry: React.FC = () => {
 
   const initiallyUncheckedKeys = useMemo(
     () => [
+      'creator',
       'facilityName',
       'ChillerNo',
+      'updatedAt',
       'effLoss',
       'condAppLoss',
       'evapAppLoss',
@@ -498,6 +508,48 @@ const LogEntry: React.FC = () => {
       condition ? col : null;
 
     const baseColumns: (ColumnsType<IViewLogRes>[number] | null)[] = [
+      {
+        title: '',
+        fixed: 'left',
+        dataIndex: 'logs',
+        key: 'logs',
+        render: (_: any, record) => (
+          <>
+            <p style={{ padding: 0, margin: 0, fontWeight: 600 }}>
+              {record?.readingDateUTC
+                ? dayjs
+                    .utc(record?.readingDateUTC)
+                    .tz(
+                      TimezoneEnum[
+                        facilityListCompany?.facilityList?.[0]
+                          ?.timezone as keyof typeof TimezoneEnum
+                      ] || TimezoneEnum.EST
+                    )
+                    .format('MM/DD/YY')
+                : '-'}
+            </p>
+            <p style={{ padding: 0, margin: 0, fontWeight: 600 }}>
+              {record?.readingDateUTC
+                ? dayjs
+                    .utc(record?.readingDateUTC)
+                    .tz(
+                      TimezoneEnum[
+                        facilityListCompany?.facilityList?.[0]
+                          ?.timezone as keyof typeof TimezoneEnum
+                      ] || TimezoneEnum.EST
+                    )
+                    .format('hh:mm A')
+                : '-'}
+            </p>
+            <p
+              style={{ padding: 0, margin: 0, fontWeight: 600 }}
+            >{`${record?.totalLoss?.toFixed(2)}%`}</p>
+            <p
+              style={{ padding: 0, margin: 0, fontWeight: 600 }}
+            >{`${record?.actualLoad?.toFixed(2)}%`}</p>
+          </>
+        )
+      },
       {
         title: 'Creator & Timestamp',
         fixed: 'left',
@@ -942,7 +994,7 @@ const LogEntry: React.FC = () => {
     return [
       ...columns.filter((col) => {
         if (!col?.key) return true;
-        if (col?.key === '_id') return true; // Always include the action column
+        if (col?.key === '_id' || col?.key === 'logs') return true; // Always include the action column
         return visibleColumns[col.key as string];
       })
     ];
